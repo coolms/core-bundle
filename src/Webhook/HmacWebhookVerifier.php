@@ -26,7 +26,7 @@ use function substr;
  * {@see WebhookSignatureException} → 401. Accepts an optional `sha256=` prefix
  * (GitHub/Stripe-style) so existing provider tooling can sign as-is.
  *
- * NB: this is for SECRET-STORE-keyed webhooks; the M5.d Connector inbound
+ * NB: this is for SECRET-STORE-keyed webhooks; connector inbound
  * webhooks carry a per-trigger DB-column secret (a different custody model) and
  * are intentionally not folded in here.
  */

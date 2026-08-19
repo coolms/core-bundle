@@ -308,8 +308,8 @@ class Extension extends AbstractExtension
         $container->setParameter('coolms_core.inbox.processed_retention_days', 30);
 
         // Platform JSONC decoder seam (extracted from BpmnLiteJsonParser).
-        // First consumer is the M2.c BPMN-Lite parser; future consumers
-        // (M2.o conformance corpus, config loaders that want inline
+        // First consumer is the BPMN-Lite parser; future consumers
+        // (the conformance corpus, config loaders that want inline
         // annotation) inject the interface so the strip+decode pipeline
         // stays a single concern.
         $container->register(JsoncDecoder::class)
