@@ -25,9 +25,9 @@ use const JSON_THROW_ON_ERROR;
  *
  * **Provenance.** Extracted from
  * the BPMN-Lite parser's own `stripJsonComments()`
- * (M2.c). The original implementation served BPMN-Lite bodies; this
+ * The original implementation served BPMN-Lite bodies; this
  * extraction makes the same primitive available to future config
- * loaders, fixture readers, and the M2.o conformance corpus without
+ * loaders, fixture readers, and the conformance corpus without
  * each module re-implementing the comment-stripping dance.
  *
  * **Depth + decode flags.** `json_decode` is called with depth=64 and

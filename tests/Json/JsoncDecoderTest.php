@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Unit coverage for the platform JSONC decoder extracted from
- * BpmnLiteJsonParser (M2.c -> Core).
+ * a BPMN-Lite JSON parser.
  */
 #[CoversClass(JsoncDecoder::class)]
 final class JsoncDecoderTest extends TestCase
@@ -95,7 +95,7 @@ final class JsoncDecoderTest extends TestCase
         $decoder = new JsoncDecoder();
         // A 6-line source where line 3 is a block comment. The
         // decoder must NOT collapse the blank space; downstream
-        // error reporting (M2.c validator, future SourceLocation
+        // error reporting (the validator, a future SourceLocation
         // tracker) depends on byte/line offsets staying stable.
         $source = "{\n  \"a\": 1,\n  /* block */\n  \"b\": 2,\n  \"c\": 3\n}";
         $result = $decoder->decode($source);
