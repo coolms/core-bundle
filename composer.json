@@ -21,7 +21,7 @@
         "api-platform/core": "^4.2",
         "coolms/core": "^1.0",
         "coolms/core-module": "^1.0",
-        "coolms/dtmpl": "^1.0",
+        "coolms/dtmpl": "^2.0",
         "coolms/rql": "^1.0",
         "psr/clock": "^1.0",
         "psr/event-dispatcher": "^1.0",
