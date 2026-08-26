@@ -19,6 +19,7 @@
         "php": "^8.5",
         "ext-mbstring": "*",
         "api-platform/core": "^4.2",
+        "composer-runtime-api": "^2.0",
         "coolms/core": "^1.0",
         "coolms/core-module": "^1.0",
         "coolms/dtmpl": "^2.0",
@@ -46,6 +47,7 @@
     "require-dev": {
         "coolms/core-doctrine": "^1.0",
         "phpunit/phpunit": "^12.5",
+        "symfony/filesystem": "^8.0",
         "symfony/http-client": "^8.0"
     },
     "autoload": {

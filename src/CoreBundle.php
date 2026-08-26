@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CoolMS\CoreBundle;
 
+use CoolMS\CoreBundle\DependencyInjection\Compiler\CachePrefixSeedPass;
 use CoolMS\CoreBundle\DependencyInjection\Compiler\CoreConstantProviderPass;
 use CoolMS\CoreBundle\DependencyInjection\Compiler\CoreMessengerRoutingPass;
 use CoolMS\CoreBundle\DependencyInjection\Compiler\CoreServicesPass;
@@ -35,6 +36,10 @@ class CoreBundle extends AbstractCoolmsBundle
         // prependExtensionConfig must run during build(), before extensions load.
         // Do NOT use addCompilerPass() for routing defaults -- see AbstractMessengerRoutingPass.
         new CoreMessengerRoutingPass()->prepend($container);
+        // Namespace every cache pool by the installed package set, so an upgrade
+        // cannot leave yesterday's serialized objects readable by today's
+        // classes. Same build()-time reason as the routing pass above.
+        new CachePrefixSeedPass()->prepend($container);
     }
 
     public function getContainerExtension(): Extension
