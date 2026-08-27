@@ -23,7 +23,7 @@
         "coolms/core": "^2.0",
         "coolms/core-module": "^2.0",
         "coolms/dtmpl": "^2.0",
-        "coolms/rql": "^2.0",
+        "coolms/rql": "^1.0",
         "psr/clock": "^1.0",
         "psr/event-dispatcher": "^1.0",
         "psr/log": "^3.0",

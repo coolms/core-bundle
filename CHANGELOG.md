@@ -1,6 +1,16 @@
 # Changelog
 
-## Unreleased
+All notable changes to `coolms/core-bundle` are recorded here.
+
+The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+Versioning is described in `CONTRIBUTING.md` -- read it before assuming what a
+major number means here.
+
+⚠️ Entries dated before 2026-09-01 were **reconstructed** from tags and commit
+history when this file was created. Every entry after that is written in the
+same commit as the change it describes.
+
+## Unreleased -- 2.2.0
 
 Rides the next Tuesday release train. Nothing here has shipped yet.
 
@@ -8,7 +18,7 @@ Rides the next Tuesday release train. Nothing here has shipped yet.
 
 `2.1.0` replaced Symfony's default `prefix_seed` and, in doing so, silently
 dropped scoping the default had carried. Two environments sharing one Redis
-would have shared pool namespaces — and `cache.rate_limiter` is commonly on
+would have shared pool namespaces -- and `cache.rate_limiter` is commonly on
 Redis, so that is one environment consuming the other's rate-limit budget.
 
 Symfony's default is `_{kernel.project_dir}.{kernel.container_class}`, and the
@@ -16,10 +26,10 @@ container class is `App_Kernel{Env}{Debug}Container`. So it carried four things:
 
 | The default carried | Here |
 |---|---|
-| environment | **preserved** — two environments must not share pool namespaces |
-| debug flag | **preserved** — it changes what is compiled into the container |
-| project directory | **dropped, deliberately** — two checkouts of the same artefact at different paths *should* share a namespace |
-| kernel class name | **dropped, deliberately** — it encoded the application plus env plus debug; the first is constant, the other two are now explicit |
+| environment | **preserved** -- two environments must not share pool namespaces |
+| debug flag | **preserved** -- it changes what is compiled into the container |
+| project directory | **dropped, deliberately** -- two checkouts of the same artefact at different paths *should* share a namespace |
+| kernel class name | **dropped, deliberately** -- it encoded the application plus env plus debug; the first is constant, the other two are now explicit |
 
 ### Added: `COOLMS_BUILD_ID` participates in the seed when it is set
 
@@ -31,30 +41,47 @@ Hashing the application directory would close that and cost far more than
 So: if `COOLMS_BUILD_ID` is set it participates in the seed; if it is absent the
 seed is computed exactly as it would be without it. **Default behaviour is
 unchanged and nobody pays for a feature they do not use.** Set it to whatever
-identifies your build — an image digest today, `composer.lock`'s hash once the
+identifies your build -- an image digest today, `composer.lock`'s hash once the
 application is a thin skeleton over vendor. The bundle does not care which, so
 the seam survives that transition without changing.
 
 ⚠️ It is read at container-compile time, not through `%env()%`. Pool namespaces
 are computed from the seed when the container is compiled, so an env placeholder
 would be hashed as its own literal text. Changing the value therefore takes
-effect on the next container build — which is when a build identity changes
+effect on the next container build -- which is when a build identity changes
 anyway.
 
 ⚠️ Development is deliberately left uncovered. It is covered by what already
 covers it: a per-payload schema version, and clearing by hand.
 
+### Changed: sibling constraints move to the v2 generation
+
+- `coolms/core`: `^1.0` to `^2.0`
+- `coolms/core-module`: `^1.0` to `^2.0`
+- `coolms/core-doctrine` (development): `^1.0` to `^2.0`
+
+⚠️ **This is a minor, not a major, and that is deliberate.** This package
+reached major 2 before the platform adopted a shared generation number, and it
+did so while still requiring major 1 of its siblings. The v2 generation of those
+siblings is **code-identical** to v1 -- their major moved to mark the
+generation, not to break anything -- so nothing a caller can reach has changed
+here.
+
+**Upgrading:** if your own `composer.json` pins any of those packages at
+`^1.0`, widen it to `^2.0`.
+
+The constraints on `coolms/dtmpl` and `coolms/rql` are unchanged. Those are
+standalone libraries and do not take the platform generation.
+
 ### Upgrading
 
-Both changes move the seed, so pools start empty once. Expect one slow first
-request per cached thing.
+The environment and build-identity changes both move the seed, so pools start
+empty once. Expect one slow first request per cached thing.
 
----
+## 2.1.0 - 2026-08-27
 
-## 2.1.0
-
-Released 2026-08-27, before releases moved to a weekly train. New behaviour,
-backward compatible.
+Released before releases moved to a weekly train. New behaviour, backward
+compatible.
 
 ### Cache pools are namespaced by the installed package set
 
@@ -65,7 +92,7 @@ directory. It is *prepended*, so an application that names its own
 `prefix_seed` keeps it.
 
 Symfony's default seed is derived from the project directory and the container
-class, both byte-identical before and after an upgrade — so by default it
+class, both byte-identical before and after an upgrade -- so by default it
 protects nothing. An upgrade could leave yesterday's serialized objects in a
 pool for today's classes to read: a fatal on the first property the new class
 expects and the stored graph does not carry.
@@ -86,6 +113,42 @@ gives every worker process a different namespace, and they stop agreeing about
 what is cached. Everything here is deterministic by construction, which is the
 reason to prefer it.
 
-`CoolMS\CoreBundle\Cache\CacheSeed::compute()` is public if you want to read the
-value, and `bin/console debug:container --parameter=cache.prefix.seed` prints
-the effective one.
+`CoolMS\CoreBundle\Cache\CacheSeed::compute()` is public if you want to read
+the value, and `bin/console debug:container --parameter=cache.prefix.seed`
+prints the effective one.
+
+## 2.0.0 - 2026-08-26
+
+### Changed
+
+Require `coolms/dtmpl` `^2.0`. DTMPL 2.0 encodes output by default and renamed
+the verbatim block; a major here because moving a consumer across that boundary
+is a break for them.
+
+Also removed internal milestone identifiers from source comments.
+
+## 1.0.3 - 2026-08-17
+
+### Fixed
+
+Resolve the persistence seam so a bare checkout installs, and install `ext-zip`
+in CI.
+
+## 1.0.2 - 2026-08-17
+
+### Fixed
+
+Declare `coolms/core-module`, which was used but not required, and raise the
+`symfony/translation-contracts` floor to 3.4.2.
+
+## 1.0.1 - 2026-08-17
+
+### Fixed
+
+Declare the HTTP client dependencies, which were used but not required.
+
+## 1.0.0 - 2026-08-17
+
+First release. Symfony bundle wiring for `coolms/core`: the module bundle base
+class, the DI extension and compiler passes, the install and secret console
+commands, the config cache warmer, and the platform's HTTP plumbing.
