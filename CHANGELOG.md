@@ -14,6 +14,20 @@ same commit as the change it describes.
 
 Rides the next Tuesday release train. Nothing here has shipped yet.
 
+### Fixed: the installation command in the readme names the adapter
+
+`composer require coolms/core-bundle` on its own did something worse than fail:
+**it succeeded.** This bundle pulls in a package that requires a virtual
+persistence-implementation package. With no adapter that requirement cannot be
+satisfied -- and rather than failing, Composer backtracks to a release of this
+bundle from before it declared that dependency at all, then reports success.
+
+Measured: it resolved to v1.0.1 and pulled a template engine from before output
+encoding existed. Exit code 0 throughout.
+
+The readme now leads with the command that works:
+`composer require coolms/core-bundle coolms/core-doctrine`.
+
 ### Fixed: cache pool namespaces are scoped by environment and debug again
 
 `2.1.0` replaced Symfony's default `prefix_seed` and, in doing so, silently

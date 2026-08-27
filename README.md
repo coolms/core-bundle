@@ -16,8 +16,22 @@ contracts is decided by whichever adapter package is installed — see
 ## Installation
 
 ```bash
-composer require coolms/core-bundle
+composer require coolms/core-bundle coolms/core-doctrine
 ```
+
+> **Name the adapter, or Composer installs the wrong thing and says it worked.**
+> This bundle pulls in `coolms/core-module`, which requires the virtual
+> `coolms/core-persistence-implementation`. With no adapter that requirement
+> cannot be satisfied — and instead of failing, Composer **backtracks** to a
+> release of this bundle from before it declared `coolms/core-module` at all,
+> then reports success.
+>
+> Measured at the time of writing: `composer require coolms/core-bundle` alone
+> resolved to v1.0.1 and pulled `coolms/dtmpl` 1.0.0 with it. Which older
+> version it lands on is not the point; that it exits 0 is.
+>
+> `coolms/core-doctrine` is the adapter that exists today; substitute another if
+> you write one.
 
 ```php
 // config/bundles.php
