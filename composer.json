@@ -67,6 +67,9 @@
         "symfony": {
             "id": "coolms/core-bundle",
             "allow-contrib": false
+        },
+        "branch-alias": {
+            "dev-v2-generation": "2.0.x-dev"
         }
     },
     "config": {
