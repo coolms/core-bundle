@@ -20,10 +20,10 @@
         "ext-mbstring": "*",
         "api-platform/core": "^4.2",
         "composer-runtime-api": "^2.0",
-        "coolms/core": "^1.0",
-        "coolms/core-module": "^1.0",
+        "coolms/core": "^2.0",
+        "coolms/core-module": "^2.0",
         "coolms/dtmpl": "^2.0",
-        "coolms/rql": "^1.0",
+        "coolms/rql": "^2.0",
         "psr/clock": "^1.0",
         "psr/event-dispatcher": "^1.0",
         "psr/log": "^3.0",
@@ -45,7 +45,7 @@
         "symfony/yaml": "^8.0"
     },
     "require-dev": {
-        "coolms/core-doctrine": "^1.0",
+        "coolms/core-doctrine": "^2.0",
         "phpunit/phpunit": "^12.5",
         "symfony/filesystem": "^8.0",
         "symfony/http-client": "^8.0"
