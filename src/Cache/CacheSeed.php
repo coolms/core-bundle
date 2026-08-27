@@ -75,12 +75,50 @@ final class CacheSeed
     /** Prefix so a pool directory is recognisable on disk. */
     private const string PREFIX = 'coolms.';
 
-    public static function compute(string $projectDir): string
-    {
-        return self::PREFIX . hash(
-            self::ALGO,
-            self::installedPackages() . "\n--\n" . self::applicationConfig($projectDir),
-        );
+    /**
+     * ## What Symfony's default covered, item by item.
+     *
+     * The default seed is `_{kernel.project_dir}.{kernel.container_class}`, and
+     * the container class is `App_Kernel{Env}{Debug}Container`. So it carried
+     * four things. Replacing a framework default without enumerating what it
+     * covered is how coverage gets silently reduced, so:
+     *
+     *  - **environment** -- PRESERVED, as `$environment` below. Two environments
+     *    sharing one Redis must not share pool namespaces; `cache.rate_limiter`
+     *    is already on Redis, and a shared limiter means one environment
+     *    consuming the other's budget.
+     *  - **debug flag** -- PRESERVED, as `$debug`. It changes what is compiled
+     *    into the container, so it changes what a cached payload can be.
+     *  - **project directory** -- DROPPED, deliberately. Two checkouts of the
+     *    same artefact at different paths SHOULD share a namespace; that is
+     *    what makes an artefact an artefact.
+     *  - **kernel class name** -- DROPPED, deliberately. It encoded nothing
+     *    beyond the application plus env plus debug, and the first is constant
+     *    while the other two are now explicit above.
+     *
+     * @param string $environment `kernel.environment`
+     * @param bool   $debug       `kernel.debug`
+     * @param string $buildId     an optional build identity -- see
+     *                            {@see \CoolMS\CoreBundle\DependencyInjection\Compiler\CachePrefixSeedPass}
+     *                            for why it exists and why it is optional. Empty
+     *                            means "not supplied", and the seed is then
+     *                            exactly what it was without this parameter.
+     */
+    public static function compute(
+        string $projectDir,
+        string $environment = '',
+        bool $debug = false,
+        string $buildId = '',
+    ): string {
+        $material = implode("\n--\n", [
+            self::installedPackages(),
+            self::applicationConfig($projectDir),
+            $environment,
+            $debug ? 'debug' : '',
+            $buildId,
+        ]);
+
+        return self::PREFIX . hash(self::ALGO, $material);
     }
 
     /**

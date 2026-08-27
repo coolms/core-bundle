@@ -64,6 +64,94 @@ final class CachePrefixSeedPassTest extends TestCase
         self::assertSame(CacheSeed::compute(''), $configs[0]['cache']['prefix_seed']);
     }
 
+    #[Test]
+    public function itCarriesTheEnvironmentAndDebugFlagFromTheContainer(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setParameter('kernel.project_dir', __DIR__);
+        $container->setParameter('kernel.environment', 'prod');
+        $container->setParameter('kernel.debug', false);
+
+        new CachePrefixSeedPass()->prepend($container);
+
+        self::assertSame(
+            CacheSeed::compute(__DIR__, 'prod', false),
+            $container->getExtensionConfig('framework')[0]['cache']['prefix_seed'],
+        );
+    }
+
+    /**
+     * ⚠️ The point of the whole parameter: two environments must not land on
+     * the same namespace. A pass that read neither would produce one seed here.
+     */
+    #[Test]
+    public function twoEnvironmentsProduceDifferentSeeds(): void
+    {
+        self::assertNotSame($this->seedFor('dev', true), $this->seedFor('prod', false));
+    }
+
+    #[Test]
+    public function theBuildIdentityIsReadFromTheEnvironment(): void
+    {
+        $before = $_SERVER[CachePrefixSeedPass::BUILD_ID_ENV] ?? null;
+
+        try {
+            $_SERVER[CachePrefixSeedPass::BUILD_ID_ENV] = 'sha256:from-the-environment';
+            $withId = $this->seedFor('prod', false);
+
+            unset($_SERVER[CachePrefixSeedPass::BUILD_ID_ENV]);
+            $withoutId = $this->seedFor('prod', false);
+
+            self::assertNotSame($withoutId, $withId);
+            self::assertSame(
+                CacheSeed::compute(__DIR__, 'prod', false, 'sha256:from-the-environment'),
+                $withId,
+            );
+            // Absent, the pass produces exactly the un-parameterised seed.
+            self::assertSame(CacheSeed::compute(__DIR__, 'prod', false), $withoutId);
+        } finally {
+            if (null === $before) {
+                unset($_SERVER[CachePrefixSeedPass::BUILD_ID_ENV]);
+            } else {
+                $_SERVER[CachePrefixSeedPass::BUILD_ID_ENV] = $before;
+            }
+        }
+    }
+
+    /** A blank or whitespace value is "not supplied", not "supplied as empty". */
+    #[Test]
+    public function aBlankBuildIdentityIsTreatedAsAbsent(): void
+    {
+        $before = $_SERVER[CachePrefixSeedPass::BUILD_ID_ENV] ?? null;
+
+        try {
+            $_SERVER[CachePrefixSeedPass::BUILD_ID_ENV] = '   ';
+
+            self::assertSame(CacheSeed::compute(__DIR__, 'prod', false), $this->seedFor('prod', false));
+        } finally {
+            if (null === $before) {
+                unset($_SERVER[CachePrefixSeedPass::BUILD_ID_ENV]);
+            } else {
+                $_SERVER[CachePrefixSeedPass::BUILD_ID_ENV] = $before;
+            }
+        }
+    }
+
+    private function seedFor(string $env, bool $debug): string
+    {
+        $container = new ContainerBuilder();
+        $container->setParameter('kernel.project_dir', __DIR__);
+        $container->setParameter('kernel.environment', $env);
+        $container->setParameter('kernel.debug', $debug);
+
+        new CachePrefixSeedPass()->prepend($container);
+
+        /** @var string $seed */
+        $seed = $container->getExtensionConfig('framework')[0]['cache']['prefix_seed'];
+
+        return $seed;
+    }
+
     /** A stand-in for FrameworkExtension -- loadFromExtension needs one registered. */
     private function frameworkExtension(): ExtensionInterface
     {
