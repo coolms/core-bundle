@@ -126,6 +126,80 @@ final class CacheSeedTest extends TestCase
         self::assertStringStartsWith('coolms.', CacheSeed::compute($this->project([])));
     }
 
+    /**
+     * ⚠️ Symfony's default seed encoded the container class, which carries the
+     * environment. Replacing it with something that did not would let two
+     * environments sharing one Redis share pool namespaces -- and
+     * `cache.rate_limiter` is on Redis, so that is one environment eating the
+     * other's rate-limit budget.
+     */
+    #[Test]
+    public function twoEnvironmentsDoNotShareASeed(): void
+    {
+        $project = $this->project(['config/packages/a.yaml' => 'framework: ~']);
+
+        self::assertNotSame(
+            CacheSeed::compute($project, 'dev'),
+            CacheSeed::compute($project, 'prod'),
+        );
+    }
+
+    /** The default carried debug too, because it changes what is compiled in. */
+    #[Test]
+    public function debugAndNonDebugDoNotShareASeed(): void
+    {
+        $project = $this->project(['config/packages/a.yaml' => 'framework: ~']);
+
+        self::assertNotSame(
+            CacheSeed::compute($project, 'dev', debug: true),
+            CacheSeed::compute($project, 'dev', debug: false),
+        );
+    }
+
+    /**
+     * The `src/` gap, closed only when a build identity exists. Hashing the
+     * whole application directory would close it too, and would cost far more
+     * than config/'s ~23 ms on every container build.
+     */
+    #[Test]
+    public function aBuildIdentityMovesTheSeed(): void
+    {
+        $project = $this->project(['config/packages/a.yaml' => 'framework: ~']);
+
+        self::assertNotSame(
+            CacheSeed::compute($project, 'prod', false, 'sha256:aaa'),
+            CacheSeed::compute($project, 'prod', false, 'sha256:bbb'),
+        );
+    }
+
+    /**
+     * ⚠️ And absent, it changes NOTHING. That is the whole contract: an
+     * installation that sets no build identity gets exactly the seed it got
+     * before the parameter existed, so nobody pays for a feature they do not
+     * use.
+     */
+    #[Test]
+    public function noBuildIdentityMeansTheSeedIsUnchanged(): void
+    {
+        $project = $this->project(['config/packages/a.yaml' => 'framework: ~']);
+
+        self::assertSame(
+            CacheSeed::compute($project, 'prod', false),
+            CacheSeed::compute($project, 'prod', false, ''),
+        );
+    }
+
+    #[Test]
+    public function aBuildIdentityIsStillDeterministic(): void
+    {
+        $project = $this->project(['config/packages/a.yaml' => 'framework: ~']);
+
+        self::assertSame(
+            CacheSeed::compute($project, 'prod', false, 'sha256:aaa'),
+            CacheSeed::compute($project, 'prod', false, 'sha256:aaa'),
+        );
+    }
+
     protected function setUp(): void
     {
         $this->fs = new Filesystem();
