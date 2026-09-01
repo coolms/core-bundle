@@ -27,6 +27,34 @@ external consumers of these packages. This tag establishes the baseline the
 documentation describes; nothing follows it until somebody outside the project
 installs one, at which point the release policy resumes.
 
+### Removed: `getOptionalBundles()` and the `VENDOR` constant
+
+Both were surface that looked like mechanism and did nothing.
+
+`getOptionalBundles()` was documented as declaring soft dependencies -- bundles
+whose absence a module degrades gracefully without. Measured before removing it:
+**five bundles overrode it and nothing ever called it.** `boot()` consults
+`getRequiredBundles()` and only that, so a soft dependency declared here was read
+by no one, could not be wrong in any detectable way, and drifted freely from the
+truth. Each of the five names one or two siblings it degrades gracefully
+without, and every one of them already states the same thing in its own class
+docblock -- which is where a fact nothing executes belongs.
+
+`VENDOR` was a constant holding the string `coolms`, with **zero** references
+anywhere -- including inside this package.
+
+**This is a breaking change against the published `1.x`.** A bundle that
+overrides `getOptionalBundles()` keeps compiling, because the method it used to
+override is simply gone and PHP does not object; nothing calls it either way. A
+bundle that reads `static::VENDOR` will fatal, and should inline the literal or
+declare its own constant.
+
+The removal lands in a major rather than being deprecated first, because there is
+no maintained `1.x` branch on which to publish a deprecation: `develop` carries
+the `2.0.x-dev` line and the `1.x` tags are closed. If a deprecation release on
+`1.x` is wanted, it needs a maintenance branch first -- a decision, not a
+consequence of this change.
+
 ### Added: a package can ship module YAML
 
 `ModuleConfigDirsPass` publishes `coolms.module_config_dirs` -- every registered
