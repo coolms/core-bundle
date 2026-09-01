@@ -10,7 +10,7 @@ major number means here.
 history when this file was created. Every entry after that is written in the
 same commit as the change it describes.
 
-## 2.2.0-alpha1 - 2026-09-01
+## 2.0.0-alpha1 - 2026-09-01
 
 **A pre-release. It carries no compatibility promise**, which is the honest
 statement of where the platform is: the shape is still moving, and a stable tag
@@ -18,7 +18,7 @@ would be a promise that cannot be kept yet.
 
 Composer will not install it under default stability. Either set
 `"minimum-stability": "alpha"` with `"prefer-stable": true`, or ask for it per
-package with `^2.2@alpha`. A bare `composer require coolms/core-bundle` takes the
+package with `^2.0@alpha`. A bare `composer require coolms/core-bundle` takes the
 newest **stable** release instead -- which is the previous generation -- and
 reports success while doing it.
 
