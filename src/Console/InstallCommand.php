@@ -6,6 +6,7 @@ namespace CoolMS\CoreBundle\Console;
 
 use CoolMS\Core\Install\ModuleInstallerInterface;
 use CoolMS\Core\Install\StructureInstallerInterface;
+use CoolMS\Core\Install\VfsPathClaims;
 use CoolMS\CoreBundle\Secret\MasterKeyProvisioner;
 use CoolMS\CoreBundle\Secret\MasterKeyStatus;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -63,12 +64,32 @@ final class InstallCommand extends Command
                 return Command::FAILURE;
         }
 
+        // Reported BEFORE anything is created, because after the fact the
+        // second module has already written into the first one's directory and
+        // the evidence is gone. Advisory: two modules may legitimately share a
+        // root, so this says what it found and installs anyway.
+        $moduleInstallers = [...$this->moduleInstallers];
+        $collisions = VfsPathClaims::collisions([...$this->installers, ...$moduleInstallers]);
+        if ([] !== $collisions) {
+            $io->section('Declared VFS paths');
+            foreach ($collisions as $path => $owners) {
+                $io->warning(sprintf(
+                    '%s is claimed by %d installers: %s',
+                    $path,
+                    count($owners),
+                    implode(', ', array_map(
+                        static fn (string $c): string => basename(str_replace('\\', '/', $c)),
+                        $owners,
+                    )),
+                ));
+            }
+        }
+
         $io->section('VFS structure');
         foreach ($this->installers as $installer) {
             $installer->installStructure();
             $io->writeln('  ✓ ' . basename(str_replace('\\', '/', $installer::class)));
         }
-        $moduleInstallers = [...$this->moduleInstallers];
         $io->section('Module data');
         foreach ($moduleInstallers as $installer) {
             $installer->install();

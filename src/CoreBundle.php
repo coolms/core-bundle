@@ -8,6 +8,7 @@ use CoolMS\CoreBundle\DependencyInjection\Compiler\CachePrefixSeedPass;
 use CoolMS\CoreBundle\DependencyInjection\Compiler\CoreConstantProviderPass;
 use CoolMS\CoreBundle\DependencyInjection\Compiler\CoreMessengerRoutingPass;
 use CoolMS\CoreBundle\DependencyInjection\Compiler\CoreServicesPass;
+use CoolMS\CoreBundle\DependencyInjection\Compiler\ModuleConfigDirsPass;
 use CoolMS\CoreBundle\DependencyInjection\Compiler\OptionSourceRegistryPass;
 use CoolMS\CoreBundle\DependencyInjection\Compiler\OutboundChannelRegistryConfigPass;
 use CoolMS\CoreBundle\DependencyInjection\Compiler\SystemUserPass;
@@ -40,6 +41,11 @@ class CoreBundle extends AbstractCoolmsBundle
         // cannot leave yesterday's serialized objects readable by today's
         // classes. Same build()-time reason as the routing pass above.
         new CachePrefixSeedPass()->prepend($container);
+        // Publishes every registered bundle's config/ that carries module YAML,
+        // so a package can ship a definition instead of installing it into the
+        // application's own config. build()-time for the same reason as above:
+        // the loaders resolve the parameter through #[Autowire].
+        new ModuleConfigDirsPass()->prepend($container);
     }
 
     public function getContainerExtension(): Extension
