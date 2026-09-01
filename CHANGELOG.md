@@ -23,18 +23,32 @@ Composer will not install it under default stability. Set
 "prefer-stable": true
 ```
 
-in your root `composer.json`, then `composer require coolms/core-bundle:^2.0`.
+in your root `composer.json`, then:
+
+```
+composer require coolms/core-bundle:^2.0 coolms/core-doctrine:^2.0
+```
+
 `prefer-stable` keeps every other dependency of yours on its newest stable
 release, so this loosening applies to what actually needs it and nothing else.
+
+⚠️ **The adapter is part of the command, not an extra.** `coolms/core-bundle`
+reaches `coolms/core-module`, which requires a persistence implementation -- a
+virtual package: nothing provides it until you choose an implementation, and
+Composer reports the virtual name, which reads like a broken package rather
+than a missing argument.
 
 ⚠️ **A per-package flag is not enough here.** `composer require
 coolms/core-bundle:^2.0@alpha` admits the alpha of the package it names and
 **nothing behind it**, so the siblings this one pulls in still fail to resolve.
 Composer reports it against the sibling, not against what you asked for.
 
-A bare `composer require coolms/core-bundle` takes the newest **stable** release
-instead -- which is the previous generation -- and reports success while doing
-it.
+A bare `composer require coolms/core-bundle` is worse than wrong, it is
+quietly wrong: it resolves **successfully** to v1.0.1, which is not merely the
+previous generation but two releases below that generation's own newest stable
+(v1.0.3). Composer backtracks past every release that declares `coolms/core-
+module` -- nothing provides its persistence implementation -- until something
+resolves, and then reports success.
 
 Releases are suspended while development is moving fast and there are no
 external consumers of these packages. This tag establishes the baseline the
