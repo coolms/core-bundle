@@ -10,9 +10,39 @@ major number means here.
 history when this file was created. Every entry after that is written in the
 same commit as the change it describes.
 
-## Unreleased -- 2.2.0
+## 2.2.0-alpha1 - 2026-09-01
 
-Rides the next Tuesday release train. Nothing here has shipped yet.
+**A pre-release. It carries no compatibility promise**, which is the honest
+statement of where the platform is: the shape is still moving, and a stable tag
+would be a promise that cannot be kept yet.
+
+Composer will not install it under default stability. Either set
+`"minimum-stability": "alpha"` with `"prefer-stable": true`, or ask for it per
+package with `^2.2@alpha`. A bare `composer require coolms/core-bundle` takes the
+newest **stable** release instead -- which is the previous generation -- and
+reports success while doing it.
+
+Releases are suspended while development is moving fast and there are no
+external consumers of these packages. This tag establishes the baseline the
+documentation describes; nothing follows it until somebody outside the project
+installs one, at which point the release policy resumes.
+
+### Added: a package can ship module YAML
+
+`ModuleConfigDirsPass` publishes `coolms.module_config_dirs` -- every registered
+bundle's `config/` that carries a `modules/` directory -- and the file-driven
+loaders read it, so a module ships a definition instead of asking an integrator
+to install one into the application's own config.
+
+⚠️ The parent directory is examined only when the bundle path ends in `src`.
+Climbing unconditionally leaves the package and lands in the vendor namespace
+directory, where a sibling package can share the name being looked for.
+### Added: `coolms:install` reports two modules claiming one VFS path
+
+Before it runs any installer, not after: by then the second module has written
+into the first one's directory and the evidence is gone. Advisory, because two
+modules may legitimately share a root -- it says what it found and installs
+anyway.
 
 ### Fixed: the installation command in the readme names the adapter
 
@@ -88,6 +118,14 @@ The constraints on `coolms/dtmpl` and `coolms/rql` are unchanged. Those are
 standalone libraries and do not take the platform generation.
 
 ### Upgrading
+
+`getOptionalBundles()` and `VENDOR` are gone from `AbstractCoolmsBundle`. Both
+were read by nothing: five bundles overrode the method and no caller existed
+anywhere, and the constant had zero references including inside this package.
+That is the reason there was nobody to deprecate for, and the reason removing
+them is safe. A bundle that overrode the method keeps compiling -- the method it
+overrode is simply gone and nothing calls it either way. A bundle that read
+`static::VENDOR` must inline the literal or declare its own constant.
 
 The environment and build-identity changes both move the seed, so pools start
 empty once. Expect one slow first request per cached thing.
