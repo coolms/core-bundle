@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CoolMS\CoreBundle\DependencyInjection\Compiler;
 
 use CoolMS\CoreBundle\Console\InstallCommand;
+use CoolMS\CoreBundle\Module\ModuleArtifactRemover;
 use Symfony\Component\DependencyInjection\Argument\TaggedIteratorArgument;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -33,6 +34,14 @@ final class CoreServicesPass implements CompilerPassInterface
             $container->findDefinition(InstallCommand::class)
                 ->setArgument('$installers', new TaggedIteratorArgument('coolms.vfs.installer'))
                 ->setArgument('$moduleInstallers', new TaggedIteratorArgument('coolms.module.installer'));
+        }
+
+        // ModuleArtifactRemover -- the one teardown, given every tagged
+        // uninstaller the same way InstallCommand is given every installer.
+        if ($container->has(ModuleArtifactRemover::class)) {
+            $container->findDefinition(ModuleArtifactRemover::class)
+                ->setArgument('$uninstallers',
+                    new TaggedIteratorArgument('coolms.module.uninstaller'));
         }
         if ($container->hasDefinition(YamlEncoder::class)) {
             // Already registered by FrameworkBundle -- ensure class and tag are present.

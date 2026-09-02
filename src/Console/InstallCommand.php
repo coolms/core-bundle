@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace CoolMS\CoreBundle\Console;
 
+use CoolMS\CoreBundle\Module\InstallManifest;
+use CoolMS\CoreBundle\Module\ModuleCatalog;
+
 use CoolMS\Core\Install\ModuleInstallerInterface;
 use CoolMS\Core\Install\StructureInstallerInterface;
 use CoolMS\Core\Install\VfsPathClaims;
@@ -28,6 +31,8 @@ final class InstallCommand extends Command
     public function __construct(
         private readonly iterable $installers,
         private readonly iterable $moduleInstallers,
+        private readonly ModuleCatalog $catalog,
+        private readonly InstallManifest $manifest,
         private readonly MasterKeyProvisioner $masterKey,
     ) {
         parent::__construct();
@@ -100,6 +105,19 @@ final class InstallCommand extends Command
             $installer->postInstall();
             $io->writeln('  ✓ ' . basename(str_replace('\\', '/', $installer::class)));
         }
+
+        // Record what installation did. Derived state, best effort: a manifest
+        // that cannot be written must never fail an install that worked, and
+        // its absence later means "not known" rather than "nothing installed".
+        $byModule = [];
+        foreach ([...$this->installers, ...$moduleInstallers] as $installer) {
+            $module = $this->catalog->moduleOf($installer::class);
+            $byModule['' === $module ? '_unattributed' : $module][] = $installer;
+        }
+        foreach ($byModule as $module => $ran) {
+            $this->manifest->record($module, $ran);
+        }
+
         $io->success('Installation complete.');
 
         return Command::SUCCESS;

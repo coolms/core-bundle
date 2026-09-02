@@ -16,6 +16,7 @@ use CoolMS\Core\Config\XmlFileLoader;
 use CoolMS\Core\Config\YamlFileLoader;
 use CoolMS\Core\Dashboard\DashboardWidgetProviderInterface;
 use CoolMS\Core\Install\ModuleInstallerInterface;
+use CoolMS\Core\Install\ModuleUninstallerInterface;
 use CoolMS\Core\Option\OptionSourceProviderInterface;
 use CoolMS\Core\Outbox\OutboxPublisherInterface;
 use CoolMS\Core\Registry\ComponentRegistry;
@@ -130,6 +131,13 @@ class Extension extends AbstractExtension
         // Priorities are applied after auto-scan by ModuleInstallerPriorityPass.
         $container->registerForAutoconfiguration(ModuleInstallerInterface::class)
             ->addTag('coolms.module.installer');
+
+        // Module UNINSTALLERS -- the optional counterpart, collected the same
+        // way. Separate from the installer contract on purpose: that interface
+        // has 23 implementations and no abstract base, so a method added there
+        // would break every one of them.
+        $container->registerForAutoconfiguration(ModuleUninstallerInterface::class)
+            ->addTag('coolms.module.uninstaller');
 
         // OptionSource — tagged providers that advertise platform-wide
         // select datasources (timezones, handlers, users, …). The
