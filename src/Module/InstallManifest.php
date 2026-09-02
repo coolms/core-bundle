@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace CoolMS\CoreBundle\Module;
 
+use Composer\InstalledVersions;
 use CoolMS\Core\Install\DeclaresVfsPathsInterface;
+use CoolMS\Core\Install\ModuleInstallerInterface;
 use JsonException;
 use Throwable;
 
 use function array_values;
+use function class_exists;
 use function dirname;
 use function file_get_contents;
 use function file_put_contents;
@@ -18,6 +21,7 @@ use function is_file;
 use function json_decode;
 use function json_encode;
 use function ksort;
+use function spl_object_id;
 use function mkdir;
 
 use const JSON_PRETTY_PRINT;
@@ -37,6 +41,12 @@ use const JSON_THROW_ON_ERROR;
  * restored backup, and can be cleared by hand. So its absence means NOTHING IS
  * KNOWN -- it must never mean "nothing was installed", and removal must not
  * refuse because of it.
+ *
+ * `kinds` is DECLARED, never exhaustive. It reads the interfaces a service
+ * implements -- vfs when it declares VFS structure, data when it installs
+ * -- so a service that does both says both. It never says WHICH rows,
+ * because nothing at install time knows. Reading it as a complete
+ * inventory is the mistake this line exists to prevent.
  *
  * The artefacts are the source of truth; this only accelerates finding them.
  * Navi rows carry their owner, so a module's navigation can always be
@@ -98,24 +108,71 @@ final readonly class InstallManifest
     {
         $paths = [];
         $names = [];
+        $kinds = [];
+        $seen = [];
         foreach ($installers as $installer) {
+            // One service can be BOTH a structure installer and a module
+            // installer, and it is then handed to us once from each tagged
+            // iterator. Recording it twice inflates the inventory and would
+            // have a purge do its work twice, so identity decides -- not the
+            // class name, because two instances of one class are legitimate.
+            $id = spl_object_id($installer);
+            if (isset($seen[$id])) {
+                continue;
+            }
+            $seen[$id] = true;
+
             $names[] = $installer::class;
+
+            // Kinds come from the interfaces the service implements, not from
+            // which iterator handed it over: a service that does both declares
+            // both, and nothing here has to know how it was collected.
             if ($installer instanceof DeclaresVfsPathsInterface) {
                 foreach ($installer->declaredVfsPaths() as $path) {
-                    $paths[] = $path;
+                    $paths[$path] = true;
                 }
+                $kinds['vfs'] = true;
+            }
+            if ($installer instanceof ModuleInstallerInterface) {
+                // It installs something and cannot say which rows. That is the
+                // whole of what is honestly knowable here.
+                $kinds['data'] = true;
             }
         }
 
+        ksort($kinds);
+
         $all = $this->all();
         $all[$module] = [
-            'paths' => array_values($paths),
+            'kinds' => array_keys($kinds),
+            'paths' => array_keys($paths),
             'installers' => array_values($names),
+            'version' => self::platformVersion(),
             'at' => date('c'),
         ];
         ksort($all);
 
         $this->write($all);
+    }
+
+    /**
+     * The platform version that did the installing.
+     *
+     * Recorded so a later purge knows which layout it is looking at rather
+     * than assuming today's. Null when Composer's runtime API is absent --
+     * unknown is a fine answer here and a fabricated version is not.
+     */
+    private static function platformVersion(): ?string
+    {
+        if (!class_exists(InstalledVersions::class)) {
+            return null;
+        }
+
+        try {
+            return InstalledVersions::getPrettyVersion('coolms/core-bundle');
+        } catch (Throwable) {
+            return null;
+        }
     }
 
     public function forget(string $module): void
