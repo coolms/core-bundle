@@ -8,6 +8,10 @@ use CoolMS\CoreBundle\Module\DisabledBundles;
 use CoolMS\CoreBundle\Module\InstallManifest;
 use CoolMS\CoreBundle\Module\ModuleArtifactRemover;
 use CoolMS\CoreBundle\Module\ModuleCatalog;
+use CoolMS\CoreBundle\Module\ModuleConfigFiles;
+use RuntimeException;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Process\Process;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -17,7 +21,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 use function count;
+use function explode;
+use function preg_match;
 use function implode;
+use function trim;
 use function sprintf;
 
 /**
@@ -52,6 +59,9 @@ final class RemoveModuleCommand extends Command
         private readonly DisabledBundles $disabled,
         private readonly ModuleArtifactRemover $remover,
         private readonly InstallManifest $manifest,
+        private readonly ModuleConfigFiles $configFiles,
+        private readonly string $projectDir,
+        private readonly string $env,
     ) {
         parent::__construct();
     }
@@ -63,6 +73,67 @@ final class RemoveModuleCommand extends Command
                 'Module name, as declared by its bundle')
             ->addOption('dry-run', null, InputOption::VALUE_NONE,
                 'Report what would be undone and change nothing');
+    }
+
+    /**
+     * Build the container in a clean subprocess.
+     *
+     * @return string|null the first line of the failure, or null when it built
+     */
+    private function containerStillBuilds(): ?string
+    {
+        $console = $this->projectDir . '/bin/console';
+        $fs = new Filesystem();
+
+        // Build under a THROWAWAY environment name. Two things follow from
+        // that, and both are needed:
+        //
+        //  - the cache directory is its own (`var/cache/<name>`), so nothing
+        //    here touches the container THIS process is running from. An
+        //    earlier version deleted the live one and the command then died
+        //    part-way through reporting, needing a lazy service file it had
+        //    just removed.
+        //  - it is empty, so the build is real. `cache:clear` is not usable
+        //    here: it boots the kernel itself, so on a container that no
+        //    longer builds it fails and leaves the old cache in place -- and
+        //    the check behind it then passes against the stale container,
+        //    which is the exact mistake this check exists to catch.
+        $probeEnv = 'coolms_module_check';
+        $probeCache = $this->projectDir . '/var/cache/' . $probeEnv;
+        $fs->remove($probeCache);
+
+        $build = new Process([PHP_BINARY, $console, 'about'], null,
+            ['APP_ENV' => $probeEnv]);
+        $build->setTimeout(600);
+        $build->run();
+
+        $fs->remove($probeCache);
+
+        if ($build->isSuccessful()) {
+            return null;
+        }
+
+        $out = trim($build->getErrorOutput()) . PHP_EOL . trim($build->getOutput());
+
+        // Symfony prints a location header -- "In SomePass.php line 48:" --
+        // before the sentence a reader needs. Reporting the header names the
+        // file that noticed, never the thing that is wrong, so it is skipped.
+        $fallback = null;
+        foreach (explode(PHP_EOL, $out) as $line) {
+            $line = trim($line);
+            if ('' === $line) {
+                continue;
+            }
+            if (1 === preg_match('/^In .+ line \d+:$/', $line)) {
+                $fallback ??= $line;
+
+                continue;
+            }
+
+            return $line;
+        }
+
+        return $fallback ?? 'the container did not build, and said nothing about why';
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -142,14 +213,66 @@ final class RemoveModuleCommand extends Command
                 ? 'Nothing to undo.'
                 : '  ' . implode(PHP_EOL . '  ', $done));
             $io->writeln('');
+            $alias = $this->configFiles->aliasOf($class);
+            foreach (null === $alias ? [] : $this->configFiles->setAside($alias, true) as $line) {
+                $io->writeln('  ' . $line);
+            }
             $io->writeln('Would disable: ' . $class);
             $io->writeln('Would NOT touch: settings, VFS content, seeded rows, tables.');
 
             return Command::SUCCESS;
         }
 
+        // Order matters, and this is the only order that is safe. Disabling
+        // the bundle takes away its DI extension; its file under
+        // `config/packages` then configures an extension nobody provides, and
+        // Symfony refuses to build the container at all. So the file goes
+        // first, and if it cannot go, nothing else happens either.
+        $alias = $this->configFiles->aliasOf($class);
+        $configDone = [];
+        if (null !== $alias) {
+            try {
+                $configDone = $this->configFiles->setAside($alias);
+            } catch (RuntimeException $e) {
+                $io->error($e->getMessage());
+                $io->writeln('Nothing was disabled. The application still boots.');
+
+                return Command::FAILURE;
+            }
+        }
+
         $this->disabled->disable($class);
         $this->manifest->forget($module);
+
+        // A REMOVAL THAT BRICKS THE APPLICATION IS NOT A REMOVAL. Disabling a
+        // bundle takes its container parameters with it, and another module
+        // may read one -- `coolms_document.delivery.home_group` is read by a
+        // compiler pass in Identity, and nothing declares that dependency:
+        // `getRequiredBundles()` does not mention it, so the refusal above
+        // cannot see it. The only reliable check is to build the container and
+        // look, so that is what this does. It runs in a subprocess because
+        // this process is already holding the container built BEFORE the
+        // change, and that one would happily keep working.
+        $failure = $this->containerStillBuilds();
+        if (null !== $failure) {
+            $this->disabled->enable($class);
+            if (null !== $alias) {
+                $this->configFiles->restore($alias);
+            }
+
+            $io->error(sprintf(
+                'Removing %s stops the container building, so nothing was '
+                . 'changed:', $module,
+            ));
+            $io->writeln('  ' . $failure);
+            $io->writeln('');
+            $io->writeln('Another module reads something this one defines. That '
+                . 'dependency is not declared, so it could not be refused up '
+                . 'front -- it had to be tried.');
+            $io->writeln('Everything has been put back. The application still boots.');
+
+            return Command::FAILURE;
+        }
 
         if ($already) {
             // Idempotent, like install. Say so plainly rather than reporting a
@@ -164,8 +287,8 @@ final class RemoveModuleCommand extends Command
         }
 
         $io->success(sprintf('%s removed.', $module));
-        if ([] !== $done) {
-            $io->writeln('  ' . implode(PHP_EOL . '  ', $done));
+        foreach ([...$done, ...$configDone] as $line) {
+            $io->writeln('  ' . $line);
         }
         $io->writeln('');
         $io->writeln('Disabled in ' . $this->disabled->path());

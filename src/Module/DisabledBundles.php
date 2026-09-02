@@ -12,6 +12,7 @@ use function in_array;
 use function is_array;
 use function is_file;
 use function sort;
+use function unlink;
 use function sprintf;
 use function var_export;
 
@@ -77,6 +78,18 @@ final readonly class DisabledBundles
     public function write(array $bundleClasses): void
     {
         sort($bundleClasses);
+
+        if ([] === $bundleClasses) {
+            // Absence is the normal state, as the header above says, so an
+            // empty list leaves no file rather than a file saying nothing.
+            // Re-enabling the last disabled module returns the checkout to
+            // exactly the shape a fresh one has.
+            if (is_file($this->path())) {
+                unlink($this->path());
+            }
+
+            return;
+        }
 
         $body = "<?php" . PHP_EOL . PHP_EOL
             . "// Written by `coolms:module:remove` and `coolms:module:restore`." . PHP_EOL
