@@ -10,6 +10,47 @@ major number means here.
 history when this file was created. Every entry after that is written in the
 same commit as the change it describes.
 
+## 2.0.0-alpha2 - 2026-09-03
+
+### Fixed
+
+**`coolms:install` no longer reports success after installing nothing.** It
+printed two empty sections and `[OK] Installation complete.` when the
+application registered no structure installers and no module installers --
+so an installation that did nothing was indistinguishable from one that did
+everything, and the symptom was the *absence* of an error.
+
+It now states its denominator (`VFS structure -- 7 installer(s)`,
+`Module data -- 22 installer(s)`) and refuses, with a non-zero exit, when
+both sets are empty. The message names the two causes worth checking: no
+CoolMS module registered in `config/bundles.php`, or bundles registered
+whose services are not -- the `coolms/*` packages do not register their own
+and the consuming application must.
+
+**`coolms:install` under `APP_ENV=test` wrote to a file that environment
+never reads.** Symfony skips `.env.local` under `test` on purpose, so a test
+run does not depend on one developer's machine -- which makes it the one
+file a test-environment install must never write to. The installer appended
+a master key to it anyway, and on a machine where two keys already disagreed
+that made a third. `MasterKeyProvisioner::envFilePath()` now resolves the
+env file the current environment actually reads, and every message names
+that file rather than assuming `.env.local`.
+
+**A failing module uninstaller logged an undefined variable.**
+`ModuleArtifactRemover` logged `'module' => $module` inside a loop over
+`$this->uninstallers`, where no `$module` exists; it now logs
+`$uninstaller->moduleName()`. Only reachable when an uninstaller throws,
+which is why nothing had caught it.
+
+### Changed
+
+- `RemoveModuleCommand` no longer takes a `string $env` constructor
+  argument. Consumers binding it can stop.
+- Static-analysis corrections with no behaviour change: duplicated docblocks
+  merged in `ModuleArtifactRemover`, `list<>` normalisation in
+  `DisabledBundles`, `InstallManifest` and `ModuleCatalog`, a
+  `BundleInterface` guard in `ModuleConfigFiles`, and a `glob()` false-result
+  guard in a test.
 ## 2.0.0-alpha1 - 2026-09-01
 
 **A pre-release. It carries no compatibility promise**, which is the honest
