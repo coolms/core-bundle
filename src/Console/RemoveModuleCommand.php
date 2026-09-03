@@ -61,7 +61,6 @@ final class RemoveModuleCommand extends Command
         private readonly InstallManifest $manifest,
         private readonly ModuleConfigFiles $configFiles,
         private readonly string $projectDir,
-        private readonly string $env,
     ) {
         parent::__construct();
     }
