@@ -60,12 +60,11 @@ final readonly class ModuleArtifactRemover
     }
 
     /**
+     * @param list<string> $names every name the module is known by
+     *
      * @return list<string> what was undone, or would be under $dryRun
      *
      * @throws Throwable if any part of the teardown fails
-     */
-    /**
-     * @param list<string> $names every name the module is known by
      */
     public function removeStrict(array $names, bool $dryRun = false): array
     {
@@ -73,19 +72,15 @@ final readonly class ModuleArtifactRemover
     }
 
     /**
-     * @return list<string> what was undone, or would be under $dryRun
-     */
-    /**
      * @param list<string> $names every name the module is known by
+     *
+     * @return list<string> what was undone, or would be under $dryRun
      */
     public function removeBestEffort(array $names, bool $dryRun = false): array
     {
         return $this->remove($names, $dryRun, strict: false);
     }
 
-    /**
-     * @return list<string>
-     */
     /**
      * @param list<string> $names
      *
@@ -108,7 +103,7 @@ final readonly class ModuleArtifactRemover
                     throw $e;
                 }
                 $this->logger->warning('A module uninstaller failed', [
-                    'module' => $module,
+                    'module' => $uninstaller->moduleName(),
                     'uninstaller' => $uninstaller::class,
                     'exception' => $e,
                 ]);

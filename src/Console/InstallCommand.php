@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace CoolMS\CoreBundle\Console;
 
-use CoolMS\CoreBundle\Module\InstallManifest;
-use CoolMS\CoreBundle\Module\ModuleCatalog;
-
 use CoolMS\Core\Install\ModuleInstallerInterface;
 use CoolMS\Core\Install\StructureInstallerInterface;
 use CoolMS\Core\Install\VfsPathClaims;
+use CoolMS\CoreBundle\Module\InstallManifest;
+use CoolMS\CoreBundle\Module\ModuleCatalog;
 use CoolMS\CoreBundle\Secret\MasterKeyProvisioner;
 use CoolMS\CoreBundle\Secret\MasterKeyStatus;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -53,11 +52,11 @@ final class InstallCommand extends Command
                 $io->writeln('  ✓ At-rest master key (' . $this->masterKey->keyEnvVar() . ') present');
                 break;
             case MasterKeyStatus::Generated:
-                $io->writeln('  ✓ Generated ' . $this->masterKey->keyEnvVar() . ' → .env.local');
+                $io->writeln('  ✓ Generated ' . $this->masterKey->keyEnvVar() . ' → ' . basename($this->masterKey->envFilePath()));
                 if ($this->masterKey->compiledDumpExists()) {
-                    $io->warning('A compiled .env.local.php exists — the generated key was written to .env.local but will not take effect until you re-run `composer dump-env`.');
+                    $io->warning(sprintf('A compiled .env.local.php exists — the generated key was written to %s but will not take effect until you re-run `composer dump-env`.', basename($this->masterKey->envFilePath())));
                 }
-                $io->warning('Back up ' . $this->masterKey->keyEnvVar() . ' (.env.local): losing it makes all sealed mailbox passwords and the encrypted secret store permanently undecryptable.');
+                $io->warning(sprintf('Back up %s (%s): losing it makes all sealed mailbox passwords and the encrypted secret store permanently undecryptable.', $this->masterKey->keyEnvVar(), basename($this->masterKey->envFilePath())));
                 break;
             case MasterKeyStatus::Invalid:
                 $io->error($this->masterKey->keyEnvVar() . ' is set but is not a valid base64 32-byte key. Refusing to overwrite it (that would orphan already-sealed data). Fix or unset it, then re-run coolms:install.');
@@ -73,8 +72,26 @@ final class InstallCommand extends Command
         // second module has already written into the first one's directory and
         // the evidence is gone. Advisory: two modules may legitimately share a
         // root, so this says what it found and installs anyway.
+        $structureInstallers = [...$this->installers];
         $moduleInstallers = [...$this->moduleInstallers];
-        $collisions = VfsPathClaims::collisions([...$this->installers, ...$moduleInstallers]);
+
+        // ⚠️ Report the DENOMINATOR, and refuse to claim success over an empty
+        // set. An install that ran no installers printed the identical green to
+        // one that ran every installer -- two empty sections and
+        // "Installation complete" -- so a distribution with no modules
+        // registered looked like a working installation. The symptom is the
+        // ABSENCE of an error, which nobody investigates.
+        if ([] === $structureInstallers && [] === $moduleInstallers) {
+            $io->error([
+                'Nothing to install: this application registers no structure installers and no module installers.',
+                'coolms:install runs what the installed modules contribute. Zero of both means no CoolMS module is registered in config/bundles.php, or the bundles are registered but their services are not (the coolms/* packages do not register their own -- the consuming application must).',
+                'Refusing to report success over an empty set.',
+            ]);
+
+            return Command::FAILURE;
+        }
+
+        $collisions = VfsPathClaims::collisions([...$structureInstallers, ...$moduleInstallers]);
         if ([] !== $collisions) {
             $io->section('Declared VFS paths');
             foreach ($collisions as $path => $owners) {
@@ -90,17 +107,17 @@ final class InstallCommand extends Command
             }
         }
 
-        $io->section('VFS structure');
-        foreach ($this->installers as $installer) {
+        $io->section(sprintf('VFS structure -- %d installer(s)', count($structureInstallers)));
+        foreach ($structureInstallers as $installer) {
             $installer->installStructure();
             $io->writeln('  ✓ ' . basename(str_replace('\\', '/', $installer::class)));
         }
-        $io->section('Module data');
+        $io->section(sprintf('Module data -- %d installer(s)', count($moduleInstallers)));
         foreach ($moduleInstallers as $installer) {
             $installer->install();
             $io->writeln('  ✓ ' . basename(str_replace('\\', '/', $installer::class)));
         }
-        $io->section('Running post-install steps...');
+        $io->section(sprintf('Post-install steps -- %d installer(s)', count($moduleInstallers)));
         foreach ($moduleInstallers as $installer) {
             $installer->postInstall();
             $io->writeln('  ✓ ' . basename(str_replace('\\', '/', $installer::class)));
@@ -110,7 +127,7 @@ final class InstallCommand extends Command
         // that cannot be written must never fail an install that worked, and
         // its absence later means "not known" rather than "nothing installed".
         $byModule = [];
-        foreach ([...$this->installers, ...$moduleInstallers] as $installer) {
+        foreach ([...$structureInstallers, ...$moduleInstallers] as $installer) {
             $module = $this->catalog->moduleOf($installer::class);
             $byModule['' === $module ? '_unattributed' : $module][] = $installer;
         }
@@ -118,7 +135,11 @@ final class InstallCommand extends Command
             $this->manifest->record($module, $ran);
         }
 
-        $io->success('Installation complete.');
+        $io->success(sprintf(
+            'Installation complete -- %d structure installer(s), %d module installer(s).',
+            count($structureInstallers),
+            count($moduleInstallers),
+        ));
 
         return Command::SUCCESS;
     }

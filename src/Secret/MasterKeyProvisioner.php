@@ -8,17 +8,21 @@ use SodiumException;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 use function chmod;
+use function end;
 use function file_get_contents;
 use function file_put_contents;
 use function getenv;
 use function is_file;
 use function is_string;
+use function preg_match_all;
+use function preg_quote;
 use function putenv;
 use function sodium_base642bin;
 use function sodium_bin2base64;
 use function sodium_crypto_secretbox_keygen;
 use function str_ends_with;
 use function strlen;
+use function trim;
 
 use const FILE_APPEND;
 use const LOCK_EX;
@@ -40,7 +44,9 @@ use const SODIUM_CRYPTO_SECRETBOX_KEYBYTES;
  *
  * Behaviour (idempotent):
  *  - valid key present            → {@see MasterKeyStatus::AlreadyValid} (no-op);
- *  - absent, env dev/test         → generate + append to `.env.local`, set in-process
+ *  - absent, env dev/test         → generate + append to the env file THIS
+ *                                   environment reads ({@see envFilePath()}),
+ *                                   set in-process
  *                                   → {@see MasterKeyStatus::Generated};
  *  - absent, env prod             → {@see MasterKeyStatus::MissingInProd} (refuse:
  *                                   never auto-generate an unbacked-up key whose loss
@@ -74,15 +80,45 @@ final class MasterKeyProvisioner
             return MasterKeyStatus::MissingInProd;
         }
 
-        $key = sodium_bin2base64(sodium_crypto_secretbox_keygen(), SODIUM_BASE64_VARIANT_ORIGINAL);
-        $this->appendToEnvLocal($key);
+        // ⚠️ ADOPT BEFORE GENERATING. A key already assigned in the file this
+        // run is about to append to is the key that file's environment will
+        // use, whether or not the current process loaded it -- appending a
+        // second one would make the first unreachable and orphan anything
+        // sealed with it. Reachable when a script boots without Dotenv, and the
+        // guard is what makes "one assignment per file" an invariant.
+        $fromFile = $this->keyInEnvFile();
+        if (null !== $fromFile) {
+            $this->publish($fromFile);
 
-        // Make the freshly-generated key visible to the rest of THIS run (later
-        // install steps + any same-process request) — mirrors the cipher's read.
-        $_ENV[$this->keyEnvVar] = $key;
-        putenv($this->keyEnvVar . '=' . $key);
+            return $this->isValidKey($fromFile) ? MasterKeyStatus::AlreadyValid : MasterKeyStatus::Invalid;
+        }
+
+        $key = sodium_bin2base64(sodium_crypto_secretbox_keygen(), SODIUM_BASE64_VARIANT_ORIGINAL);
+        $this->appendToEnvFile($key);
+
+        $this->publish($key);
 
         return MasterKeyStatus::Generated;
+    }
+
+    /**
+     * The env file THIS environment actually reads.
+     *
+     * ⚠️ `.env.local` IS NOT READ UNDER `APP_ENV=test`. Symfony skips it there
+     * so a test run does not depend on one developer's machine -- which makes it
+     * the one file a test-environment install must never write to, because dev
+     * does read it and the last assignment in it wins. Every non-dev environment
+     * therefore gets `.env.{env}.local`, which it does read and which the
+     * `/.env.*.local` gitignore rule already covers.
+     *
+     * Public so callers can report the path they were actually given rather than
+     * naming `.env.local` in a message that is only sometimes true.
+     */
+    public function envFilePath(): string
+    {
+        return 'dev' === $this->environment
+            ? $this->projectDir . '/.env.local'
+            : $this->projectDir . '/.env.' . $this->environment . '.local';
     }
 
     /**
@@ -111,9 +147,45 @@ final class MasterKeyProvisioner
         return SODIUM_CRYPTO_SECRETBOX_KEYBYTES === strlen($raw);
     }
 
-    private function appendToEnvLocal(string $key): void
+    /**
+     * Make a key visible to the rest of THIS run (later install steps + any
+     * same-process request) -- mirrors the cipher's read.
+     */
+    private function publish(string $key): void
     {
-        $path = $this->projectDir . '/.env.local';
+        $_ENV[$this->keyEnvVar] = $key;
+        putenv($this->keyEnvVar . '=' . $key);
+    }
+
+    /**
+     * The key already assigned in {@see envFilePath()}, or null.
+     *
+     * Takes the LAST assignment, because that is the one Dotenv would end up
+     * with -- reading the first would adopt a value the environment does not
+     * actually use.
+     */
+    private function keyInEnvFile(): ?string
+    {
+        $path = $this->envFilePath();
+        if (!is_file($path)) {
+            return null;
+        }
+        $matched = preg_match_all(
+            '/^[ \t]*(?:export[ \t]+)?' . preg_quote($this->keyEnvVar, '/') . '=(.*)$/m',
+            (string) file_get_contents($path),
+            $matches,
+        );
+        if (0 === $matched || false === $matched) {
+            return null;
+        }
+        $value = trim((string) end($matches[1]), " \t\"'");
+
+        return '' === $value ? null : $value;
+    }
+
+    private function appendToEnvFile(string $key): void
+    {
+        $path = $this->envFilePath();
 
         // Guard a leading newline so the key can't be concatenated onto a
         // trailing line that has no terminator.
