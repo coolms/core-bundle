@@ -231,7 +231,7 @@ final readonly class ModuleCatalog
             return [];
         }
 
-        return $class::getRequiredBundles();
+        return array_values($class::getRequiredBundles());
     }
 
     private function shortName(string $class): string

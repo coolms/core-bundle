@@ -73,7 +73,7 @@ final readonly class DisabledBundles
     }
 
     /**
-     * @param list<class-string> $bundleClasses
+     * @param list<string> $bundleClasses
      */
     public function write(array $bundleClasses): void
     {
@@ -96,7 +96,7 @@ final readonly class DisabledBundles
             . "// Bundles listed here are skipped by config/bundles.php." . PHP_EOL
             . "// Removing an entry re-enables the module; its data was never touched." . PHP_EOL
             . PHP_EOL
-            . 'return ' . var_export(array_values($bundleClasses), true) . ';' . PHP_EOL;
+            . 'return ' . var_export($bundleClasses, true) . ';' . PHP_EOL;
 
         if (false === file_put_contents($this->path(), $body)) {
             throw new RuntimeException(sprintf(

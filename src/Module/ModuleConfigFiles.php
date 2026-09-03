@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CoolMS\CoreBundle\Module;
 
 use RuntimeException;
+use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Throwable;
 
 use function array_keys;
@@ -69,6 +70,9 @@ final readonly class ModuleConfigFiles
     {
         try {
             $bundle = new $bundleClass();
+            if (!$bundle instanceof BundleInterface) {
+                return null;
+            }
             $extension = $bundle->getContainerExtension();
         } catch (Throwable) {
             // A bundle we cannot construct standalone tells us nothing here,

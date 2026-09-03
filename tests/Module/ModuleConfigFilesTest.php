@@ -33,7 +33,7 @@ final class ModuleConfigFilesTest extends TestCase
 
     protected function tearDown(): void
     {
-        foreach (glob($this->dir . '/config/packages/*') as $f) {
+        foreach (glob($this->dir . '/config/packages/*') ?: [] as $f) {
             unlink($f);
         }
         rmdir($this->dir . '/config/packages');

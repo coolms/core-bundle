@@ -146,7 +146,7 @@ final readonly class InstallManifest
         $all[$module] = [
             'kinds' => array_keys($kinds),
             'paths' => array_keys($paths),
-            'installers' => array_values($names),
+            'installers' => $names,
             'version' => self::platformVersion(),
             'at' => date('c'),
         ];
