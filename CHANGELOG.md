@@ -10,6 +10,27 @@ major number means here.
 history when this file was created. Every entry after that is written in the
 same commit as the change it describes.
 
+## 2.0.0-alpha3 - 2026-09-04
+
+### Fixed
+
+**Declares `symfony/process`.** `RemoveModuleCommand` builds the container in
+a subprocess to check that removal did not break it -- `new Process([PHP_BINARY,
+$console, 'about'], ...)` -- and the package never declared the component.
+`coolms:module:remove` therefore fatals on a class-not-found in any
+application that does not happen to have `symfony/process` for its own
+reasons.
+
+⚠️ Invisible here because the CoolMS application requires it directly, and
+invisible to CI because the package installs perfectly without it -- nothing
+is missing until the command runs. Found by resolving the package alone from
+its tag and checking every `use` in its own `src/` against the result.
+
+The third instance of one defect: `symfony/translation-contracts` without
+`symfony/translation` in 2.0.0-alpha2, `symfony/config` undeclared across the
+three themes, and now this. A manifest omission is invisible in any
+application that supplies the missing piece, and every application these
+packages have been installed into supplies everything.
 ## 2.0.0-alpha2 - 2026-09-03
 
 ### Fixed
