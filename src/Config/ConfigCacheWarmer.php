@@ -16,11 +16,37 @@ use Symfony\Component\Yaml\Yaml;
  * Does NOT fail on invalid configs -- logs warnings only, so production
  * cache:warmup remains non-blocking.
  *
- * Known types: layout, dialog, navigraph, form, datagrid
+ * ⚠️ The known types are {@see self::KNOWN_TYPES} and are NOT repeated here.
+ * They were, and the copy drifted: it named five while the constant held eight,
+ * so the docblock described a validator that had not existed for some time. A
+ * list worth reading twice is a list that will disagree with itself.
+ *
+ * ⚠️ **An unknown type means this file is not validated by anything.** The
+ * warning is the only signal, so a type missing from the constant is not a
+ * cosmetic gap -- it is a whole class of config nobody checks, and it warns on
+ * every `cache:clear` until somebody adds it, which is how people learn to read
+ * past warnings.
  */
 final readonly class ConfigCacheWarmer implements CacheWarmerInterface
 {
-    private const array KNOWN_TYPES = ['layout', 'dialog', 'navigraph', 'form', 'form_type', 'datagrid', 'editor_profile', 'dashboard'];
+    /**
+     * ⚠️ `settings` is the runtime module-settings tier
+     * (`config/modules/generated/settings/<key>--<scope>.yaml`). It was missing,
+     * so every saved module setting warned once per `cache:clear` while being
+     * the one config type nothing validated. Found by reading a `cache:clear`
+     * that was otherwise about something else entirely.
+     */
+    public const array KNOWN_TYPES = [
+        'layout',
+        'dialog',
+        'navigraph',
+        'form',
+        'form_type',
+        'datagrid',
+        'editor_profile',
+        'dashboard',
+        'settings',
+    ];
 
     public function __construct(
         #[Autowire('%kernel.project_dir%/config')]

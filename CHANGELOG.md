@@ -10,6 +10,31 @@ major number means here.
 history when this file was created. Every entry after that is written in the
 same commit as the change it describes.
 
+## Unreleased
+
+### Fixed
+
+**`ConfigCacheWarmer` now knows the `settings` config type.** The
+runtime module-settings tier writes
+`config/modules/generated/settings/<key>--<scope>.yaml`, and `settings` was
+absent from `KNOWN_TYPES`. Two consequences, and the second is the one that
+matters: every `cache:clear` logged
+`unknown config type "settings"` once per saved setting, and no settings file
+was validated by anything at all. The warning was the only signal that a whole
+config type was unchecked, and it read as noise.
+
+### Changed
+
+**`ConfigCacheWarmer::KNOWN_TYPES` is public.** An application cannot otherwise
+assert that the types on its own disk are types this warmer recognises, and a
+guard that copies the list is a second list that will drift. The package cannot
+know which types an installation uses, so that check belongs to the
+installation -- and it needs somewhere to read the authority from.
+
+⚠️ The class docblock no longer repeats the list. It named five types while the
+constant held eight, so it documented a validator that had not existed for some
+time.
+
 ## 2.0.0-alpha3 - 2026-09-04
 
 ### Fixed
