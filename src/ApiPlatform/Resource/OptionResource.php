@@ -45,6 +45,12 @@ use Symfony\Component\Serializer\Attribute\Groups;
  */
 #[ApiResource(
     shortName: 'Option',
+    // Set explicitly so the class docblock is NOT published: API Platform
+    // reads that docblock into the resource description, which becomes this
+    // group's description in the document -- the route by which milestone
+    // and decision ids reached a reader. An explicit description wins, and
+    // the docblock stays with whoever maintains this.
+    description: 'Reference lists a caller may read without authenticating -- countries, timezones and the like.',
     operations: [
         new GetCollection(
             uriTemplate: '/options/{source}',
@@ -56,6 +62,8 @@ use Symfony\Component\Serializer\Attribute\Groups;
         ),
         new GetCollection(
             uriTemplate: '/public-options/{source}',
+            extraProperties: ['public_api' => true],
+            description: 'Reference lists a caller may read without authenticating -- ISO countries, IANA timezones and the like. Only a source declared public is served here, so this cannot reach application data.',
             uriVariables: ['source'],
             requirements: ['source' => '[a-z][a-z0-9._-]*'],
             security: "is_granted('PUBLIC_ACCESS')",
