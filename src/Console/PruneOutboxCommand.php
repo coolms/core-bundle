@@ -15,7 +15,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use function sprintf;
 
 /**
- * `bin/console coolms:outbox:prune` — keep the F7 rails' tables bounded:
+ * `bin/console coolms:outbox:prune` -- keep the F7 rails' tables bounded:
  * delete delivered outbox rows + old idempotency-inbox rows past their retention
  * windows (configured via `coolms_core.outbox.published_retention_days` /
  * `coolms_core.inbox.processed_retention_days`). Intended to run daily; idempotent
@@ -57,7 +57,7 @@ final class PruneOutboxCommand extends Command
             $prunable = $this->maintenance->countPrunable();
 
             // writeln (not a SymfonyStyle block) so the single line is emitted
-            // verbatim — block styles wrap at the terminal width and split the
+            // verbatim -- block styles wrap at the terminal width and split the
             // sentence, which the machine-readable output must not do.
             $io->writeln(sprintf(
                 'Dry run: %d delivered outbox row%s and %d idempotency-inbox row%s would be pruned. Nothing was deleted.',

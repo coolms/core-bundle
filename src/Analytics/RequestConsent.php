@@ -26,12 +26,12 @@ use function trim;
  *    e.g. `necessary,analytics,personalization`. `necessary` is always implied;
  *    unknown tokens are ignored; emitted in {@see ConsentCategory} canonical order.
  *  - **Legacy binary** (the current accept/decline banner): `accepted` is a
- *    blanket first-party accept → `necessary + analytics + personalization` (NOT
+ *    blanket first-party accept -> `necessary + analytics + personalization` (NOT
  *    `marketing`, a distinct more-sensitive purpose that stays an explicit opt-in
  *    ); `declined` / malformed / absent -> `necessary` only.
  *
- * Off the request edge (CLI / worker / no request) it returns `[]` — "unknown"
- * — so the enriching sink leaves an event's own declared consent untouched.
+ * Off the request edge (CLI / worker / no request) it returns `[]` -- "unknown"
+ * -- so the enriching sink leaves an event's own declared consent untouched.
  */
 #[AsAlias(CurrentConsentInterface::class)]
 final readonly class RequestConsent implements CurrentConsentInterface

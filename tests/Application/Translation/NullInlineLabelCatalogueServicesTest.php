@@ -14,7 +14,7 @@ use stdClass;
 
 /**
  * Pins the I18n-optional contract: with no catalogue (I18n module absent),
- * READING per-locale overrides is a safe no-op (empty map → editor shows
+ * READING per-locale overrides is a safe no-op (empty map -> editor shows
  * source labels), while WRITING is a loud failure (a silent drop would lose
  * authored translations). These are the fallbacks bound by
  * {@see \CoolMS\CoreBundle\DependencyInjection\Compiler\TranslationCatalogueFallbackPass}.

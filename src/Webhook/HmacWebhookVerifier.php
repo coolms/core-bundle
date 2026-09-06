@@ -16,14 +16,14 @@ use function substr;
  * Verifies the HMAC-SHA256 signature on a public inbound-webhook POST whose
  * shared signing secret lives in the F1 SECRET STORE under a per-channel key.
  * The reusable primitive behind the Email + Call inbound
- * webhooks (and any future secret-store-keyed webhook) — each caller passes its
+ * webhooks (and any future secret-store-keyed webhook) -- each caller passes its
  * own `$secretKey`.
  *
  * Fail-closed: the secret is resolved FIRST, so an UNCONFIGURED endpoint rejects
- * every request uniformly — the missing secret throws
+ * every request uniformly -- the missing secret throws
  * {@see \CoolMS\Core\Secret\SecretNotFoundException}, which the controller
  * maps to 503. Past that, a missing/wrong signature is a
- * {@see WebhookSignatureException} → 401. Accepts an optional `sha256=` prefix
+ * {@see WebhookSignatureException} -> 401. Accepts an optional `sha256=` prefix
  * (GitHub/Stripe-style) so existing provider tooling can sign as-is.
  *
  * NB: this is for SECRET-STORE-keyed webhooks; connector inbound
@@ -44,7 +44,7 @@ final readonly class HmacWebhookVerifier
     public function verify(string $rawBody, ?string $providedSignature, string $secretKey): void
     {
         // Resolve the secret first so an unconfigured endpoint fails the same
-        // way for everyone (controller → 503), never leaking config state.
+        // way for everyone (controller -> 503), never leaking config state.
         $secret = $this->secrets->getRequired($secretKey);
 
         if (null === $providedSignature || '' === $providedSignature) {

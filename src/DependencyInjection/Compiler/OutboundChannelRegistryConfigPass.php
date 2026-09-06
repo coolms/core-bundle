@@ -10,7 +10,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
  * Binds `coolms_core.outbound_channels` onto {@see OutboundChannelRegistry}'s
- * `$channelConfig` argument — the per-channel enable map that decides
+ * `$channelConfig` argument -- the per-channel enable map that decides
  * which channels the admin picker offers and the distribution write accepts.
  *
  * **Why a compiler pass and not `#[Autowire(param:)]`.** Two reasons, and the
@@ -27,7 +27,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
  *     `#[AutowireIterator]` on the constructor instead.
  *
  * Absent config binds an empty map, which the registry reads as "every
- * installed channel is enabled" — the default that keeps a fresh install and
+ * installed channel is enabled" -- the default that keeps a fresh install and
  * any site that never touches this config working exactly as before.
  */
 final class OutboundChannelRegistryConfigPass implements CompilerPassInterface

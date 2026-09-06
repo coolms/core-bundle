@@ -12,14 +12,14 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use function is_string;
 
 /**
- * `DELETE /dashboard/layout` — reset to what the modules themselves offer.
+ * `DELETE /dashboard/layout` -- reset to what the modules themselves offer.
  *
  * ## Why a reset has to exist, and why it clears BOTH stores
  *
  * A layout can be saved to a YAML file or to the override table depending on
  * what the host allows, and the reader lets the row win. Without a reset,
  * "put it back how it was" means hunting for whichever copy is currently
- * winning — and an operator who deletes the file they can see would be left
+ * winning -- and an operator who deletes the file they can see would be left
  * with a dashboard the row still decides. The writer clears every store; this
  * just exposes it.
  *
@@ -42,7 +42,7 @@ final readonly class ResetDashboardLayoutProcessor implements ProcessorInterface
 
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): null
     {
-        // From the REQUEST, not $context['filters'] — API-Platform does not
+        // From the REQUEST, not $context['filters'] -- API-Platform does not
         // fill those for a Delete, so resetting a section would have cleared
         // the MAIN dashboard's layout instead of its own. Same trap as the
         // save, and silent in the same way.

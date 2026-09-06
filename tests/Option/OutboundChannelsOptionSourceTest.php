@@ -17,7 +17,7 @@ use function array_map;
 use function is_int;
 
 /**
- * F3 — the outbound-channel select datasource: every registered channel becomes
+ * F3 -- the outbound-channel select datasource: every registered channel becomes
  * an {@see Option} (value = `channelId()`, label = `label()`), sorted by label,
  * with substring query narrowing + a limit. Adding a channel needs no change here.
  */

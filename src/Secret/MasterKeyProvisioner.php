@@ -39,22 +39,22 @@ use const SODIUM_CRYPTO_SECRETBOX_KEYBYTES;
  * Ensures the platform at-rest master key ({@see $keyEnvVar}, default
  * `COOLMS_SECRET_MASTER_KEY`) exists so a FRESH install can seal mailbox
  * credentials (M8) and the encrypted secret store (F1). Both fail-close without
- * it, and the mailbox-create path returns a bare 503 — an easy-to-miss
+ * it, and the mailbox-create path returns a bare 503 -- an easy-to-miss
  * onboarding trap this closes by wiring it into `coolms:install`.
  *
  * This is the ONE bootstrap secret that is deliberately NOT kept in the encrypted
- * secret store (it is the key that decrypts that store — see
+ * secret store (it is the key that decrypts that store -- see
  * {@see EncryptedSecretsFile}), so it stays a raw
  * env var, read exactly the way the mailbox credential cipher
- * reads it (`$_ENV` then `getenv()`) — keeping detection and format in lock-step.
+ * reads it (`$_ENV` then `getenv()`) -- keeping detection and format in lock-step.
  *
  * Behaviour (idempotent):
- *  - valid key present            → {@see MasterKeyStatus::AlreadyValid} (no-op);
- *  - absent, env dev/test         → generate + append to the env file THIS
+ *  - valid key present            -> {@see MasterKeyStatus::AlreadyValid} (no-op);
+ *  - absent, env dev/test         -> generate + append to the env file THIS
  *                                   environment reads ({@see envFilePath()}),
  *                                   set in-process
- *                                   → {@see MasterKeyStatus::Generated};
- *  - absent, env prod             → {@see MasterKeyStatus::MissingInProd} (refuse:
+ *                                   -> {@see MasterKeyStatus::Generated};
+ *  - absent, env prod             -> {@see MasterKeyStatus::MissingInProd} (refuse:
  *                                   never auto-generate an unbacked-up key whose loss
  *                                   makes all sealed data undecryptable);
  *  - absent, running as root with
@@ -62,8 +62,8 @@ use const SODIUM_CRYPTO_SECRETBOX_KEYBYTES;
  *                                   BEFORE writing anything: a 0600 file owned by a
  *                                   user the web server is not would break every
  *                                   request, which is what this refuses to cause);
- *  - present but invalid          → {@see MasterKeyStatus::Invalid} (refuse: never
- *                                   overwrite — that would orphan already-sealed data).
+ *  - present but invalid          -> {@see MasterKeyStatus::Invalid} (refuse: never
+ *                                   overwrite -- that would orphan already-sealed data).
  */
 final class MasterKeyProvisioner
 {
@@ -93,7 +93,7 @@ final class MasterKeyProvisioner
             return MasterKeyStatus::MissingInProd;
         }
 
-        // ⚠️ ADOPT BEFORE GENERATING. A key already assigned in the file this
+        // !! ADOPT BEFORE GENERATING. A key already assigned in the file this
         // run is about to append to is the key that file's environment will
         // use, whether or not the current process loaded it -- appending a
         // second one would make the first unreachable and orphan anything
@@ -124,7 +124,7 @@ final class MasterKeyProvisioner
     /**
      * The env file THIS environment actually reads.
      *
-     * ⚠️ `.env.local` IS NOT READ UNDER `APP_ENV=test`. Symfony skips it there
+     * !! `.env.local` IS NOT READ UNDER `APP_ENV=test`. Symfony skips it there
      * so a test run does not depend on one developer's machine -- which makes it
      * the one file a test-environment install must never write to, because dev
      * does read it and the last assignment in it wins. Every non-dev environment
@@ -143,7 +143,7 @@ final class MasterKeyProvisioner
 
     /**
      * True when a compiled `.env.local.php` (from `composer dump-env`) shadows
-     * `.env.local` at runtime — an appended key would then be silently ignored.
+     * `.env.local` at runtime -- an appended key would then be silently ignored.
      */
     public function compiledDumpExists(): bool
     {

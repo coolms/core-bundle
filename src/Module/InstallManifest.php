@@ -36,7 +36,7 @@ use const JSON_THROW_ON_ERROR;
  * wrong order, the inventory purge will need, and the marketplace's question of
  * whether a module is installed and in what state.
  *
- * ⚠️ DERIVED STATE, AND THEREFORE NEVER AUTHORITATIVE. It lives in `var/`, which
+ * !! DERIVED STATE, AND THEREFORE NEVER AUTHORITATIVE. It lives in `var/`, which
  * is gitignored in full and absent on a fresh checkout, may be missing from a
  * restored backup, and can be cleared by hand. So its absence means NOTHING IS
  * KNOWN -- it must never mean "nothing was installed", and removal must not

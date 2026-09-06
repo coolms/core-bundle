@@ -23,7 +23,7 @@ use function array_map;
 /**
  * Pins what `GET /outbound-channels` promises the section-properties
  * dialog: the declared fields, an empty list for a channel that needs nothing,
- * and — the one that matters — that a DISABLED channel contributes nothing.
+ * and -- the one that matters -- that a DISABLED channel contributes nothing.
  *
  * The last case is the point of the endpoint existing at all. The dialog renders
  * a config box per listed channel, so a disabled channel leaking in would put an

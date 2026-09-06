@@ -14,7 +14,7 @@ use CoolMS\CoreBundle\ApiPlatform\Resource\Provider\ListOutboundChannelsProvider
  *
  * ## Why this exists next to `core.outbound_channels`
  *
- * The option source answers "what may I pick" — `{value, label}`, which is all
+ * The option source answers "what may I pick" -- `{value, label}`, which is all
  * a dropdown needs. This answers "and what must I then fill in", which a
  * dropdown cannot express. Overloading the option wire shape with a field list
  * would have made every other picker in the platform carry a field it never
@@ -55,7 +55,7 @@ final class OutboundChannelResource
      * @param list<array<string, mixed>> $fields declared config fields, in presentation order
      */
     public function __construct(
-        /** The channel id — what a section stores in `enabledChannels`. */
+        /** The channel id -- what a section stores in `enabledChannels`. */
         #[ApiProperty(identifier: true)]
         public string $id = '',
         public string $label = '',

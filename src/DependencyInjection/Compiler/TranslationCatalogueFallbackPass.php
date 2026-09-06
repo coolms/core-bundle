@@ -17,7 +17,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
  * The translation CONTRACTS live in Core, but their real implementations
  * (catalogue read/write over VFS XLIFF) live in the I18n module, which aliases
  * the interfaces in its Extension. Consumers (e.g. the Field module's
- * option-label writer + provider) autowire the Core interfaces — so a build
+ * option-label writer + provider) autowire the Core interfaces -- so a build
  * WITHOUT the I18n bundle would fail to compile, since nothing binds them.
  *
  * This pass binds Core null-object fallbacks for those interfaces, but ONLY
@@ -27,8 +27,8 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
  * `load()`, so by the time it executes the I18n alias (when present) already
  * exists and we step aside; when I18n is absent, we supply the fallback.
  *
- * Result: I18n present → real catalogue services win (this pass no-ops).
- *         I18n absent → reads return empty, writes raise a clear error, the
+ * Result: I18n present -> real catalogue services win (this pass no-ops).
+ *         I18n absent -> reads return empty, writes raise a clear error, the
  *         container still compiles and single-locale deployments run.
  *
  * Mirrors {@see CoreServicesPass}'s "register only if nobody else did" shape.

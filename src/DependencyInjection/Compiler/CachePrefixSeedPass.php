@@ -43,13 +43,13 @@ use function trim;
  * image digest fills the variable today, `composer.lock` fills it once `src/`
  * is nearly empty, and this bundle does not care which.
  *
- * ⚠️ Read at COMPILE time, not through `%env()%`. An env placeholder is resolved
+ * !! Read at COMPILE time, not through `%env()%`. An env placeholder is resolved
  * at runtime, but pool namespaces are computed from the seed when the container
  * is compiled -- a placeholder would be hashed as its own literal text. The
  * consequence is that changing `COOLMS_BUILD_ID` only takes effect on a
  * container rebuild, which is exactly when a build identity changes anyway.
  *
- * ⚠️ Development is deliberately left uncovered. It is covered by what already
+ * !! Development is deliberately left uncovered. It is covered by what already
  * covers it: a per-payload schema version, and clearing by hand.
  */
 final class CachePrefixSeedPass
@@ -92,7 +92,7 @@ final class CachePrefixSeedPass
     }
 
     /**
-     * ⚠️ `$_SERVER` and `$_ENV` first, because Symfony's Dotenv populates those
+     * !! `$_SERVER` and `$_ENV` first, because Symfony's Dotenv populates those
      * and does NOT always reach `getenv()` -- reading only `getenv()` would miss
      * a value set in `.env`, and the failure would be a seed that silently did
      * not move.

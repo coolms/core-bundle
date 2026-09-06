@@ -18,7 +18,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
  * Generic options endpoint that feeds platform-wide selects from any
  * {@see \CoolMS\Core\Option\OptionSourceProviderInterface} tagged
  * `coolms.option.source`. The `{source}` URI variable is the
- * provider's `key()` — e.g. `calendar.timezones`, `scheduler.handlers`.
+ * provider's `key()` -- e.g. `calendar.timezones`, `scheduler.handlers`.
  *
  * **Wire shape.** A list of `{value, label, group?, description?}`
  * rows. The FE picker:
@@ -28,12 +28,12 @@ use Symfony\Component\Serializer\Attribute\Groups;
  *  - shows `description` as a hint under the option.
  *
  * Auth: IS_AUTHENTICATED_FULLY. Individual sources can self-gate by
- * returning an empty list / throwing inside `provide()` — the registry
+ * returning an empty list / throwing inside `provide()` -- the registry
  * doesn't intervene.
  *
  * **Public surface.** A source that additionally implements
  * {@see \CoolMS\Core\Option\PublicOptionSourceInterface} (static,
- * non-sensitive reference lists — ISO countries, IANA timezones) is ALSO
+ * non-sensitive reference lists -- ISO countries, IANA timezones) is ALSO
  * reachable anonymously at `GET /public-options/{source}` so a public SSR
  * form's api-data-source select can populate itself without a Bearer token.
  * Non-public keys 404 on that surface (never confirming they exist); the
@@ -97,7 +97,7 @@ final class OptionResource
          * Source key (provider's `key()`, e.g. `calendar.timezones`).
          * Required as a resource property so API Platform can fill the
          * `{source}` slot when minting each collection row's `@id` IRI
-         * from the `Get /options/{source}/{value}` URI template — without
+         * from the `Get /options/{source}/{value}` URI template -- without
          * it the Hydra serializer throws "Unable to generate an IRI".
          * Not part of the serialization groups (the FE doesn't display
          * it; it only consumes value/label/group/description).

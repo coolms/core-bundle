@@ -140,8 +140,8 @@ class Extension extends AbstractExtension
         $container->registerForAutoconfiguration(ModuleUninstallerInterface::class)
             ->addTag('coolms.module.uninstaller');
 
-        // OptionSource — tagged providers that advertise platform-wide
-        // select datasources (timezones, handlers, users, …). The
+        // OptionSource -- tagged providers that advertise platform-wide
+        // select datasources (timezones, handlers, users, ...). The
         // registry's `$providers` iterable arg is bound post-compile
         // by OptionSourceRegistryPass; here we just register the
         // autoconfigure tag so any implementing class lands in the
@@ -149,7 +149,7 @@ class Extension extends AbstractExtension
         $container->registerForAutoconfiguration(OptionSourceProviderInterface::class)
             ->addTag('coolms.option.source');
 
-        // Retention pruners — any module's retention sweep (analytics events,
+        // Retention pruners -- any module's retention sweep (analytics events,
         // spam comments, expired credentials, ...) implements the L0
         // RetentionPrunerInterface and is auto-collected by RetentionPruneRunner
         // (via #[AutowireIterator('coolms.retention.pruner')]) so the platform
@@ -158,7 +158,7 @@ class Extension extends AbstractExtension
         $container->registerForAutoconfiguration(RetentionPrunerInterface::class)
             ->addTag('coolms.retention.pruner');
 
-        // Dashboard widgets — any module with something worth showing on
+        // Dashboard widgets -- any module with something worth showing on
         // /admin implements DashboardWidgetProviderInterface and is collected
         // by DashboardWidgetRegistry. Core hosts the seam and knows
         // nothing about what any widget MEANS: each one carries its own
@@ -167,7 +167,7 @@ class Extension extends AbstractExtension
         $container->registerForAutoconfiguration(DashboardWidgetProviderInterface::class)
             ->addTag('coolms.core.dashboard_widget_provider');
 
-        // Backup contributors — any module's backup/restore of its own data slice
+        // Backup contributors -- any module's backup/restore of its own data slice
         // (Calendar tables, later VFS content+blobs, Identity, Workflow, ...)
         // implements the L0 BackupContributorInterface and is auto-collected by
         // BackupRunner (via #[AutowireIterator('coolms.backup.contributor')]) so
@@ -176,16 +176,16 @@ class Extension extends AbstractExtension
         $container->registerForAutoconfiguration(BackupContributorInterface::class)
             ->addTag('coolms.backup.contributor');
 
-        // Sync blob contributors — any module whose SYNCED ROWS refer to bytes
-        // those rows don't contain (VFS nodes → their content-addressed blobs) implements
+        // Sync blob contributors -- any module whose SYNCED ROWS refer to bytes
+        // those rows don't contain (VFS nodes -> their content-addressed blobs) implements
         // the L0 SyncBlobContributorInterface and is auto-collected by SyncBlobRegistry
         // (via #[AutowireIterator('coolms.sync.blob.contributor')]). Rows sync by delta,
-        // bytes sync by reference — a separate channel on purpose, so a lean feed stays
+        // bytes sync by reference -- a separate channel on purpose, so a lean feed stays
         // lean. The sync module drives it over HTTP without importing the owning module.
         $container->registerForAutoconfiguration(SyncBlobContributorInterface::class)
             ->addTag('coolms.sync.blob.contributor');
 
-        // Sync section partitions — a module whose synced tables
+        // Sync section partitions -- a module whose synced tables
         // partition by site section (Section: the `/content/<slug>` namespace over
         // VFS's tables) implements the L0 SyncSectionPartitionInterface; the sync
         // surface's EdgeScopePolicy collects them by tag to enforce a per-edge
@@ -193,17 +193,17 @@ class Extension extends AbstractExtension
         $container->registerForAutoconfiguration(SyncSectionPartitionInterface::class)
             ->addTag('coolms.sync.section_partition');
 
-        // Transliteration rule sets — national Cyrillic/umlaut→ASCII maps
-        // (ru, de, …) that LocalizedSlugger applies before the generic ICU
+        // Transliteration rule sets -- national Cyrillic/umlaut->ASCII maps
+        // (ru, de, ...) that LocalizedSlugger applies before the generic ICU
         // fold. Shipped by I18n (or any module), collected via
         // #[AutowireIterator(TransliterationRuleSetInterface::TAG)]. The
-        // slug ENGINE is Core, the per-locale DATA is i18n — Articles/Page
+        // slug ENGINE is Core, the per-locale DATA is i18n -- Articles/Page
         // naming (freeze-on-publish) is the first consumer.
         $container->registerForAutoconfiguration(TransliterationRuleSetInterface::class)
             ->addTag(TransliterationRuleSetInterface::TAG);
 
-        // Outbound channels (F3) — any module's delivery adapter (Content ships
-        // `rss`, a future Connector ships `telegram`, …) implements the L0
+        // Outbound channels (F3) -- any module's delivery adapter (Content ships
+        // `rss`, a future Connector ships `telegram`, ...) implements the L0
         // OutboundChannelInterface and is auto-collected by OutboundChannelRegistry
         // (via #[AutowireIterator('coolms.outbound_channel')]) so the Workflow
         // `channel:publish` service task can fan a message out to any channel.
@@ -220,8 +220,8 @@ class Extension extends AbstractExtension
         // writes go wherever this host allows, so a feature that reads its
         // config can save it without knowing which of the two it got.
         //
-        // ⚠️ ConfigLoaderInterface now points at the CHAINED loader. Every
-        // existing consumer keeps working — the chain falls through to
+        // !! ConfigLoaderInterface now points at the CHAINED loader. Every
+        // existing consumer keeps working -- the chain falls through to
         // FileConfigLoader whenever no override row exists, which is always
         // until something writes one.
         foreach ([ChainedConfigLoader::class, FileConfigWriter::class, DbConfigWriter::class] as $class) {
@@ -233,14 +233,14 @@ class Extension extends AbstractExtension
 
         // The store order IS the policy: file first so a developer's edit lands
         // in git, database only when the filesystem refuses. Passed explicitly
-        // rather than through a tag — a tagged iterator would let any module
+        // rather than through a tag -- a tagged iterator would let any module
         // reorder where an operator's config is kept just by existing, and the
         // glob-override trap makes a tagged argument easy to lose silently.
         //
-        // ⚠️ Registered under a NAMED id, not its FQCN, and that is required
+        // !! Registered under a NAMED id, not its FQCN, and that is required
         // rather than stylistic. The class is excluded from the App\ glob (it
         // cannot be autowired), and an excluded class still gets an ABSTRACT
-        // definition under its own FQCN — which an alias cannot point at. The
+        // definition under its own FQCN -- which an alias cannot point at. The
         // other exclusions in services.yaml survive for the same reason: every
         // one of them is registered under an id of its own.
         $container->register('coolms.core.config_writer', ChainedConfigWriter::class)
@@ -268,8 +268,8 @@ class Extension extends AbstractExtension
                 ->setPublic(false);
         }
 
-        // Phase Entity-Extract — the `EntityAliasRegistryInterface
-        // → ClassMetaEntityAliasRegistry` alias moved to
+        // Phase Entity-Extract -- the `EntityAliasRegistryInterface
+        // -> ClassMetaEntityAliasRegistry` alias moved to
         // `Entity\Infrastructure\DependencyInjection\Extension`
         // alongside the moved interface + implementation.
     }
@@ -306,11 +306,11 @@ class Extension extends AbstractExtension
         $container->setAlias(OutboxPublisherInterface::class, DispatchingOutboxPublisher::class)
             ->setPublic(false);
 
-        // F7 §2 — consumer idempotency store. The concrete is glob-autowired +
+        // F7 section 2 -- consumer idempotency store. The concrete is glob-autowired +
         // #[Autoconfigure(public: true)] (resolvable before the first idempotent
         // consumer wires the port); the alias stays private + pruned-until-then.
         // F7 retention windows for `coolms:outbox:prune` (read via #[Autowire]).
-        // Delivered outbox rows are done → a short window; the inbox window MUST
+        // Delivered outbox rows are done -> a short window; the inbox window MUST
         // stay longer than the longest redelivery horizon (a late replay must
         // still hit a dedupe row). <1 disables that table's prune.
         $container->setParameter('coolms_core.outbox.published_retention_days', 7);

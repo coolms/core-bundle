@@ -13,8 +13,8 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * The consent read-side seam (tiered consent): maps the public
- * `coolms_consent` cookie to the granted category vector — the granular comma-list
- * AND the legacy binary accept/decline — and stays "unknown" (`[]`) off the
+ * `coolms_consent` cookie to the granted category vector -- the granular comma-list
+ * AND the legacy binary accept/decline -- and stays "unknown" (`[]`) off the
  * request edge so the enriching sink leaves an event's own declared consent
  * untouched.
  */

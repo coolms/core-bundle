@@ -127,7 +127,7 @@ final class CacheSeedTest extends TestCase
     }
 
     /**
-     * ⚠️ Symfony's default seed encoded the container class, which carries the
+     * !! Symfony's default seed encoded the container class, which carries the
      * environment. Replacing it with something that did not would let two
      * environments sharing one Redis share pool namespaces -- and
      * `cache.rate_limiter` is on Redis, so that is one environment eating the
@@ -173,7 +173,7 @@ final class CacheSeedTest extends TestCase
     }
 
     /**
-     * ⚠️ And absent, it changes NOTHING. That is the whole contract: an
+     * !! And absent, it changes NOTHING. That is the whole contract: an
      * installation that sets no build identity gets exactly the seed it got
      * before the parameter existed, so nobody pays for a feature they do not
      * use.

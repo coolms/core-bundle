@@ -12,7 +12,7 @@ use CoolMS\CoreBundle\ApiPlatform\Resource\Processor\ResetDashboardLayoutProcess
 use CoolMS\CoreBundle\ApiPlatform\Resource\Processor\SaveDashboardLayoutProcessor;
 
 /**
- * `PUT|DELETE /api/v1/dashboard/layout` — arranging the dashboard.
+ * `PUT|DELETE /api/v1/dashboard/layout` -- arranging the dashboard.
  *
  * ## Why `ROLE_ADMIN` when reading the catalogue only needs a login
  *
@@ -24,8 +24,8 @@ use CoolMS\CoreBundle\ApiPlatform\Resource\Processor\SaveDashboardLayoutProcesso
  *
  * ## PUT, not PATCH
  *
- * A layout is an ORDER. Merge-patching a list has no meaning — there is no key
- * to merge on and no way to express "this one moved" — so the whole arrangement
+ * A layout is an ORDER. Merge-patching a list has no meaning -- there is no key
+ * to merge on and no way to express "this one moved" -- so the whole arrangement
  * is submitted each time and replaces what was there. It also sidesteps
  * API-Platform's merge-patch content type, which a PATCH here would require.
  *
@@ -68,7 +68,7 @@ final class DashboardLayoutResource
 {
     public function __construct(
         /**
-         * Where the layout was stored — an absolute path, or `db://dashboard/main`.
+         * Where the layout was stored -- an absolute path, or `db://dashboard/main`.
          *
          * Returned because the answer is not obvious and someone will ask: a
          * developer expects to find it in their working copy and commit it, and

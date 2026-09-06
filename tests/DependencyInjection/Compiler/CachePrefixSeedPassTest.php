@@ -81,7 +81,7 @@ final class CachePrefixSeedPassTest extends TestCase
     }
 
     /**
-     * ⚠️ The point of the whole parameter: two environments must not land on
+     * !! The point of the whole parameter: two environments must not land on
      * the same namespace. A pass that read neither would produce one seed here.
      */
     #[Test]

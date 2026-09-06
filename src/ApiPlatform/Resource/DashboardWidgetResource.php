@@ -9,7 +9,7 @@ use ApiPlatform\Metadata\Get;
 use CoolMS\CoreBundle\ApiPlatform\Provider\DashboardWidgetProvider;
 
 /**
- * `GET /api/v1/dashboard/widgets` — what this viewer's dashboard may show,
+ * `GET /api/v1/dashboard/widgets` -- what this viewer's dashboard may show,
  * assembled from every installed module.
  *
  * Core contributes nothing to it and does not know what any entry means. Each
@@ -21,14 +21,14 @@ use CoolMS\CoreBundle\ApiPlatform\Provider\DashboardWidgetProvider;
  *
  * Same shape as `/vfs/file-kinds` and `/document/format-info`, for the same
  * reason: a collection needs a per-item IRI and these have no item route to
- * point at — that first cut returns 500 with "Unable to generate an IRI". They
+ * point at -- that first cut returns 500 with "Unable to generate an IRI". They
  * are catalogue entries, not addressable things.
  *
- * ⚠️ Unlike the file-kind catalogue this one IS filtered per viewer, and the
+ * !! Unlike the file-kind catalogue this one IS filtered per viewer, and the
  * difference is deliberate. That one describes CAPABILITY, where hiding an
  * entry would make an unwritable folder look like a platform with fewer
  * features. A widget is a piece of CONTENT: one the viewer can never load only
- * ever renders an error, so it is not offered. The filter is cosmetic even so —
+ * ever renders an error, so it is not offered. The filter is cosmetic even so --
  * each widget's own endpoint remains the authority on its data.
  */
 #[ApiResource(
@@ -55,7 +55,7 @@ final class DashboardWidgetResource
      *                                            and a second endpoint could
      *                                            disagree with this one. A
      *                                            section with no widgets never
-     *                                            appears — an empty tab
+     *                                            appears -- an empty tab
      *                                            promises something and then
      *                                            does not have it
      */

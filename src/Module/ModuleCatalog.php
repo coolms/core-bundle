@@ -61,7 +61,7 @@ final readonly class ModuleCatalog
     /**
      * Resolve what an operator typed to exactly one bundle class.
      *
-     * ⚠️ The declared names are NOT uniform -- `sso`, `media` and `spreadsheet`
+     * !! The declared names are NOT uniform -- `sso`, `media` and `spreadsheet`
      * sit beside `coolms_centrifugo` and `coolms_terminal` -- so matching is
      * lenient: case, hyphens/underscores and a `coolms_` prefix are all
      * ignored. Aligning the names themselves is a breaking change to config
@@ -125,7 +125,7 @@ final readonly class ModuleCatalog
     /**
      * Every name this module is known by, most specific first.
      *
-     * ⚠️ A module does NOT have one name. The bundle declares `COMPONENT_NAME`,
+     * !! A module does NOT have one name. The bundle declares `COMPONENT_NAME`,
      * but a navigation contributor records whatever its own `getModuleName()`
      * returns, and MEASURED across the application those disagree for 9 of 34:
      * the bundle says `coolms_vfs` while the rows say `vfs`. Removing by the
