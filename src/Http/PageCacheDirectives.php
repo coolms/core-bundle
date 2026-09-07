@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * A request-scoped seam for a renderer to influence the anonymous full-page
- * cache (W8, the page-cache subscriber) from deep
+ * cache, which the page-cache subscriber owns, from deep
  * inside a render — where only a string is produced, not the {@see \Symfony\Component\HttpFoundation\Response}.
  *
  * The one directive so far: {@see markUncacheable} — "this page's content is

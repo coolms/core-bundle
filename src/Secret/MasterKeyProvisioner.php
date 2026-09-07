@@ -7,13 +7,19 @@ namespace CoolMS\CoreBundle\Secret;
 use SodiumException;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
+use function chgrp;
 use function chmod;
+use function chown;
 use function end;
 use function file_get_contents;
 use function file_put_contents;
+use function function_exists;
 use function getenv;
+use function is_array;
 use function is_file;
 use function is_string;
+use function posix_geteuid;
+use function posix_getpwnam;
 use function preg_match_all;
 use function preg_quote;
 use function putenv;
@@ -51,6 +57,11 @@ use const SODIUM_CRYPTO_SECRETBOX_KEYBYTES;
  *  - absent, env prod             → {@see MasterKeyStatus::MissingInProd} (refuse:
  *                                   never auto-generate an unbacked-up key whose loss
  *                                   makes all sealed data undecryptable);
+ *  - absent, running as root with
+ *    no reader configured        -> {@see MasterKeyStatus::OwnerUndetermined} (refuse
+ *                                   BEFORE writing anything: a 0600 file owned by a
+ *                                   user the web server is not would break every
+ *                                   request, which is what this refuses to cause);
  *  - present but invalid          → {@see MasterKeyStatus::Invalid} (refuse: never
  *                                   overwrite — that would orphan already-sealed data).
  */
@@ -63,6 +74,8 @@ final class MasterKeyProvisioner
         private readonly string $projectDir,
         #[Autowire('%kernel.environment%')]
         private readonly string $environment,
+        #[Autowire('%coolms.secret_store.key_file_owner%')]
+        private readonly ?string $keyFileOwner = null,
     ) {
     }
 
@@ -91,6 +104,13 @@ final class MasterKeyProvisioner
             $this->publish($fromFile);
 
             return $this->isValidKey($fromFile) ? MasterKeyStatus::AlreadyValid : MasterKeyStatus::Invalid;
+        }
+
+        // !! DECIDED BEFORE THE FILE IS WRITTEN, not after. A refusal that has
+        // already created a 0600 root-owned env file has caused the exact
+        // breakage it is refusing to cause.
+        if ($this->writingForAnotherUser() && null === $this->resolvedOwner()) {
+            return MasterKeyStatus::OwnerUndetermined;
         }
 
         $key = sodium_bin2base64(sodium_crypto_secretbox_keygen(), SODIUM_BASE64_VARIANT_ORIGINAL);
@@ -203,7 +223,57 @@ final class MasterKeyProvisioner
             FILE_APPEND | LOCK_EX,
         );
 
-        // Best-effort: the file now holds a secret; tighten from the usual 0644.
+        // The file now holds the master key, so it drops from the usual 0644 to
+        // 0600 -- which makes OWNERSHIP the only thing standing between the key
+        // and the process that has to read it back.
         chmod($path, 0o600);
+
+        $owner = $this->writingForAnotherUser() ? $this->resolvedOwner() : null;
+        if (null !== $owner) {
+            chown($path, $owner['uid']);
+            chgrp($path, $owner['gid']);
+        }
+    }
+
+    /**
+     * True when this process will NOT be the one that reads the file back.
+     *
+     * php-fpm workers drop to their pool user (`www-data` in the official
+     * images) while a console command under `docker compose exec` runs as root.
+     * Root is therefore never the reader, and a 0600 root-owned env file makes
+     * Dotenv throw on EVERY request, before the kernel boots -- which php-fpm
+     * then serves as a plain HTTP 200 error page. Measured on a clean clone of
+     * the skeleton, 2026-09-07: it is what the documented install produced.
+     *
+     * !! WITHOUT EXT-POSIX THIS RETURNS FALSE AND THE CHECK DOES NOT RUN, which
+     * is a real limit and not a safe default. The extension is optional, so a
+     * Linux host serving through php-fpm can lack it and still have the
+     * writer/reader split this exists to catch -- and {@see resolvedOwner()}
+     * needs `posix_getpwnam` too, so a configured reader is not applied there
+     * either. Measured: the package's own CI has no ext-posix.
+     */
+    private function writingForAnotherUser(): bool
+    {
+        return function_exists('posix_geteuid') && 0 === posix_geteuid();
+    }
+
+    /**
+     * The configured reader as uid/gid, or null when it cannot be determined --
+     * unset, or naming a user this system does not have.
+     *
+     * @return array{uid: int, gid: int}|null
+     */
+    private function resolvedOwner(): ?array
+    {
+        $name = trim((string) $this->keyFileOwner);
+        if ('' === $name || !function_exists('posix_getpwnam')) {
+            return null;
+        }
+        $entry = posix_getpwnam($name);
+        if (!is_array($entry)) {
+            return null;
+        }
+
+        return ['uid' => $entry['uid'], 'gid' => $entry['gid']];
     }
 }

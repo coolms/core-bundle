@@ -22,4 +22,15 @@ enum MasterKeyStatus
 
     /** No key was set and the env is prod — refused (never auto-generated). */
     case MissingInProd;
+
+    /**
+     * A key would have to be handed to a DIFFERENT user and this process cannot
+     * say which -- refused before anything is written.
+     *
+     * Reached when the install runs as root, which is normal under
+     * `docker compose exec`: root is never the process that reads the file
+     * back, so writing a 0600 root-owned env file would leave the key
+     * unreadable by the web server.
+     */
+    case OwnerUndetermined;
 }

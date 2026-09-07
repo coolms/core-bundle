@@ -14,6 +14,30 @@ same commit as the change it describes.
 
 ### Fixed
 
+**`coolms:install` no longer writes a master key the web server cannot read.**
+The generated key file is `0600`, which makes ownership the only thing between
+the key and the process that reads it back -- and the writer is frequently not
+that process. Under `docker compose exec` the console runs as root while
+php-fpm workers drop to `www-data`, so the file landed `0600 root:root` and
+`Dotenv` threw on every subsequent request, before the kernel booted. php-fpm
+served that fatal as **HTTP 200**, so nothing downstream looked wrong.
+
+The key is now written owned by the user that will read it, still at `0600`.
+That user comes from `core.secret_store.key_file_owner`, which defaults to the
+`COOLMS_FILE_OWNER` environment variable. When the install runs as root and no
+reader is configured, `coolms:install` **refuses before writing anything** and
+says what to set -- a refusal that had already created the file would have
+caused the exact breakage it refuses to cause. Running as a non-root user is
+unaffected: the file is owned by the writer, who is the reader.
+
+Measured on a clean clone of `coolms/coolms` following its documented install,
+2026-09-07.
+
+One limit, stated rather than discovered: detecting that the install is running
+as root needs `ext-posix`, which is optional. Where it is absent the check does
+not run and a configured reader is not applied -- so a host that serves through
+php-fpm without that extension keeps the old behaviour.
+
 **`ConfigCacheWarmer` now knows the `settings` config type.** The
 runtime module-settings tier writes
 `config/modules/generated/settings/<key>--<scope>.yaml`, and `settings` was
