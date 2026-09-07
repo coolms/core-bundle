@@ -43,7 +43,7 @@ final class InstallCommand extends Command
         $io->title('CoolMS2 Install');
 
         // Seed/validate the at-rest master key FIRST: without it, sealing mailbox
-        // credentials (M8) and the encrypted secret store (F1) fail closed — and
+        // credentials (M8) and the encrypted secret store (F1) fail closed -- and
         // mailbox creation 503s with no hint. Refuse rather than proceed on a bad
         // or (in prod) missing key.
         $io->section('Secrets');
@@ -83,7 +83,7 @@ final class InstallCommand extends Command
         $structureInstallers = [...$this->installers];
         $moduleInstallers = [...$this->moduleInstallers];
 
-        // ⚠️ Report the DENOMINATOR, and refuse to claim success over an empty
+        // !! Report the DENOMINATOR, and refuse to claim success over an empty
         // set. An install that ran no installers printed the identical green to
         // one that ran every installer -- two empty sections and
         // "Installation complete" -- so a distribution with no modules

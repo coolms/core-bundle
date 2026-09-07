@@ -17,7 +17,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 /**
  * The pass that makes I18n optional. Two branches matter: bind the Core
  * null-objects when the catalogue interfaces are unbound (I18n absent), and
- * stand aside when a real binding already exists (I18n present — its Extension
+ * stand aside when a real binding already exists (I18n present -- its Extension
  * aliased the interfaces before this pass runs).
  */
 final class TranslationCatalogueFallbackPassTest extends TestCase

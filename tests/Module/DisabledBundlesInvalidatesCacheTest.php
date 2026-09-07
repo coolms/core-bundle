@@ -18,7 +18,7 @@ use PHPUnit\Framework\TestCase;
  * CacheSeed hashes every recognised file there, so the seed moves and every pool
  * is namespaced afresh.
  *
- * ⚠️ It is a property of WHERE THE FILE IS, not of anything DisabledBundles
+ * !! It is a property of WHERE THE FILE IS, not of anything DisabledBundles
  * does. Move it to `var/`, or give it an extension CacheSeed does not hash, and
  * the invalidation silently stops -- nothing else would fail. So the second test
  * writes the same bytes OUTSIDE config/ and asserts the seed does NOT move: the

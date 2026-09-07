@@ -12,13 +12,13 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * The default {@see CurrentRequestDimensionsInterface}: classifies the current
  * request's user-agent into coarse `device` / `os` / `browser` families and its
- * `Referer` into a `referrer` type — dep-free heuristics, no UA-parser library
+ * `Referer` into a `referrer` type -- dep-free heuristics, no UA-parser library
  * (the codebase prefers dep-free derivers; the families are intentionally low-
  * cardinality, so a precise parser would be over-engineering). The raw UA +
- * referrer are read and dropped here — only the families reach the event store.
+ * referrer are read and dropped here -- only the families reach the event store.
  *
  * **Geo:** the visitor's country, derived from the country header
- * a CDN/edge proxy injects (see GEO_HEADERS) — no MaxMind DB, no raw IP->geo
+ * a CDN/edge proxy injects (see GEO_HEADERS) -- no MaxMind DB, no raw IP->geo
  * (the IP is already dropped). Country-level only (not PII, like the other dims);
  * absent off a geo-providing proxy (e.g. localhost). A configurable header name
  * is a trivial future extension.
@@ -42,10 +42,10 @@ final readonly class RequestDimensions implements CurrentRequestDimensionsInterf
     /** @var list<string> country headers injected by common edge CDNs, in precedence order */
     private const array GEO_HEADERS = ['CF-IPCountry', 'CloudFront-Viewer-Country', 'X-Geo-Country'];
 
-    /** @var list<string> the standard UTM campaign-attribution params (design §Acquisition) */
+    /** @var list<string> the standard UTM campaign-attribution params (design section Acquisition) */
     private const array UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
 
-    /** Length cap per UTM value — bounds cardinality + row size (a real campaign tag is short). */
+    /** Length cap per UTM value -- bounds cardinality + row size (a real campaign tag is short). */
     private const int UTM_MAX_LEN = 100;
 
     public function __construct(
@@ -63,7 +63,7 @@ final readonly class RequestDimensions implements CurrentRequestDimensionsInterf
         $ua = $request->headers->get('User-Agent') ?? '';
 
         // UTM campaign tags (if any) classify the referrer as 'campaign' AND add
-        // their own utm_* dims — an explicit campaign tag wins over the host-based
+        // their own utm_* dims -- an explicit campaign tag wins over the host-based
         // referrer class (a utm-tagged same-site or search click is still campaign).
         $utm = $this->utm($request);
 
@@ -91,7 +91,7 @@ final readonly class RequestDimensions implements CurrentRequestDimensionsInterf
     /**
      * UTM campaign-attribution params (the design classes them
      * "high-value and NOT PII"). Read from the current request's query string,
-     * falling back to the `Referer` URL's query — a same-page conversion (the
+     * falling back to the `Referer` URL's query -- a same-page conversion (the
      * events that actually reach the store are server-side conversion events, not
      * the tagged landing hit) carries the landing query only in `Referer`. Each
      * value is trimmed, length-capped + lowercased to stay low-cardinality;

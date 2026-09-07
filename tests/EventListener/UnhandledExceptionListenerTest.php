@@ -112,7 +112,7 @@ final class UnhandledExceptionListenerTest extends TestCase
         self::assertSame(422, $event->getResponse()?->getStatusCode());
     }
 
-    // ── Helpers ────────────────────────────────────────────────────────────────
+    // -- Helpers ----------------------------------------------------------------
 
     private function listener(TranslatorInterface $translator): UnhandledExceptionListener
     {

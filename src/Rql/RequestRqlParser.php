@@ -65,7 +65,7 @@ final readonly class RequestRqlParser
             return false;
         }
 
-        // At least one top-level function-call term → Persvr grammar.
+        // At least one top-level function-call term -> Persvr grammar.
         return 1 === preg_match('/(?:^|&)\s*[a-zA-Z_][a-zA-Z0-9_]*\(/', $queryString);
     }
 }

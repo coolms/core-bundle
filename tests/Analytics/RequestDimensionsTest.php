@@ -135,7 +135,7 @@ final class RequestDimensionsTest extends TestCase
     #[Test]
     public function itFallsBackToTheRefererQueryAndCampaignBeatsTheHostBasedClass(): void
     {
-        // Same-host referer would be 'internal' — but the UTM tag makes it 'campaign'.
+        // Same-host referer would be 'internal' -- but the UTM tag makes it 'campaign'.
         $dims = $this->dimsFor('https://mysite.test/submit', [
             'HTTP_USER_AGENT' => 'UA',
             'HTTP_REFERER' => 'https://mysite.test/landing?utm_source=newsletter&utm_campaign=spring',

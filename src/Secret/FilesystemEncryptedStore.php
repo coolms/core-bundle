@@ -18,7 +18,7 @@ use function is_string;
  * same logical key onto an UPPER_SNAKE env-var name because env vars have
  * naming constraints a file does not. Both backends resolve the same
  * `secret('x')` call as long as the operator stored `x` (via
- * `coolms:secret:set x …`).
+ * `coolms:secret:set x ...`).
  *
  * The decrypted map is cached for the lifetime of the instance (one decrypt
  * per request); selected via `coolms_core.secret_store.driver: filesystem`.

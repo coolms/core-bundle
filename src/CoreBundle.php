@@ -27,7 +27,7 @@ class CoreBundle extends AbstractCoolmsBundle
         $container->addCompilerPass(new CoreConstantProviderPass());
         $container->addCompilerPass(new SystemUserPass());
         $container->addCompilerPass(new OptionSourceRegistryPass());
-        // F3 per-channel enablement — must run as a PASS because the
+        // F3 per-channel enablement -- must run as a PASS because the
         // `App\:` glob would otherwise clobber the argument.
         $container->addCompilerPass(new OutboundChannelRegistryConfigPass());
         // Null-object fallbacks for the translation catalogue seam so the

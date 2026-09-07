@@ -6,7 +6,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning is described in `CONTRIBUTING.md` -- read it before assuming what a
 major number means here.
 
-⚠️ Entries dated before 2026-09-01 were **reconstructed** from tags and commit
+!! Entries dated before 2026-09-01 were **reconstructed** from tags and commit
 history when this file was created. Every entry after that is written in the
 same commit as the change it describes.
 
@@ -55,7 +55,7 @@ guard that copies the list is a second list that will drift. The package cannot
 know which types an installation uses, so that check belongs to the
 installation -- and it needs somewhere to read the authority from.
 
-⚠️ The class docblock no longer repeats the list. It named five types while the
+!! The class docblock no longer repeats the list. It named five types while the
 constant held eight, so it documented a validator that had not existed for some
 time.
 
@@ -70,7 +70,7 @@ $console, 'about'], ...)` -- and the package never declared the component.
 application that does not happen to have `symfony/process` for its own
 reasons.
 
-⚠️ Invisible here because the CoolMS application requires it directly, and
+!! Invisible here because the CoolMS application requires it directly, and
 invisible to CI because the package installs perfectly without it -- nothing
 is missing until the command runs. Found by resolving the package alone from
 its tag and checking every `use` in its own `src/` against the result.
@@ -143,13 +143,13 @@ composer require coolms/core-bundle:^2.0 coolms/core-doctrine:^2.0
 `prefer-stable` keeps every other dependency of yours on its newest stable
 release, so this loosening applies to what actually needs it and nothing else.
 
-⚠️ **The adapter is part of the command, not an extra.** `coolms/core-bundle`
+!! **The adapter is part of the command, not an extra.** `coolms/core-bundle`
 reaches `coolms/core-module`, which requires a persistence implementation -- a
 virtual package: nothing provides it until you choose an implementation, and
 Composer reports the virtual name, which reads like a broken package rather
 than a missing argument.
 
-⚠️ **A per-package flag is not enough here.** `composer require
+!! **A per-package flag is not enough here.** `composer require
 coolms/core-bundle:^2.0@alpha` admits the alpha of the package it names and
 **nothing behind it**, so the siblings this one pulls in still fail to resolve.
 Composer reports it against the sibling, not against what you asked for.
@@ -201,7 +201,7 @@ bundle's `config/` that carries a `modules/` directory -- and the file-driven
 loaders read it, so a module ships a definition instead of asking an integrator
 to install one into the application's own config.
 
-⚠️ The parent directory is examined only when the bundle path ends in `src`.
+!! The parent directory is examined only when the bundle path ends in `src`.
 Climbing unconditionally leaves the package and lands in the vendor namespace
 directory, where a sibling package can share the name being looked for.
 ### Added: `coolms:install` reports two modules claiming one VFS path
@@ -256,13 +256,13 @@ identifies your build -- an image digest today, `composer.lock`'s hash once the
 application is a thin skeleton over vendor. The bundle does not care which, so
 the seam survives that transition without changing.
 
-⚠️ It is read at container-compile time, not through `%env()%`. Pool namespaces
+!! It is read at container-compile time, not through `%env()%`. Pool namespaces
 are computed from the seed when the container is compiled, so an env placeholder
 would be hashed as its own literal text. Changing the value therefore takes
 effect on the next container build -- which is when a build identity changes
 anyway.
 
-⚠️ Development is deliberately left uncovered. It is covered by what already
+!! Development is deliberately left uncovered. It is covered by what already
 covers it: a per-payload schema version, and clearing by hand.
 
 ### Changed: sibling constraints move to the v2 generation
@@ -271,7 +271,7 @@ covers it: a per-payload schema version, and clearing by hand.
 - `coolms/core-module`: `^1.0` to `^2.0`
 - `coolms/core-doctrine` (development): `^1.0` to `^2.0`
 
-⚠️ **This is a minor, not a major, and that is deliberate.** This package
+!! **This is a minor, not a major, and that is deliberate.** This package
 reached major 2 before the platform adopted a shared generation number, and it
 did so while still requiring major 1 of its siblings. The v2 generation of those
 siblings is **code-identical** to v1 -- their major moved to mark the
@@ -316,7 +316,7 @@ protects nothing. An upgrade could leave yesterday's serialized objects in a
 pool for today's classes to read: a fatal on the first property the new class
 expects and the stored graph does not carry.
 
-⚠️ This release scoped by neither environment nor debug. See Unreleased.
+!! This release scoped by neither environment nor debug. See Unreleased.
 
 ### One-time cold cache on upgrade
 

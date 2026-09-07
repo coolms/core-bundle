@@ -17,9 +17,9 @@ use function trim;
 use function usort;
 
 /**
- * F3 — advertises every registered outbound channel (`rss`, `webhook`, …) as a
- * select datasource (key `core.outbound_channels`), so admin UIs — e.g. the
- * per-section content-distribution picker — list the AVAILABLE channels
+ * F3 -- advertises every registered outbound channel (`rss`, `webhook`, ...) as a
+ * select datasource (key `core.outbound_channels`), so admin UIs -- e.g. the
+ * per-section content-distribution picker -- list the AVAILABLE channels
  * dynamically instead of hard-coding ids. Adding a channel (a new
  * `coolms.outbound_channel`-tagged class) automatically makes it selectable
  * here, with no FE change.
@@ -27,7 +27,7 @@ use function usort;
  * The persisted `value` is the channel's `channelId()` (what the section stores
  * in `ContentCollection.enabledChannels`); the `label` is the channel's own
  * `label()`. Authenticated-only (channel config is an admin concern), so NOT a
- * {@see \CoolMS\Core\Option\PublicOptionSourceInterface} — reachable at
+ * {@see \CoolMS\Core\Option\PublicOptionSourceInterface} -- reachable at
  * `GET /api/v1/options/core.outbound_channels`.
  */
 final readonly class OutboundChannelsOptionSource implements OptionSourceProviderInterface

@@ -14,10 +14,10 @@ use Symfony\Component\HttpFoundation\RequestStack;
  * The default {@see CurrentVisitorReferenceInterface}: reads the current HTTP
  * request's client IP + user-agent and mints the anonymous `visitorRef` through
  * the Core {@see VisitorReferenceGeneratorInterface} (whose impl hashes + drops
- * the raw IP/UA — derive-and-drop). The raw values never leave this method.
+ * the raw IP/UA -- derive-and-drop). The raw values never leave this method.
  *
- * Off the request edge — no current request (CLI / worker) or no resolvable
- * client IP — it returns null, so producers stamp a null ref and carry on.
+ * Off the request edge -- no current request (CLI / worker) or no resolvable
+ * client IP -- it returns null, so producers stamp a null ref and carry on.
  */
 #[AsAlias(CurrentVisitorReferenceInterface::class)]
 final readonly class RequestVisitorReference implements CurrentVisitorReferenceInterface

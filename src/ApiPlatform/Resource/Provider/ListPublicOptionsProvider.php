@@ -18,13 +18,13 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  * The firewall-public sibling of {@see ListOptionsProvider}: it serves the
  * SAME wire shape but resolves the source with `publicOnly: true`, so only a
  * {@see \CoolMS\Core\Option\PublicOptionSourceInterface} (countries,
- * timezones — explicitly opted-in static lists) is reachable. A private,
+ * timezones -- explicitly opted-in static lists) is reachable. A private,
  * admin-only source returns 404 here exactly like a typo would, so the
  * public surface never reveals that a private source exists.
  *
  * Honours the same lazy-select conventions as the authenticated endpoint:
- *  - `?q=<term>` — case-insensitive substring narrowing
- *  - `?limit=<n>` — caps the response (registry enforces the cap)
+ *  - `?q=<term>` -- case-insensitive substring narrowing
+ *  - `?limit=<n>` -- caps the response (registry enforces the cap)
  *
  * @implements ProviderInterface<OptionResource>
  */

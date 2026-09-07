@@ -101,7 +101,7 @@ final class VaultSecretStore implements SecretStoreInterface
             throw new SecretStoreException(sprintf('Vault request to "%s" failed: %s', $url, $e->getMessage()), 0, $e);
         }
 
-        // KV v2 shape: { "data": { "data": { key: value, ... }, "metadata": {…} } }.
+        // KV v2 shape: { "data": { "data": { key: value, ... }, "metadata": {...} } }.
         $data = $json['data']['data'] ?? null;
         if (!is_array($data)) {
             throw new SecretStoreException('Vault response did not contain a KV v2 data map.');

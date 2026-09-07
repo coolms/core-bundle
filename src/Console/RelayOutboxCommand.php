@@ -18,12 +18,12 @@ use function max;
 use function sprintf;
 
 /**
- * `bin/console coolms:outbox:relay [--batch=N]` — publish committed
+ * `bin/console coolms:outbox:relay [--batch=N]` -- publish committed
  * transactional-outbox rows. Intended to run continuously / on a
  * tight cron (the DB-backed relay; a `LISTEN/NOTIFY` driver is a later option);
  * idempotent + safe to run on demand. The whole batch runs in ONE CONNECTION-level
  * transaction so the `FOR UPDATE SKIP LOCKED` claim holds until every row is marked
- * — connection-level (not EntityManager-level) so a consumer that closes the EM
+ * -- connection-level (not EntityManager-level) so a consumer that closes the EM
  * mid-batch (see {@see OutboxRelay}) can't abort the commit; the relay resets the
  * EM per failed row to keep later rows healthy.
  */

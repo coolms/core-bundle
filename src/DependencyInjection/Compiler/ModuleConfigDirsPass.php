@@ -20,7 +20,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
  * the parameter through `#[Autowire]`, and the kernel adds
  * `kernel.bundles_metadata` before any bundle's `build()` is called.
  *
- * ⚠️ A bundle's path is NOT a reliable base on its own. `Bundle::getPath()`
+ * !! A bundle's path is NOT a reliable base on its own. `Bundle::getPath()`
  * returns the directory of the bundle class, so a class in `src/` yields
  * `<package>/src` -- but a bundle carrying templates or assets overrides it to
  * return the package root, and both conventions are live in this tree
@@ -55,7 +55,7 @@ final readonly class ModuleConfigDirsPass
 
             $path = rtrim($entry['path'], '/');
 
-            // ⚠️ The parent is examined ONLY when the path ends in `src`.
+            // !! The parent is examined ONLY when the path ends in `src`.
             // Climbing unconditionally leaves the package and lands in the
             // vendor namespace directory, where a sibling package can share the
             // name being looked for.

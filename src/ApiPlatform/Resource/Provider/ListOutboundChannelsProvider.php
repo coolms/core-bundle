@@ -18,13 +18,13 @@ use function usort;
  * Serves `GET /api/v1/outbound-channels`: every ENABLED channel with
  * the settings it declares.
  *
- * Reads `channelIds()`, which is the gated list — so a channel switched
+ * Reads `channelIds()`, which is the gated list -- so a channel switched
  * off in configuration is absent here exactly as it is absent from the picker
  * and rejected by the distribution write. One source of truth for "which
  * channels exist for this install", three consumers.
  *
  * A channel that does not implement {@see ConfigurableChannelInterface} needs
- * nothing configured and reports an empty field list; `rss` is the example —
+ * nothing configured and reports an empty field list; `rss` is the example --
  * it derives everything from the section it announces.
  *
  * @implements ProviderInterface<OutboundChannelResource>
@@ -55,7 +55,7 @@ final readonly class ListOutboundChannelsProvider implements ProviderInterface
             $rows[] = new OutboundChannelResource(id: $id, label: $channel->label(), fields: $fields);
         }
 
-        // Label order, matching the picker's — the two lists are read side by
+        // Label order, matching the picker's -- the two lists are read side by
         // side in the section dialog, and disagreeing orders read as a bug.
         usort($rows, static fn (OutboundChannelResource $a, OutboundChannelResource $b): int => strcmp($a->label, $b->label));
 

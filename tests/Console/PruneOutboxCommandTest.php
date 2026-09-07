@@ -38,7 +38,7 @@ final class PruneOutboxCommandTest extends TestCase
         self::assertStringContainsString('4 delivered outbox rows and 2 idempotency-inbox rows', $display);
         self::assertStringContainsString('would be pruned', $display);
         self::assertStringContainsString('Nothing was deleted', $display);
-        // The delete-path success line ("Pruned N …") must NOT appear on a dry run.
+        // The delete-path success line ("Pruned N ...") must NOT appear on a dry run.
         self::assertStringNotContainsString('Pruned ', $display);
     }
 }

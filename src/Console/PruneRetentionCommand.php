@@ -18,7 +18,7 @@ use function count;
 use function sprintf;
 
 /**
- * `bin/console coolms:retention:prune` — run EVERY module's retention sweep in one
+ * `bin/console coolms:retention:prune` -- run EVERY module's retention sweep in one
  * pass (analytics events + page views, spam comments, expired auth tokens +
  * verification codes, and any future {@see \CoolMS\Core\Retention\RetentionPrunerInterface}).
  * Each pruner uses its own baked-in grace window. Intended for cron / the M1.3

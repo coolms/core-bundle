@@ -17,11 +17,11 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  *
  * Routes to whichever tagged service has registered `source` as its
  * key. Honours the lazy-select convention:
- *  - `?q=<term>` — case-insensitive substring narrowing
- *  - `?limit=<n>` — caps the response (registry enforces the cap as a
+ *  - `?q=<term>` -- case-insensitive substring narrowing
+ *  - `?limit=<n>` -- caps the response (registry enforces the cap as a
  *    backstop even if the provider ignores it)
  *
- * An unknown source returns 404 — defensive against typos in the FE
+ * An unknown source returns 404 -- defensive against typos in the FE
  * column YAML referencing a source the host hasn't registered.
  *
  * @implements ProviderInterface<OptionResource>

@@ -53,7 +53,7 @@ final class RequestVisitorReferenceTest extends TestCase
     public function itReturnsNullWhenTheRequestHasNoClientIp(): void
     {
         $requests = new RequestStack();
-        $requests->push(new Request()); // empty server bag → getClientIp() === null
+        $requests->push(new Request()); // empty server bag -> getClientIp() === null
 
         $ref = new RequestVisitorReference($requests, $this->neverGenerator(), new MockClock())->current();
 
