@@ -33,6 +33,11 @@ unaffected: the file is owned by the writer, who is the reader.
 Measured on a clean clone of `coolms/coolms` following its documented install,
 2026-09-07.
 
+One limit, stated rather than discovered: detecting that the install is running
+as root needs `ext-posix`, which is optional. Where it is absent the check does
+not run and a configured reader is not applied -- so a host that serves through
+php-fpm without that extension keeps the old behaviour.
+
 **`ConfigCacheWarmer` now knows the `settings` config type.** The
 runtime module-settings tier writes
 `config/modules/generated/settings/<key>--<scope>.yaml`, and `settings` was

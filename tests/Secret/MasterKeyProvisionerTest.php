@@ -49,7 +49,12 @@ final class MasterKeyProvisionerTest extends TestCase
      */
     public function testDoesNotRefuseWhenNotRootEvenWithNoOwnerConfigured(): void
     {
-        if (0 === posix_geteuid()) {
+        // !! GUARDED THE WAY THE PRODUCTION CODE IS. CI has no ext-posix, and an
+        // unguarded call here failed the whole suite while the code under test
+        // handled its absence correctly. Without the extension the provisioner
+        // cannot detect root and takes the non-root path, which is what this
+        // asserts, so the test still runs there rather than skipping.
+        if (function_exists('posix_geteuid') && 0 === posix_geteuid()) {
             self::markTestSkipped('running as root -- this asserts the non-root path');
         }
 

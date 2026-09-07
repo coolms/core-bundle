@@ -245,8 +245,12 @@ final class MasterKeyProvisioner
      * then serves as a plain HTTP 200 error page. Measured on a clean clone of
      * the skeleton, 2026-09-07: it is what the documented install produced.
      *
-     * Without ext-posix the question cannot be answered, and a platform with no
-     * uid concept has no split to worry about.
+     * !! WITHOUT EXT-POSIX THIS RETURNS FALSE AND THE CHECK DOES NOT RUN, which
+     * is a real limit and not a safe default. The extension is optional, so a
+     * Linux host serving through php-fpm can lack it and still have the
+     * writer/reader split this exists to catch -- and {@see resolvedOwner()}
+     * needs `posix_getpwnam` too, so a configured reader is not applied there
+     * either. Measured: the package's own CI has no ext-posix.
      */
     private function writingForAnotherUser(): bool
     {
