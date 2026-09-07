@@ -79,6 +79,7 @@ class Configuration implements ConfigurationInterface
             ->children()
             ->enumNode('driver')->values(['env', 'filesystem', 'vault'])->defaultValue('env')->info("Active backend. 'env' reads environment variables; 'filesystem' is the libsodium encrypted file (F1.b); 'vault' is HashiCorp Vault KV v2 (F1.c).")->end()
             ->scalarNode('env_prefix')->defaultValue('COOLMS_SECRET_')->cannotBeEmpty()->info("Env-var prefix for the 'env' driver; secret('stripe_api_key') -> COOLMS_SECRET_STRIPE_API_KEY.")->end()
+            ->scalarNode('key_file_owner')->defaultValue('%env(default::COOLMS_FILE_OWNER)%')->info('User that must be able to read the generated master key, e.g. www-data. Only consulted when coolms:install runs as root -- root is never the process that serves requests, so a 0600 root-owned env file would be unreadable by the web server. Unset plus a root install is a refusal, not a default.')->end()
             ->arrayNode('filesystem')
             ->info('Settings for the libsodium filesystem driver (F1.b). The management commands (coolms:secret:*) use these even when env is the active driver.')
             ->addDefaultsIfNotSet()

@@ -62,6 +62,14 @@ final class InstallCommand extends Command
                 $io->error($this->masterKey->keyEnvVar() . ' is set but is not a valid base64 32-byte key. Refusing to overwrite it (that would orphan already-sealed data). Fix or unset it, then re-run coolms:install.');
 
                 return Command::FAILURE;
+            case MasterKeyStatus::OwnerUndetermined:
+                $io->error(sprintf(
+                    'Refusing to write %s: this install is running as root, so the key file (%s) would be owned by root at 0600 and the web server -- which serves as a different user -- could not read it. Every request would then fail before the kernel boots. Set core.secret_store.key_file_owner (COOLMS_FILE_OWNER in the skeleton) to the user your web server runs as, commonly www-data, then re-run coolms:install.',
+                    $this->masterKey->keyEnvVar(),
+                    basename($this->masterKey->envFilePath()),
+                ));
+
+                return Command::FAILURE;
             case MasterKeyStatus::MissingInProd:
                 $io->error($this->masterKey->keyEnvVar() . ' is not set and is not auto-generated in prod. Generate one with `coolms:secret:generate-key`, set it in your environment / secret mount, then re-run coolms:install.');
 

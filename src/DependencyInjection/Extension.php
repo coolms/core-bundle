@@ -102,6 +102,7 @@ class Extension extends AbstractExtension
         $container->setParameter('coolms.secret_store.env_prefix', $config['secret_store']['env_prefix']);
         $container->setParameter('coolms.secret_store.fs_path', $config['secret_store']['filesystem']['path']);
         $container->setParameter('coolms.secret_store.fs_key_env', $config['secret_store']['filesystem']['key_env']);
+        $container->setParameter('coolms.secret_store.key_file_owner', $config['secret_store']['key_file_owner']);
         $container->setParameter('coolms.secret_store.vault_addr', $config['secret_store']['vault']['addr']);
         $container->setParameter('coolms.secret_store.vault_token_env', $config['secret_store']['vault']['token_env']);
         $container->setParameter('coolms.secret_store.vault_path', $config['secret_store']['vault']['path']);
