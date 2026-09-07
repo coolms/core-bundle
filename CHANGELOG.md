@@ -10,6 +10,21 @@ major number means here.
 history when this file was created. Every entry after that is written in the
 same commit as the change it describes.
 
+## Unreleased
+
+### Added
+
+**`ConfigCacheWarmer` has tests.** It validates every module config file and had
+none, which is how a config type went missing from `KNOWN_TYPES` and warned on
+every `cache:clear` while being the one type nothing checked. The suite is driven
+off the constant itself, so adding a type cannot add an untested one, and it
+pins one measured edge: PHP represents a YAML sequence and a mapping both as
+`array`, so a list-shaped file is reported as missing its `type` key rather than
+as not being a map.
+
+This covers behaviour released in 2.0.0-alpha4. Tests are shipped rather than
+export-ignored in this package, so it reaches consumers.
+
 ## 2.0.0-alpha4 - 2026-09-07
 
 ### Fixed
