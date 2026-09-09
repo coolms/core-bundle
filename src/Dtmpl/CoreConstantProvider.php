@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Dtmpl;
+namespace CoolMS\Core\Bundle\Dtmpl;
 
 use CoolMS\Dtmpl\Runtime\ConstantProviderInterface;
 

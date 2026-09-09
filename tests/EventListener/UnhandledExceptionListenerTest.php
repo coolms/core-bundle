@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Tests\EventListener;
+namespace CoolMS\Core\Bundle\Tests\EventListener;
 
 use CoolMS\Core\Config\PlatformDefaults;
 use CoolMS\Core\Exception\TranslatableExceptionInterface;
 use CoolMS\Core\Exception\TranslatableExceptionTrait;
-use CoolMS\CoreBundle\EventListener\UnhandledExceptionListener;
+use CoolMS\Core\Bundle\EventListener\UnhandledExceptionListener;
 use DomainException;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

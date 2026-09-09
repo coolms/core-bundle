@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Tests\ApiPlatform\Resource\Provider;
+namespace CoolMS\Core\Bundle\Tests\ApiPlatform\Resource\Provider;
 
 use ApiPlatform\Metadata\GetCollection;
 use CoolMS\Core\Channel\ChannelConfigField;
@@ -10,9 +10,9 @@ use CoolMS\Core\Channel\ConfigurableChannelInterface;
 use CoolMS\Core\Channel\DeliveryResult;
 use CoolMS\Core\Channel\OutboundChannelInterface;
 use CoolMS\Core\Channel\OutboundMessage;
-use CoolMS\CoreBundle\ApiPlatform\Resource\OutboundChannelResource;
-use CoolMS\CoreBundle\ApiPlatform\Resource\Provider\ListOutboundChannelsProvider;
-use CoolMS\CoreApp\Channel\OutboundChannelRegistry;
+use CoolMS\Core\Bundle\ApiPlatform\Resource\OutboundChannelResource;
+use CoolMS\Core\Bundle\ApiPlatform\Resource\Provider\ListOutboundChannelsProvider;
+use CoolMS\Core\Application\Channel\OutboundChannelRegistry;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

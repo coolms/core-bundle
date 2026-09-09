@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\DependencyInjection\Compiler;
+namespace CoolMS\Core\Bundle\DependencyInjection\Compiler;
 
-use CoolMS\CoreApp\Channel\OutboundChannelRegistry;
+use CoolMS\Core\Application\Channel\OutboundChannelRegistry;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Module;
+namespace CoolMS\Core\Bundle\Module;
 
 use Composer\InstalledVersions;
 use CoolMS\Core\Install\DeclaresVfsPathsInterface;

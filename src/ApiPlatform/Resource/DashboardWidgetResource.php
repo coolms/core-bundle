@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\ApiPlatform\Resource;
+namespace CoolMS\Core\Bundle\ApiPlatform\Resource;
 
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
-use CoolMS\CoreBundle\ApiPlatform\Provider\DashboardWidgetProvider;
+use CoolMS\Core\Bundle\ApiPlatform\Provider\DashboardWidgetProvider;
 
 /**
  * `GET /api/v1/dashboard/widgets` -- what this viewer's dashboard may show,

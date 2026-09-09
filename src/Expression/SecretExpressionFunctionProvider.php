@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Expression;
+namespace CoolMS\Core\Bundle\Expression;
 
 use CoolMS\Core\Secret\SecretStoreInterface;
 use Symfony\Component\ExpressionLanguage\ExpressionFunction;

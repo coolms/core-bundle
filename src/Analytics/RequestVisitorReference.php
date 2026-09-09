@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Analytics;
+namespace CoolMS\Core\Bundle\Analytics;
 
 use CoolMS\Core\Analytics\CurrentVisitorReferenceInterface;
 use CoolMS\Core\Analytics\VisitorReferenceGeneratorInterface;

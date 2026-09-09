@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\ApiPlatform\Resource;
+namespace CoolMS\Core\Bundle\ApiPlatform\Resource;
 
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Put;
-use CoolMS\CoreBundle\ApiPlatform\Resource\DTO\DashboardLayoutRequest;
-use CoolMS\CoreBundle\ApiPlatform\Resource\Processor\ResetDashboardLayoutProcessor;
-use CoolMS\CoreBundle\ApiPlatform\Resource\Processor\SaveDashboardLayoutProcessor;
+use CoolMS\Core\Bundle\ApiPlatform\Resource\DTO\DashboardLayoutRequest;
+use CoolMS\Core\Bundle\ApiPlatform\Resource\Processor\ResetDashboardLayoutProcessor;
+use CoolMS\Core\Bundle\ApiPlatform\Resource\Processor\SaveDashboardLayoutProcessor;
 
 /**
  * `PUT|DELETE /api/v1/dashboard/layout` -- arranging the dashboard.

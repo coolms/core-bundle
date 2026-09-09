@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Console;
+namespace CoolMS\Core\Bundle\Console;
 
-use CoolMS\CoreApp\Retention\RetentionPruneRunner;
+use CoolMS\Core\Application\Retention\RetentionPruneRunner;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;

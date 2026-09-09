@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Secret;
+namespace CoolMS\Core\Bundle\Secret;
 
 /**
  * Outcome of {@see MasterKeyProvisioner::ensure()} -- kept as a status enum so the

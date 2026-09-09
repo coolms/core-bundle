@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Console;
+namespace CoolMS\Core\Bundle\Console;
 
 use CoolMS\Core\Install\ModuleInstallerInterface;
 use CoolMS\Core\Install\StructureInstallerInterface;
 use CoolMS\Core\Install\VfsPathClaims;
-use CoolMS\CoreBundle\Module\InstallManifest;
-use CoolMS\CoreBundle\Module\ModuleCatalog;
-use CoolMS\CoreBundle\Secret\MasterKeyProvisioner;
-use CoolMS\CoreBundle\Secret\MasterKeyStatus;
+use CoolMS\Core\Bundle\Module\InstallManifest;
+use CoolMS\Core\Bundle\Module\ModuleCatalog;
+use CoolMS\Core\Bundle\Secret\MasterKeyProvisioner;
+use CoolMS\Core\Bundle\Secret\MasterKeyStatus;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;

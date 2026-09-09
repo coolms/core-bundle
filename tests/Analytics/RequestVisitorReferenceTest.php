@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Tests\Analytics;
+namespace CoolMS\Core\Bundle\Tests\Analytics;
 
 use CoolMS\Core\Analytics\VisitorReferenceGeneratorInterface;
-use CoolMS\CoreBundle\Analytics\RequestVisitorReference;
+use CoolMS\Core\Bundle\Analytics\RequestVisitorReference;
 use DateTimeImmutable;
 use LogicException;
 use PHPUnit\Framework\Attributes\Test;

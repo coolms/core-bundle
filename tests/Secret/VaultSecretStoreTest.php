@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Tests\Secret;
+namespace CoolMS\Core\Bundle\Tests\Secret;
 
 use CoolMS\Core\Secret\SecretNotFoundException;
 use CoolMS\Core\Secret\SecretStoreException;
-use CoolMS\CoreBundle\Secret\VaultSecretStore;
+use CoolMS\Core\Bundle\Secret\VaultSecretStore;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpClient\MockHttpClient;

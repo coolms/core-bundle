@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Tests\Secret;
+namespace CoolMS\Core\Bundle\Tests\Secret;
 
 use CoolMS\Core\Secret\SecretStoreException;
-use CoolMS\CoreBundle\Secret\EncryptedSecretsFile;
+use CoolMS\Core\Bundle\Secret\EncryptedSecretsFile;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 

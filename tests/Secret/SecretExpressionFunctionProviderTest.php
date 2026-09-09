@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Tests\Secret;
+namespace CoolMS\Core\Bundle\Tests\Secret;
 
 use CoolMS\Core\Secret\SecretNotFoundException;
 use CoolMS\Core\Secret\SecretStoreInterface;
-use CoolMS\CoreBundle\Expression\SecretExpressionFunctionProvider;
+use CoolMS\Core\Bundle\Expression\SecretExpressionFunctionProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Module;
+namespace CoolMS\Core\Bundle\Module;
 
 use RuntimeException;
 
@@ -25,7 +25,7 @@ use function var_export;
  *
  * WHY IN `config/`. Two reasons, and the second is the one worth stating.
  * First, it is configuration: an operator can read it, diff it and commit it.
- * Second, {@see \CoolMS\CoreBundle\Cache\CacheSeed} hashes every file under
+ * Second, {@see \CoolMS\Core\Bundle\Cache\CacheSeed} hashes every file under
  * `config/` whose extension is one it recognises, so writing this file MOVES
  * `framework.cache.prefix_seed` and invalidates every pool. Disabling a module
  * must not leave a pool holding objects whose class has stopped loading, and

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Event\Behaviour;
+namespace CoolMS\Core\Bundle\Event\Behaviour;
 
 use CoolMS\Core\Blameable\AccessedByProviderInterface;
 use CoolMS\Core\Blameable\BlameableActorInterface;

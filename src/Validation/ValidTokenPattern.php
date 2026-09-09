@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Validation;
+namespace CoolMS\Core\Bundle\Validation;
 
 use Attribute;
 use Symfony\Component\Validator\Constraint;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Outbox;
+namespace CoolMS\Core\Bundle\Outbox;
 
 use CoolMS\Core\Outbox\OutboxMessagePublished;
 use CoolMS\Core\Outbox\OutboxPublisherInterface;

@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Console;
+namespace CoolMS\Core\Bundle\Console;
 
-use CoolMS\CoreBundle\Module\DisabledBundles;
-use CoolMS\CoreBundle\Module\InstallManifest;
-use CoolMS\CoreBundle\Module\ModuleArtifactRemover;
-use CoolMS\CoreBundle\Module\ModuleCatalog;
-use CoolMS\CoreBundle\Module\ModuleConfigFiles;
+use CoolMS\Core\Bundle\Module\DisabledBundles;
+use CoolMS\Core\Bundle\Module\InstallManifest;
+use CoolMS\Core\Bundle\Module\ModuleArtifactRemover;
+use CoolMS\Core\Bundle\Module\ModuleCatalog;
+use CoolMS\Core\Bundle\Module\ModuleConfigFiles;
 use RuntimeException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Process;

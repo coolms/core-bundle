@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Tests\Http;
+namespace CoolMS\Core\Bundle\Tests\Http;
 
-use CoolMS\CoreBundle\Http\PageCacheDirectives;
+use CoolMS\Core\Bundle\Http\PageCacheDirectives;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

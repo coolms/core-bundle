@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Module;
+namespace CoolMS\Core\Bundle\Module;
 
-use CoolMS\CoreBundle\AbstractCoolmsBundle;
+use CoolMS\Core\Bundle\AbstractCoolmsBundle;
 
 use function array_keys;
 use function array_merge;

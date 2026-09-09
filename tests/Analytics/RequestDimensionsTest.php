@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Tests\Analytics;
+namespace CoolMS\Core\Bundle\Tests\Analytics;
 
-use CoolMS\CoreBundle\Analytics\RequestDimensions;
+use CoolMS\Core\Bundle\Analytics\RequestDimensions;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

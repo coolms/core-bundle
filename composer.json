@@ -19,7 +19,7 @@
         "api-platform/core": "^4.2",
         "composer-runtime-api": "^2.0",
         "coolms/core": "^2.0",
-        "coolms/core-app": "^2.0",
+        "coolms/core-application": "^2.0",
         "coolms/dtmpl": "^2.0",
         "coolms/rql": "^1.0",
         "ext-mbstring": "*",
@@ -53,12 +53,12 @@
     },
     "autoload": {
         "psr-4": {
-            "CoolMS\\CoreBundle\\": "src/"
+            "CoolMS\\Core\\Bundle\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "CoolMS\\CoreBundle\\Tests\\": "tests/"
+            "CoolMS\\Core\\Bundle\\Tests\\": "tests/"
         }
     },
     "scripts": {

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Tests\Module;
+namespace CoolMS\Core\Bundle\Tests\Module;
 
-use CoolMS\CoreBundle\Module\ModuleConfigFiles;
+use CoolMS\Core\Bundle\Module\ModuleConfigFiles;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;

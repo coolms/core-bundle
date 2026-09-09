@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Secret;
+namespace CoolMS\Core\Bundle\Secret;
 
 use CoolMS\Core\Secret\SecretStoreException;
 use SodiumException;

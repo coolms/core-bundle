@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Webhook;
+namespace CoolMS\Core\Bundle\Webhook;
 
 use CoolMS\Core\Secret\SecretStoreInterface;
 use CoolMS\Core\Webhook\WebhookSignatureException;

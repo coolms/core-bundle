@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Controller;
+namespace CoolMS\Core\Bundle\Controller;
 
 use CoolMS\Core\Template\TemplateRendererInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController as SymfonyAbstractController;

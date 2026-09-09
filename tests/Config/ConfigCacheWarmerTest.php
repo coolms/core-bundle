@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Tests\Config;
+namespace CoolMS\Core\Bundle\Tests\Config;
 
-use CoolMS\CoreBundle\Config\ConfigCacheWarmer;
+use CoolMS\Core\Bundle\Config\ConfigCacheWarmer;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

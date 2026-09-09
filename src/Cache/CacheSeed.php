@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Cache;
+namespace CoolMS\Core\Bundle\Cache;
 
 use Composer\InstalledVersions;
 use FilesystemIterator;
@@ -58,7 +58,7 @@ use function substr;
  * still evolving carries its own schema version in its own key as well.
  *
  * An application that sets `framework.cache.prefix_seed` itself keeps its own
- * value -- {@see \CoolMS\CoreBundle\DependencyInjection\Compiler\CachePrefixSeedPass}
+ * value -- {@see \CoolMS\Core\Bundle\DependencyInjection\Compiler\CachePrefixSeedPass}
  * PREPENDS this one, so application config wins.
  */
 final class CacheSeed
@@ -99,7 +99,7 @@ final class CacheSeed
      * @param string $environment `kernel.environment`
      * @param bool   $debug       `kernel.debug`
      * @param string $buildId     an optional build identity -- see
-     *                            {@see \CoolMS\CoreBundle\DependencyInjection\Compiler\CachePrefixSeedPass}
+     *                            {@see \CoolMS\Core\Bundle\DependencyInjection\Compiler\CachePrefixSeedPass}
      *                            for why it exists and why it is optional. Empty
      *                            means "not supplied", and the seed is then
      *                            exactly what it was without this parameter.

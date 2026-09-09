@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\ApiPlatform\Resource;
+namespace CoolMS\Core\Bundle\ApiPlatform\Resource;
 
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use CoolMS\Core\Option\Option;
-use CoolMS\CoreBundle\ApiPlatform\Resource\Provider\GetOptionProvider;
-use CoolMS\CoreBundle\ApiPlatform\Resource\Provider\ListOptionsProvider;
-use CoolMS\CoreBundle\ApiPlatform\Resource\Provider\ListPublicOptionsProvider;
+use CoolMS\Core\Bundle\ApiPlatform\Resource\Provider\GetOptionProvider;
+use CoolMS\Core\Bundle\ApiPlatform\Resource\Provider\ListOptionsProvider;
+use CoolMS\Core\Bundle\ApiPlatform\Resource\Provider\ListPublicOptionsProvider;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 /**

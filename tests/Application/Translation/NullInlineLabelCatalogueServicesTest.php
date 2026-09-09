@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Tests\Application\Translation;
+namespace CoolMS\Core\Bundle\Tests\Application\Translation;
 
 use CoolMS\Core\Identity\UserInterface;
 use CoolMS\Core\Translation\TranslationCatalogueUnavailableException;
-use CoolMS\CoreApp\Translation\NullInlineLabelCatalogueReader;
-use CoolMS\CoreApp\Translation\NullInlineLabelCatalogueWriter;
+use CoolMS\Core\Application\Translation\NullInlineLabelCatalogueReader;
+use CoolMS\Core\Application\Translation\NullInlineLabelCatalogueWriter;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use stdClass;
@@ -17,7 +17,7 @@ use stdClass;
  * READING per-locale overrides is a safe no-op (empty map -> editor shows
  * source labels), while WRITING is a loud failure (a silent drop would lose
  * authored translations). These are the fallbacks bound by
- * {@see \CoolMS\CoreBundle\DependencyInjection\Compiler\TranslationCatalogueFallbackPass}.
+ * {@see \CoolMS\Core\Bundle\DependencyInjection\Compiler\TranslationCatalogueFallbackPass}.
  */
 final class NullInlineLabelCatalogueServicesTest extends TestCase
 {

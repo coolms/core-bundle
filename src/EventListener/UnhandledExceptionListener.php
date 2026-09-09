@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\EventListener;
+namespace CoolMS\Core\Bundle\EventListener;
 
 use CoolMS\Core\Config\PlatformDefaults;
 use CoolMS\Core\Exception\InvalidInputExceptionInterface;

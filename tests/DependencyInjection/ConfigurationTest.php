@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Tests\DependencyInjection;
+namespace CoolMS\Core\Bundle\Tests\DependencyInjection;
 
-use CoolMS\CoreBundle\DependencyInjection\Configuration;
+use CoolMS\Core\Bundle\DependencyInjection\Configuration;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
