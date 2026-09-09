@@ -8,7 +8,7 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use CoolMS\Core\Option\Exception\UnknownOptionSourceException;
 use CoolMS\CoreBundle\ApiPlatform\Resource\OptionResource;
-use CoolMS\CoreModule\Option\OptionSourceRegistry;
+use CoolMS\CoreApp\Option\OptionSourceRegistry;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**

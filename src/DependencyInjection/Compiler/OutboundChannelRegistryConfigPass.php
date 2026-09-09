@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CoolMS\CoreBundle\DependencyInjection\Compiler;
 
-use CoolMS\CoreModule\Channel\OutboundChannelRegistry;
+use CoolMS\CoreApp\Channel\OutboundChannelRegistry;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 

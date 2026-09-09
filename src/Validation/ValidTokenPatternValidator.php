@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CoolMS\CoreBundle\Validation;
 
-use CoolMS\CoreModule\Service\PatternRenderer;
+use CoolMS\CoreApp\Service\PatternRenderer;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;

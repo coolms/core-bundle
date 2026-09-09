@@ -12,7 +12,7 @@ use CoolMS\Core\Channel\OutboundChannelInterface;
 use CoolMS\Core\Channel\OutboundMessage;
 use CoolMS\CoreBundle\ApiPlatform\Resource\OutboundChannelResource;
 use CoolMS\CoreBundle\ApiPlatform\Resource\Provider\ListOutboundChannelsProvider;
-use CoolMS\CoreModule\Channel\OutboundChannelRegistry;
+use CoolMS\CoreApp\Channel\OutboundChannelRegistry;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

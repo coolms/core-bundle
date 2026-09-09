@@ -7,7 +7,7 @@ namespace CoolMS\CoreBundle\Tests\Console;
 use CoolMS\Core\Inbox\ProcessedMessageStoreInterface;
 use CoolMS\Core\Outbox\OutboxRelayRepositoryInterface;
 use CoolMS\CoreBundle\Console\PruneOutboxCommand;
-use CoolMS\CoreModule\Outbox\OutboxMaintenanceService;
+use CoolMS\CoreApp\Outbox\OutboxMaintenanceService;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Clock\MockClock;

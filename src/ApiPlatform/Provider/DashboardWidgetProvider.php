@@ -9,7 +9,7 @@ use ApiPlatform\State\ProviderInterface;
 use CoolMS\Core\Dashboard\PlacedWidget;
 use CoolMS\CoreBundle\ApiPlatform\Resource\DashboardWidgetInfo;
 use CoolMS\CoreBundle\ApiPlatform\Resource\DashboardWidgetResource;
-use CoolMS\CoreModule\Dashboard\DashboardCatalogue;
+use CoolMS\CoreApp\Dashboard\DashboardCatalogue;
 
 use function array_map;
 use function is_string;

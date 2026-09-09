@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CoolMS\CoreBundle\Console;
 
-use CoolMS\CoreModule\Retention\RetentionPruneRunner;
+use CoolMS\CoreApp\Retention\RetentionPruneRunner;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;

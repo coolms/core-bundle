@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CoolMS\CoreBundle\Json;
 
 use CoolMS\Core\Exception\JsoncDecodeException;
-use CoolMS\CoreModule\Json\JsoncDecoderInterface;
+use CoolMS\CoreApp\Json\JsoncDecoderInterface;
 use JsonException;
 
 use function is_array;

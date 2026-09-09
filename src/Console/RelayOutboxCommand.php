@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CoolMS\CoreBundle\Console;
 
 use CoolMS\Core\Transaction\ConnectionTransactionRunnerInterface;
-use CoolMS\CoreModule\Outbox\OutboxRelay;
+use CoolMS\CoreApp\Outbox\OutboxRelay;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;

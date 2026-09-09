@@ -19,7 +19,7 @@
         "api-platform/core": "^4.2",
         "composer-runtime-api": "^2.0",
         "coolms/core": "^2.0",
-        "coolms/core-module": "^2.0",
+        "coolms/core-app": "^2.0",
         "coolms/dtmpl": "^2.0",
         "coolms/rql": "^1.0",
         "ext-mbstring": "*",

@@ -6,7 +6,7 @@ namespace CoolMS\CoreBundle\Tests\Console;
 
 use CoolMS\Core\Retention\RetentionPrunerInterface;
 use CoolMS\CoreBundle\Console\PruneRetentionCommand;
-use CoolMS\CoreModule\Retention\RetentionPruneRunner;
+use CoolMS\CoreApp\Retention\RetentionPruneRunner;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;

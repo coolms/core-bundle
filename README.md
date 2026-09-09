@@ -20,10 +20,10 @@ composer require coolms/core-bundle coolms/core-doctrine
 ```
 
 > **Name the adapter, or Composer installs the wrong thing and says it worked.**
-> This bundle pulls in `coolms/core-module`, which requires the virtual
+> This bundle pulls in `coolms/core-app`, which requires the virtual
 > `coolms/core-persistence-implementation`. With no adapter that requirement
 > cannot be satisfied — and instead of failing, Composer **backtracks** to a
-> release of this bundle from before it declared `coolms/core-module` at all,
+> release of this bundle from before it declared `coolms/core-app` at all,
 > then reports success.
 >
 > Measured at the time of writing: `composer require coolms/core-bundle` alone
@@ -80,7 +80,7 @@ interface-to-concrete map the platform resolves at compile time.
 | Package | Role |
 |---|---|
 | [`coolms/core`](https://github.com/coolms/core) | kernel contracts |
-| [`coolms/core-module`](https://github.com/coolms/core-module) | application services |
+| [`coolms/core-app`](https://github.com/coolms/core-app) | application services |
 | [`coolms/core-doctrine`](https://github.com/coolms/core-doctrine) | persistence adapter |
 
 ## License

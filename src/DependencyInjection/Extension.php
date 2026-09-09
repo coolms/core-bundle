@@ -32,17 +32,17 @@ use CoolMS\CoreBundle\Outbox\DispatchingOutboxPublisher;
 use CoolMS\CoreBundle\Secret\EnvSecretStore;
 use CoolMS\CoreBundle\Secret\FilesystemEncryptedStore;
 use CoolMS\CoreBundle\Secret\VaultSecretStore;
-use CoolMS\CoreModule\ApiManifest\ApiManifestContributorInterface;
-use CoolMS\CoreModule\Config\ChainedConfigLoader;
-use CoolMS\CoreModule\Config\ChainedConfigWriter;
-use CoolMS\CoreModule\Config\ConfigLoaderInterface;
-use CoolMS\CoreModule\Config\ConfigWriterInterface;
-use CoolMS\CoreModule\Config\DbConfigWriter;
-use CoolMS\CoreModule\Config\FileConfigLoader;
-use CoolMS\CoreModule\Config\FileConfigWriter;
-use CoolMS\CoreModule\Json\JsoncDecoderInterface;
-use CoolMS\CoreModule\Service\LocalizedSlugger;
-use CoolMS\CoreModule\Translation\LabelResolver;
+use CoolMS\CoreApp\ApiManifest\ApiManifestContributorInterface;
+use CoolMS\CoreApp\Config\ChainedConfigLoader;
+use CoolMS\CoreApp\Config\ChainedConfigWriter;
+use CoolMS\CoreApp\Config\ConfigLoaderInterface;
+use CoolMS\CoreApp\Config\ConfigWriterInterface;
+use CoolMS\CoreApp\Config\DbConfigWriter;
+use CoolMS\CoreApp\Config\FileConfigLoader;
+use CoolMS\CoreApp\Config\FileConfigWriter;
+use CoolMS\CoreApp\Json\JsoncDecoderInterface;
+use CoolMS\CoreApp\Service\LocalizedSlugger;
+use CoolMS\CoreApp\Translation\LabelResolver;
 use LogicException;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
@@ -332,7 +332,7 @@ class Extension extends AbstractExtension
         // NaviNode, SiteSection, etc.) and routes through Symfony's
         // translator, which is decorated by `VfsOverlayingTranslator`
         // so VFS XLIFF overrides win over bundled `.xlf` files. The
-        // resolver itself stays in `CoolMS\CoreModule\Translation\`;
+        // resolver itself stays in `CoolMS\CoreApp\Translation\`;
         // only the alias is wired here.
         $container->setAlias(LabelResolverInterface::class, LabelResolver::class);
     }

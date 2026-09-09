@@ -6,8 +6,8 @@ namespace CoolMS\CoreBundle\DependencyInjection\Compiler;
 
 use CoolMS\Core\Translation\InlineLabelCatalogueReaderInterface;
 use CoolMS\Core\Translation\InlineLabelCatalogueWriterInterface;
-use CoolMS\CoreModule\Translation\NullInlineLabelCatalogueReader;
-use CoolMS\CoreModule\Translation\NullInlineLabelCatalogueWriter;
+use CoolMS\CoreApp\Translation\NullInlineLabelCatalogueReader;
+use CoolMS\CoreApp\Translation\NullInlineLabelCatalogueWriter;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 

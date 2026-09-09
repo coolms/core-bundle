@@ -6,7 +6,7 @@ namespace CoolMS\CoreBundle\ApiPlatform\Resource\Processor;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
-use CoolMS\CoreModule\Dashboard\DashboardLayoutWriter;
+use CoolMS\CoreApp\Dashboard\DashboardLayoutWriter;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 use function is_string;

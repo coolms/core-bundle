@@ -6,8 +6,8 @@ namespace CoolMS\CoreBundle\Tests\Application\Translation;
 
 use CoolMS\Core\Identity\UserInterface;
 use CoolMS\Core\Translation\TranslationCatalogueUnavailableException;
-use CoolMS\CoreModule\Translation\NullInlineLabelCatalogueReader;
-use CoolMS\CoreModule\Translation\NullInlineLabelCatalogueWriter;
+use CoolMS\CoreApp\Translation\NullInlineLabelCatalogueReader;
+use CoolMS\CoreApp\Translation\NullInlineLabelCatalogueWriter;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use stdClass;

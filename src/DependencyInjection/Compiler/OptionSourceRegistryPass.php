@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CoolMS\CoreBundle\DependencyInjection\Compiler;
 
-use CoolMS\CoreModule\Option\OptionSourceRegistry;
+use CoolMS\CoreApp\Option\OptionSourceRegistry;
 use Symfony\Component\DependencyInjection\Argument\TaggedIteratorArgument;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
