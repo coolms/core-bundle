@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\ApiPlatform\Provider;
+namespace CoolMS\Core\Bundle\ApiPlatform\Provider;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use CoolMS\Core\Dashboard\PlacedWidget;
-use CoolMS\CoreBundle\ApiPlatform\Resource\DashboardWidgetInfo;
-use CoolMS\CoreBundle\ApiPlatform\Resource\DashboardWidgetResource;
-use CoolMS\CoreModule\Dashboard\DashboardCatalogue;
+use CoolMS\Core\Bundle\ApiPlatform\Resource\DashboardWidgetInfo;
+use CoolMS\Core\Bundle\ApiPlatform\Resource\DashboardWidgetResource;
+use CoolMS\Core\Application\Dashboard\DashboardCatalogue;
 
 use function array_map;
 use function is_string;

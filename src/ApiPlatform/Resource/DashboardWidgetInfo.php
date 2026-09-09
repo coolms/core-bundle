@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\ApiPlatform\Resource;
+namespace CoolMS\Core\Bundle\ApiPlatform\Resource;
 
 /**
  * One catalogue entry on the wire.

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\DependencyInjection\Compiler;
+namespace CoolMS\Core\Bundle\DependencyInjection\Compiler;
 
-use CoolMS\CoreBundle\Console\InstallCommand;
-use CoolMS\CoreBundle\Module\ModuleArtifactRemover;
+use CoolMS\Core\Bundle\Console\InstallCommand;
+use CoolMS\Core\Bundle\Module\ModuleArtifactRemover;
 use Symfony\Component\DependencyInjection\Argument\TaggedIteratorArgument;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;

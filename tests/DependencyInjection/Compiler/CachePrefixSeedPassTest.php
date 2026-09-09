@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Tests\DependencyInjection\Compiler;
+namespace CoolMS\Core\Bundle\Tests\DependencyInjection\Compiler;
 
-use CoolMS\CoreBundle\Cache\CacheSeed;
-use CoolMS\CoreBundle\DependencyInjection\Compiler\CachePrefixSeedPass;
+use CoolMS\Core\Bundle\Cache\CacheSeed;
+use CoolMS\Core\Bundle\DependencyInjection\Compiler\CachePrefixSeedPass;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

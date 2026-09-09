@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\ApiPlatform\Resource;
+namespace CoolMS\Core\Bundle\ApiPlatform\Resource;
 
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
-use CoolMS\CoreBundle\ApiPlatform\Resource\Provider\ListOutboundChannelsProvider;
+use CoolMS\Core\Bundle\ApiPlatform\Resource\Provider\ListOutboundChannelsProvider;
 
 /**
  * The ENABLED outbound channels and the settings each one needs.

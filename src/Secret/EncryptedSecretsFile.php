@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Secret;
+namespace CoolMS\Core\Bundle\Secret;
 
 use CoolMS\Core\Secret\SecretStoreException;
 use SodiumException;
@@ -42,7 +42,7 @@ use const SODIUM_CRYPTO_SECRETBOX_KEYBYTES;
 use const SODIUM_CRYPTO_SECRETBOX_NONCEBYTES;
 
 /**
- * F1.b -- the at-rest codec behind the libsodium filesystem secret store.
+ * The at-rest codec behind the libsodium filesystem secret store.
  *
  * Encrypts the whole `{key: value}` secret map as a single authenticated
  * blob (XSalsa20-Poly1305 via `sodium_crypto_secretbox`) and stores it

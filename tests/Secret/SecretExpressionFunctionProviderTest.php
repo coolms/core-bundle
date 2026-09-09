@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Tests\Secret;
+namespace CoolMS\Core\Bundle\Tests\Secret;
 
 use CoolMS\Core\Secret\SecretNotFoundException;
 use CoolMS\Core\Secret\SecretStoreInterface;
-use CoolMS\CoreBundle\Expression\SecretExpressionFunctionProvider;
+use CoolMS\Core\Bundle\Expression\SecretExpressionFunctionProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 
 /**
- * F1.a -- the `secret()` EL function, exercised through a real
+ * The `secret()` EL function, exercised through a real
  * ExpressionLanguage with the provider registered (the same way
  * ExpressionService wires it), so the function name + arity + the
  * service-bound evaluator are all proven end-to-end.

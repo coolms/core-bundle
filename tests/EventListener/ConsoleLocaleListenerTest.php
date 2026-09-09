@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Tests\EventListener;
+namespace CoolMS\Core\Bundle\Tests\EventListener;
 
 use CoolMS\Core\Config\PlatformDefaults;
-use CoolMS\CoreBundle\EventListener\ConsoleLocaleListener;
+use CoolMS\Core\Bundle\EventListener\ConsoleLocaleListener;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Event\ConsoleCommandEvent;
@@ -15,7 +15,7 @@ use Symfony\Contracts\Translation\LocaleAwareInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
- * F6 Phase 3 -- CLI runs pin the translator locale to the
+ * CLI runs pin the translator locale to the
  * platform default so non-request contexts speak the platform language.
  */
 final class ConsoleLocaleListenerTest extends TestCase

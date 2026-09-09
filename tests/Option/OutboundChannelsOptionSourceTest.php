@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Tests\Option;
+namespace CoolMS\Core\Bundle\Tests\Option;
 
 use CoolMS\Core\Channel\OutboundChannelInterface;
 use CoolMS\Core\Channel\OutboundChannelRegistryInterface;
 use CoolMS\Core\Option\Option;
-use CoolMS\CoreBundle\Option\OutboundChannelsOptionSource;
+use CoolMS\Core\Bundle\Option\OutboundChannelsOptionSource;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Console;
+namespace CoolMS\Core\Bundle\Console;
 
-use CoolMS\CoreBundle\Module\DisabledBundles;
-use CoolMS\CoreBundle\Module\ModuleCatalog;
-use CoolMS\CoreBundle\Module\ModuleConfigFiles;
+use CoolMS\Core\Bundle\Module\DisabledBundles;
+use CoolMS\Core\Bundle\Module\ModuleCatalog;
+use CoolMS\Core\Bundle\Module\ModuleConfigFiles;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;

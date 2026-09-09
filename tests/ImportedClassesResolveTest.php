@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Tests;
+namespace CoolMS\Core\Bundle\Tests;
 
 use PHPUnit\Framework\TestCase;
 use RecursiveDirectoryIterator;

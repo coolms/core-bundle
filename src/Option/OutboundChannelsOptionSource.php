@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Option;
+namespace CoolMS\Core\Bundle\Option;
 
 use CoolMS\Core\Channel\OutboundChannelRegistryInterface;
 use CoolMS\Core\Option\Option;

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\ApiPlatform\Resource\Processor;
+namespace CoolMS\Core\Bundle\ApiPlatform\Resource\Processor;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
-use CoolMS\CoreModule\Dashboard\DashboardLayoutWriter;
+use CoolMS\Core\Application\Dashboard\DashboardLayoutWriter;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 use function is_string;

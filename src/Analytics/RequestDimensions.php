@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Analytics;
+namespace CoolMS\Core\Bundle\Analytics;
 
 use CoolMS\Core\Analytics\CurrentRequestDimensionsInterface;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;

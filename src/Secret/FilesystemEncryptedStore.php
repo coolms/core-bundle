@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Secret;
+namespace CoolMS\Core\Bundle\Secret;
 
 use CoolMS\Core\Secret\SecretNotFoundException;
 use CoolMS\Core\Secret\SecretStoreInterface;
@@ -10,7 +10,7 @@ use CoolMS\Core\Secret\SecretStoreInterface;
 use function is_string;
 
 /**
- * F1.b -- the small-prod secret backend: reads secrets from a libsodium
+ * The small-prod secret backend: reads secrets from a libsodium
  * encrypted file ({@see EncryptedSecretsFile}) at rest.
  *
  * Keys are LITERAL logical names (`secret('stripe_api_key')` looks up map

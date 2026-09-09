@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle;
+namespace CoolMS\Core\Bundle;
 
-use CoolMS\CoreBundle\DependencyInjection\Compiler\CachePrefixSeedPass;
-use CoolMS\CoreBundle\DependencyInjection\Compiler\CoreConstantProviderPass;
-use CoolMS\CoreBundle\DependencyInjection\Compiler\CoreMessengerRoutingPass;
-use CoolMS\CoreBundle\DependencyInjection\Compiler\CoreServicesPass;
-use CoolMS\CoreBundle\DependencyInjection\Compiler\ModuleConfigDirsPass;
-use CoolMS\CoreBundle\DependencyInjection\Compiler\OptionSourceRegistryPass;
-use CoolMS\CoreBundle\DependencyInjection\Compiler\OutboundChannelRegistryConfigPass;
-use CoolMS\CoreBundle\DependencyInjection\Compiler\SystemUserPass;
-use CoolMS\CoreBundle\DependencyInjection\Compiler\TranslationCatalogueFallbackPass;
-use CoolMS\CoreBundle\DependencyInjection\Extension;
+use CoolMS\Core\Bundle\DependencyInjection\Compiler\CachePrefixSeedPass;
+use CoolMS\Core\Bundle\DependencyInjection\Compiler\CoreConstantProviderPass;
+use CoolMS\Core\Bundle\DependencyInjection\Compiler\CoreMessengerRoutingPass;
+use CoolMS\Core\Bundle\DependencyInjection\Compiler\CoreServicesPass;
+use CoolMS\Core\Bundle\DependencyInjection\Compiler\ModuleConfigDirsPass;
+use CoolMS\Core\Bundle\DependencyInjection\Compiler\OptionSourceRegistryPass;
+use CoolMS\Core\Bundle\DependencyInjection\Compiler\OutboundChannelRegistryConfigPass;
+use CoolMS\Core\Bundle\DependencyInjection\Compiler\SystemUserPass;
+use CoolMS\Core\Bundle\DependencyInjection\Compiler\TranslationCatalogueFallbackPass;
+use CoolMS\Core\Bundle\DependencyInjection\Extension;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 class CoreBundle extends AbstractCoolmsBundle

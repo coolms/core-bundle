@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Module;
+namespace CoolMS\Core\Bundle\Module;
 
 use RuntimeException;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
@@ -39,7 +39,7 @@ use function substr;
  * nothing -- the same promise the rest of the ship makes. `x.yaml` becomes
  * `x.yaml.disabled`, which Symfony's `*.yaml` glob does not pick up and which
  * restores by renaming back. It also drops out of {@see
- * \CoolMS\CoreBundle\Cache\CacheSeed}, whose extension list does not
+ * \CoolMS\Core\Bundle\Cache\CacheSeed}, whose extension list does not
  * include `disabled`, so the cache prefix seed moves for free -- the same
  * mechanism {@see DisabledBundles} relies on, for the same reason.
  *

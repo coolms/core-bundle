@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Console;
+namespace CoolMS\Core\Bundle\Console;
 
-use CoolMS\CoreBundle\Secret\EncryptedSecretsFile;
+use CoolMS\Core\Bundle\Secret\EncryptedSecretsFile;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -16,7 +16,7 @@ use function is_string;
 use function sprintf;
 
 /**
- * F1.b -- set (create or update) a secret in the libsodium encrypted
+ * Set (create or update) a secret in the libsodium encrypted
  * file: `coolms:secret:set <key> [value]`. With the value omitted it is
  * read from a hidden prompt (keeps it out of shell history). Empty values
  * are rejected (an empty secret is absent; use `coolms:secret:remove`).

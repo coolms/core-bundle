@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Module;
+namespace CoolMS\Core\Bundle\Module;
 
 use CoolMS\Core\Install\ModuleNavigationRemoverInterface;
 use CoolMS\Core\Install\ModuleUninstallerInterface;

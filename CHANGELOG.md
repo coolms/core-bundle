@@ -159,7 +159,7 @@ composer require coolms/core-bundle:^2.0 coolms/core-doctrine:^2.0
 release, so this loosening applies to what actually needs it and nothing else.
 
 !! **The adapter is part of the command, not an extra.** `coolms/core-bundle`
-reaches `coolms/core-module`, which requires a persistence implementation -- a
+reaches `coolms/core-application`, which requires a persistence implementation -- a
 virtual package: nothing provides it until you choose an implementation, and
 Composer reports the virtual name, which reads like a broken package rather
 than a missing argument.
@@ -283,7 +283,7 @@ covers it: a per-payload schema version, and clearing by hand.
 ### Changed: sibling constraints move to the v2 generation
 
 - `coolms/core`: `^1.0` to `^2.0`
-- `coolms/core-module`: `^1.0` to `^2.0`
+- `coolms/core-application`: `^1.0` to `^2.0`
 - `coolms/core-doctrine` (development): `^1.0` to `^2.0`
 
 !! **This is a minor, not a major, and that is deliberate.** This package
@@ -347,7 +347,7 @@ gives every worker process a different namespace, and they stop agreeing about
 what is cached. Everything here is deterministic by construction, which is the
 reason to prefer it.
 
-`CoolMS\CoreBundle\Cache\CacheSeed::compute()` is public if you want to read
+`CoolMS\Core\Bundle\Cache\CacheSeed::compute()` is public if you want to read
 the value, and `bin/console debug:container --parameter=cache.prefix.seed`
 prints the effective one.
 
@@ -372,7 +372,7 @@ in CI.
 
 ### Fixed
 
-Declare `coolms/core-module`, which was used but not required, and raise the
+Declare `coolms/core-application`, which was used but not required, and raise the
 `symfony/translation-contracts` floor to 3.4.2.
 
 ## 1.0.1 - 2026-08-17

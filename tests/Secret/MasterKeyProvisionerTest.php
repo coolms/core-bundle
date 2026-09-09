@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Tests\Secret;
+namespace CoolMS\Core\Bundle\Tests\Secret;
 
-use CoolMS\CoreBundle\Secret\MasterKeyProvisioner;
-use CoolMS\CoreBundle\Secret\MasterKeyStatus;
+use CoolMS\Core\Bundle\Secret\MasterKeyProvisioner;
+use CoolMS\Core\Bundle\Secret\MasterKeyStatus;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 

@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\ApiPlatform\Resource\Provider;
+namespace CoolMS\Core\Bundle\ApiPlatform\Resource\Provider;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use CoolMS\Core\Option\Exception\UnknownOptionSourceException;
-use CoolMS\CoreBundle\ApiPlatform\Resource\OptionResource;
-use CoolMS\CoreModule\Option\OptionSourceRegistry;
+use CoolMS\Core\Bundle\ApiPlatform\Resource\OptionResource;
+use CoolMS\Core\Application\Option\OptionSourceRegistry;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 

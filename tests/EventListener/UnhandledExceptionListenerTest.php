@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Tests\EventListener;
+namespace CoolMS\Core\Bundle\Tests\EventListener;
 
 use CoolMS\Core\Config\PlatformDefaults;
 use CoolMS\Core\Exception\TranslatableExceptionInterface;
 use CoolMS\Core\Exception\TranslatableExceptionTrait;
-use CoolMS\CoreBundle\EventListener\UnhandledExceptionListener;
+use CoolMS\Core\Bundle\EventListener\UnhandledExceptionListener;
 use DomainException;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -20,7 +20,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
 
 /**
- * F6 Phase 3 -- the unhandled-exception renderer localizes
+ * The unhandled-exception renderer localizes
  * translatable exceptions and leaves everything else exactly as before.
  *
  * The four behaviours pinned here:

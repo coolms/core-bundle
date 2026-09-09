@@ -41,7 +41,7 @@ jobs:
           # runtime-only, so a list built from `require` alone installs fine
           # and then refuses to run. curl and phar are Composer's. pdo_sqlite
           # lets DBAL build a platform without a server.
-          # zip arrives via coolms/core-module, whose bundle archiver requires
+          # zip arrives via coolms/core-application, whose bundle archiver requires
           # ext-zip. A transitive platform requirement is still a requirement:
           # composer refuses the install without it.
           extensions: none, ctype, dom, filter, json, libxml, mbstring, tokenizer, xml, xmlwriter, curl, phar, zip
@@ -86,7 +86,7 @@ jobs:
           # resolved, so this list cannot go stale without the build saying so.
           php -r '
             $d = json_decode(file_get_contents("composer.json"), true);
-            $known = ["coolms/core", "coolms/core-module", "coolms/core-doctrine",
+            $known = ["coolms/core", "coolms/core-application", "coolms/core-doctrine",
                       "coolms/dtmpl", "coolms/rql"];
             $seen = array_merge(array_keys($d["require"] ?? []),
                                 array_keys($d["require-dev"] ?? []));
@@ -103,7 +103,7 @@ jobs:
       - name: Install dependencies
         run: |
           WITH='--with coolms/core:2.0.x-dev'
-          WITH="$WITH --with coolms/core-module:2.0.x-dev"
+          WITH="$WITH --with coolms/core-application:2.0.x-dev"
           WITH="$WITH --with coolms/core-doctrine:2.0.x-dev"
           if [ "${{ matrix.deps }}" = 'lowest' ]; then
             composer update --prefer-lowest --prefer-dist --no-interaction --no-progress $WITH

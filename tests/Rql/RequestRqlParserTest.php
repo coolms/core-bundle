@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Tests\Rql;
+namespace CoolMS\Core\Bundle\Tests\Rql;
 
-use CoolMS\CoreBundle\Rql\RequestRqlParser;
+use CoolMS\Core\Bundle\Rql\RequestRqlParser;
 use CoolMS\Rql\FilterNode;
 use CoolMS\Rql\FilterOp;
 use CoolMS\Rql\RqlExpressionParser;

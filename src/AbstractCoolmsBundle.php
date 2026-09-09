@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle;
+namespace CoolMS\Core\Bundle;
 
 use LogicException;
 use Symfony\Component\HttpKernel\Bundle\Bundle;

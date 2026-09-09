@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Rql;
+namespace CoolMS\Core\Bundle\Rql;
 
 use CoolMS\Rql\RqlExpressionParser;
 use CoolMS\Rql\RqlParser;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Http;
+namespace CoolMS\Core\Bundle\Http;
 
 use Symfony\Component\HttpFoundation\RequestStack;
 

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Tests\Module;
+namespace CoolMS\Core\Bundle\Tests\Module;
 
-use CoolMS\CoreBundle\Cache\CacheSeed;
-use CoolMS\CoreBundle\Module\DisabledBundles;
+use CoolMS\Core\Bundle\Cache\CacheSeed;
+use CoolMS\Core\Bundle\Module\DisabledBundles;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

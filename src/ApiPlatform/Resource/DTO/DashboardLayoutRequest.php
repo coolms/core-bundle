@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\ApiPlatform\Resource\DTO;
+namespace CoolMS\Core\Bundle\ApiPlatform\Resource\DTO;
 
 /**
  * The body of `PUT /dashboard/layout`.

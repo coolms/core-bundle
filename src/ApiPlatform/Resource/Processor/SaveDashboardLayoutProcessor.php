@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\ApiPlatform\Resource\Processor;
+namespace CoolMS\Core\Bundle\ApiPlatform\Resource\Processor;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use CoolMS\Core\Dashboard\DashboardPlacement;
-use CoolMS\CoreBundle\ApiPlatform\Resource\DashboardLayoutResource;
-use CoolMS\CoreBundle\ApiPlatform\Resource\DTO\DashboardLayoutRequest;
-use CoolMS\CoreModule\Dashboard\DashboardLayoutWriter;
+use CoolMS\Core\Bundle\ApiPlatform\Resource\DashboardLayoutResource;
+use CoolMS\Core\Bundle\ApiPlatform\Resource\DTO\DashboardLayoutRequest;
+use CoolMS\Core\Application\Dashboard\DashboardLayoutWriter;
 use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
@@ -25,7 +25,7 @@ use function sprintf;
  *
  * Reads three keys per entry and refuses anything else it is handed. A caller
  * is present, so every problem is answered rather than survived -- the opposite
- * of {@see \CoolMS\CoreModule\Dashboard\DashboardLayoutProvider}, which reads
+ * of {@see \CoolMS\Core\Application\Dashboard\DashboardLayoutProvider}, which reads
  * the same shape out of a config file and DROPS bad entries because there is
  * nobody to tell and a whole dashboard riding on the rest of the file.
  *
@@ -92,7 +92,7 @@ final readonly class SaveDashboardLayoutProcessor implements ProcessorInterface
      *
      * !! Not sanitised here, deliberately. The value becomes a config key and
      * therefore a FILE NAME, and the store enforces
-     * {@see \CoolMS\CoreModule\Config\ConfigWriterInterface::KEY_PATTERN}
+     * {@see \CoolMS\Core\Application\Config\ConfigWriterInterface::KEY_PATTERN}
      * itself -- a check in this processor would be one of several places that
      * have to agree, and the one that got forgotten would be the hole.
      */

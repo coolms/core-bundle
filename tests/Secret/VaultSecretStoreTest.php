@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Tests\Secret;
+namespace CoolMS\Core\Bundle\Tests\Secret;
 
 use CoolMS\Core\Secret\SecretNotFoundException;
 use CoolMS\Core\Secret\SecretStoreException;
-use CoolMS\CoreBundle\Secret\VaultSecretStore;
+use CoolMS\Core\Bundle\Secret\VaultSecretStore;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 
 /**
- * F1.c -- the Vault KV v2 backend, driven by MockHttpClient (the standard
+ * The Vault KV v2 backend, driven by MockHttpClient (the standard
  * way to test an HTTP integration without a live Vault). Asserts the wire
  * call (URL + token header), the KV v2 unwrap, caching, and the failure
  * modes (404 -> empty, other non-2xx -> throw, missing token -> throw).

@@ -20,10 +20,10 @@ composer require coolms/core-bundle coolms/core-doctrine
 ```
 
 > **Name the adapter, or Composer installs the wrong thing and says it worked.**
-> This bundle pulls in `coolms/core-module`, which requires the virtual
+> This bundle pulls in `coolms/core-application`, which requires the virtual
 > `coolms/core-persistence-implementation`. With no adapter that requirement
 > cannot be satisfied — and instead of failing, Composer **backtracks** to a
-> release of this bundle from before it declared `coolms/core-module` at all,
+> release of this bundle from before it declared `coolms/core-application` at all,
 > then reports success.
 >
 > Measured at the time of writing: `composer require coolms/core-bundle` alone
@@ -35,7 +35,7 @@ composer require coolms/core-bundle coolms/core-doctrine
 
 ```php
 // config/bundles.php
-CoolMS\CoreBundle\CoreBundle::class => ['all' => true],
+CoolMS\Core\Bundle\CoreBundle::class => ['all' => true],
 ```
 
 ## What is in here
@@ -55,8 +55,8 @@ A module's bundle extends `AbstractCoolmsBundle`, and its DI extension extends
 `AbstractExtension`:
 
 ```php
-use CoolMS\CoreBundle\AbstractCoolmsBundle;
-use CoolMS\CoreBundle\DependencyInjection\AbstractExtension;
+use CoolMS\Core\Bundle\AbstractCoolmsBundle;
+use CoolMS\Core\Bundle\DependencyInjection\AbstractExtension;
 
 final class MyModuleBundle extends AbstractCoolmsBundle
 {
@@ -80,7 +80,7 @@ interface-to-concrete map the platform resolves at compile time.
 | Package | Role |
 |---|---|
 | [`coolms/core`](https://github.com/coolms/core) | kernel contracts |
-| [`coolms/core-module`](https://github.com/coolms/core-module) | application services |
+| [`coolms/core-application`](https://github.com/coolms/core-application) | application services |
 | [`coolms/core-doctrine`](https://github.com/coolms/core-doctrine) | persistence adapter |
 
 ## License

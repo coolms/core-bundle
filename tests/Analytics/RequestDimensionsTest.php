@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Tests\Analytics;
+namespace CoolMS\Core\Bundle\Tests\Analytics;
 
-use CoolMS\CoreBundle\Analytics\RequestDimensions;
+use CoolMS\Core\Bundle\Analytics\RequestDimensions;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * The derive-and-drop request-dimensions seam (Track E, Phase 1): coarse
+ * The derive-and-drop request-dimensions seam: coarse
  * device/os/browser families + referrer type + geo country + `utm_*` campaign
  * tags from the current request.
  */

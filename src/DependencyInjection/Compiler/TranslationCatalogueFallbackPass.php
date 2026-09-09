@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\DependencyInjection\Compiler;
+namespace CoolMS\Core\Bundle\DependencyInjection\Compiler;
 
 use CoolMS\Core\Translation\InlineLabelCatalogueReaderInterface;
 use CoolMS\Core\Translation\InlineLabelCatalogueWriterInterface;
-use CoolMS\CoreModule\Translation\NullInlineLabelCatalogueReader;
-use CoolMS\CoreModule\Translation\NullInlineLabelCatalogueWriter;
+use CoolMS\Core\Application\Translation\NullInlineLabelCatalogueReader;
+use CoolMS\Core\Application\Translation\NullInlineLabelCatalogueWriter;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 

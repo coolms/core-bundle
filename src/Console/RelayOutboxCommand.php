@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Console;
+namespace CoolMS\Core\Bundle\Console;
 
 use CoolMS\Core\Transaction\ConnectionTransactionRunnerInterface;
-use CoolMS\CoreModule\Outbox\OutboxRelay;
+use CoolMS\Core\Application\Outbox\OutboxRelay;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;

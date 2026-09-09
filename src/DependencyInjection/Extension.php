@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\DependencyInjection;
+namespace CoolMS\Core\Bundle\DependencyInjection;
 
 use CoolMS\Core\Api\ApiResourceInstallerInterface;
 use CoolMS\Core\Backup\BackupContributorInterface;
@@ -26,23 +26,23 @@ use CoolMS\Core\Serializer\AlreadyInstantiatedObjectDenormalizer;
 use CoolMS\Core\Serializer\DateTimeObjectDenormalizer;
 use CoolMS\Core\Service\TransliterationRuleSetInterface;
 use CoolMS\Core\Translation\LabelResolverInterface;
-use CoolMS\CoreBundle\Config\ConfigCacheWarmer;
-use CoolMS\CoreBundle\Json\JsoncDecoder;
-use CoolMS\CoreBundle\Outbox\DispatchingOutboxPublisher;
-use CoolMS\CoreBundle\Secret\EnvSecretStore;
-use CoolMS\CoreBundle\Secret\FilesystemEncryptedStore;
-use CoolMS\CoreBundle\Secret\VaultSecretStore;
-use CoolMS\CoreModule\ApiManifest\ApiManifestContributorInterface;
-use CoolMS\CoreModule\Config\ChainedConfigLoader;
-use CoolMS\CoreModule\Config\ChainedConfigWriter;
-use CoolMS\CoreModule\Config\ConfigLoaderInterface;
-use CoolMS\CoreModule\Config\ConfigWriterInterface;
-use CoolMS\CoreModule\Config\DbConfigWriter;
-use CoolMS\CoreModule\Config\FileConfigLoader;
-use CoolMS\CoreModule\Config\FileConfigWriter;
-use CoolMS\CoreModule\Json\JsoncDecoderInterface;
-use CoolMS\CoreModule\Service\LocalizedSlugger;
-use CoolMS\CoreModule\Translation\LabelResolver;
+use CoolMS\Core\Bundle\Config\ConfigCacheWarmer;
+use CoolMS\Core\Bundle\Json\JsoncDecoder;
+use CoolMS\Core\Bundle\Outbox\DispatchingOutboxPublisher;
+use CoolMS\Core\Bundle\Secret\EnvSecretStore;
+use CoolMS\Core\Bundle\Secret\FilesystemEncryptedStore;
+use CoolMS\Core\Bundle\Secret\VaultSecretStore;
+use CoolMS\Core\Application\ApiManifest\ApiManifestContributorInterface;
+use CoolMS\Core\Application\Config\ChainedConfigLoader;
+use CoolMS\Core\Application\Config\ChainedConfigWriter;
+use CoolMS\Core\Application\Config\ConfigLoaderInterface;
+use CoolMS\Core\Application\Config\ConfigWriterInterface;
+use CoolMS\Core\Application\Config\DbConfigWriter;
+use CoolMS\Core\Application\Config\FileConfigLoader;
+use CoolMS\Core\Application\Config\FileConfigWriter;
+use CoolMS\Core\Application\Json\JsoncDecoderInterface;
+use CoolMS\Core\Application\Service\LocalizedSlugger;
+use CoolMS\Core\Application\Translation\LabelResolver;
 use LogicException;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
@@ -69,7 +69,7 @@ class Extension extends AbstractExtension
             ->setAutoconfigured(false)
             ->setPublic(false);
 
-        // F6 Phase 1 -- platform-wide default user-facing
+        // Platform-wide default user-facing
         // settings. Locale is sourced from `default_locale` (which
         // I18nBundle::prepend() syncs from coolms_i18n.default_locale),
         // keeping a single locale authority. The other four come from
@@ -327,12 +327,12 @@ class Extension extends AbstractExtension
             ->setPublic(false);
         $container->setAlias(JsoncDecoderInterface::class, JsoncDecoder::class);
 
-        // Definition-level label translation seam. F5.b Phase 2.
+        // Definition-level label translation seam.
         // Reads `#[Translatable]`-annotated classes (FieldDefinition,
         // NaviNode, SiteSection, etc.) and routes through Symfony's
         // translator, which is decorated by `VfsOverlayingTranslator`
         // so VFS XLIFF overrides win over bundled `.xlf` files. The
-        // resolver itself stays in `CoolMS\CoreModule\Translation\`;
+        // resolver itself stays in `CoolMS\Core\Application\Translation\`;
         // only the alias is wired here.
         $container->setAlias(LabelResolverInterface::class, LabelResolver::class);
     }

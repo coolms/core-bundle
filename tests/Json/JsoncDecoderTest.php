@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Tests\Json;
+namespace CoolMS\Core\Bundle\Tests\Json;
 
 use CoolMS\Core\Exception\JsoncDecodeException;
-use CoolMS\CoreBundle\Json\JsoncDecoder;
+use CoolMS\Core\Bundle\Json\JsoncDecoder;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

@@ -2,21 +2,21 @@
 
 declare(strict_types=1);
 
-namespace CoolMS\CoreBundle\Tests\Secret;
+namespace CoolMS\Core\Bundle\Tests\Secret;
 
-use CoolMS\CoreBundle\Console\SecretGenerateKeyCommand;
-use CoolMS\CoreBundle\Console\SecretListCommand;
-use CoolMS\CoreBundle\Console\SecretRemoveCommand;
-use CoolMS\CoreBundle\Console\SecretSetCommand;
-use CoolMS\CoreBundle\Secret\EncryptedSecretsFile;
-use CoolMS\CoreBundle\Secret\FilesystemEncryptedStore;
+use CoolMS\Core\Bundle\Console\SecretGenerateKeyCommand;
+use CoolMS\Core\Bundle\Console\SecretListCommand;
+use CoolMS\Core\Bundle\Console\SecretRemoveCommand;
+use CoolMS\Core\Bundle\Console\SecretSetCommand;
+use CoolMS\Core\Bundle\Secret\EncryptedSecretsFile;
+use CoolMS\Core\Bundle\Secret\FilesystemEncryptedStore;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
- * F1.b -- the coolms:secret:* management CLI, exercised end-to-end against
+ * The coolms:secret:* management CLI, exercised end-to-end against
  * a temp encrypted file: generate-key, then set -> list -> (read back via the
  * store) -> remove.
  */
