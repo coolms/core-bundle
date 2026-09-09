@@ -16,7 +16,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
- * F1.b -- the coolms:secret:* management CLI, exercised end-to-end against
+ * The coolms:secret:* management CLI, exercised end-to-end against
  * a temp encrypted file: generate-key, then set -> list -> (read back via the
  * store) -> remove.
  */

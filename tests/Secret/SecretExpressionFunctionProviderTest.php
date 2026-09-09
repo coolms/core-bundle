@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 
 /**
- * F1.a -- the `secret()` EL function, exercised through a real
+ * The `secret()` EL function, exercised through a real
  * ExpressionLanguage with the provider registered (the same way
  * ExpressionService wires it), so the function name + arity + the
  * service-bound evaluator are all proven end-to-end.

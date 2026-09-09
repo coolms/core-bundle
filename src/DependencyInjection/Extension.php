@@ -69,7 +69,7 @@ class Extension extends AbstractExtension
             ->setAutoconfigured(false)
             ->setPublic(false);
 
-        // F6 Phase 1 -- platform-wide default user-facing
+        // Platform-wide default user-facing
         // settings. Locale is sourced from `default_locale` (which
         // I18nBundle::prepend() syncs from coolms_i18n.default_locale),
         // keeping a single locale authority. The other four come from
@@ -327,7 +327,7 @@ class Extension extends AbstractExtension
             ->setPublic(false);
         $container->setAlias(JsoncDecoderInterface::class, JsoncDecoder::class);
 
-        // Definition-level label translation seam. F5.b Phase 2.
+        // Definition-level label translation seam.
         // Reads `#[Translatable]`-annotated classes (FieldDefinition,
         // NaviNode, SiteSection, etc.) and routes through Symfony's
         // translator, which is decorated by `VfsOverlayingTranslator`

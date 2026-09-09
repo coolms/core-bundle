@@ -25,7 +25,7 @@ use Throwable;
  * Priority -100 runs after API Platform's own exception normalizer (priority 0),
  * so only exceptions that slipped through all earlier listeners reach here.
  *
- * F6 Phase 3: a {@see TranslatableExceptionInterface} has its
+ * A {@see TranslatableExceptionInterface} has its
  * `detail` rendered through the translator against the request locale,
  * so error messages are localized like the rest of the platform.
  * Plain exceptions pass their raw message through unchanged

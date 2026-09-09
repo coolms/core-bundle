@@ -15,7 +15,7 @@ use Symfony\Contracts\Translation\LocaleAwareInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
- * F6 Phase 3 -- CLI runs pin the translator locale to the
+ * CLI runs pin the translator locale to the
  * platform default so non-request contexts speak the platform language.
  */
 final class ConsoleLocaleListenerTest extends TestCase

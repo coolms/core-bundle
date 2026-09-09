@@ -16,7 +16,7 @@ use function strtoupper;
 use function trim;
 
 /**
- * F1.a -- the dev-default secret backend: reads secrets from environment
+ * The dev-default secret backend: reads secrets from environment
  * variables (12-factor style).
  *
  * A logical key is mapped to an env-var name by upper-casing it and

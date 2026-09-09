@@ -12,11 +12,10 @@ use Symfony\Contracts\Translation\LocaleAwareInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
- * Pins the translator locale to the platform default for CLI runs. F6
- * Phase 3.
+ * Pins the translator locale to the platform default for CLI runs.
  *
  * Console commands, Messenger consumers, and scheduled jobs have no HTTP
- * request, so the F5 per-request locale chain never fires and the
+ * request, so the per-request locale chain never fires and the
  * translator falls back to `kernel.default_locale` -- a framework scalar
  * disconnected from the deployment's actual locale. This listener sets
  * the translator's current locale to `PlatformDefaults::$locale` at

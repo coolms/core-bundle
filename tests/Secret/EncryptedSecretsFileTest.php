@@ -10,7 +10,7 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
- * F1.b -- the libsodium at-rest codec: round-trip, and the failure modes
+ * The libsodium at-rest codec: round-trip, and the failure modes
  * that authenticated encryption is supposed to catch (wrong key, tampered
  * file, missing/invalid master key).
  */

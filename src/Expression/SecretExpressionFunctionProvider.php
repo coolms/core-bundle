@@ -9,7 +9,7 @@ use Symfony\Component\ExpressionLanguage\ExpressionFunction;
 use Symfony\Component\ExpressionLanguage\ExpressionFunctionProviderInterface;
 
 /**
- * F1.a -- exposes the secret store to the Expression Language.
+ * Exposes the secret store to the Expression Language.
  *
  * Adds one function, usable from any EL expression the platform
  * evaluates (workflow guards, service-task inputs, connector configs):

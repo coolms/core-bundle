@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * The derive-and-drop request-dimensions seam (Track E, Phase 1): coarse
+ * The derive-and-drop request-dimensions seam: coarse
  * device/os/browser families + referrer type + geo country + `utm_*` campaign
  * tags from the current request.
  */

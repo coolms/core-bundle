@@ -17,7 +17,7 @@ use function sort;
 use function sprintf;
 
 /**
- * F1.b -- list the KEY NAMES held in the libsodium encrypted file:
+ * List the KEY NAMES held in the libsodium encrypted file:
  * `coolms:secret:list`. Never prints values.
  */
 #[AsCommand(

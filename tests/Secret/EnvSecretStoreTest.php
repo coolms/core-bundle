@@ -10,7 +10,7 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
- * F1.a -- the env-var secret backend.
+ * The env-var secret backend.
  *
  * Drives `$_ENV` directly (Dotenv's destination) and restores it in
  * tearDown so the cases never leak into sibling tests.

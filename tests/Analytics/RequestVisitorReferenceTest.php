@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * The request-edge `visitorRef` seam (Track E, Phase 1): resolves the current
+ * The request-edge `visitorRef` seam: resolves the current
  * request's client IP + user-agent through the Core generator, and degrades to
  * null off the request edge.
  */

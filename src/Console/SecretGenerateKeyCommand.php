@@ -16,7 +16,7 @@ use function sodium_crypto_secretbox_keygen;
 use const SODIUM_BASE64_VARIANT_ORIGINAL;
 
 /**
- * F1.b -- generate a fresh master key for the libsodium filesystem secret
+ * Generate a fresh master key for the libsodium filesystem secret
  * store. Prints a base64 32-byte key; the operator places it in the env
  * var named by `coolms_core.secret_store.filesystem.key_env` (default
  * `COOLMS_SECRET_MASTER_KEY`). Never touches the secrets file.

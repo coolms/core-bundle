@@ -14,7 +14,7 @@ use function sprintf;
 use function var_export;
 
 /**
- * F6 Phase 1 -- the coolms_core config tree, focused on the
+ * The coolms_core config tree, focused on the
  * new `platform_defaults` node + the existing `default_locale`.
  *
  * `platform_defaults` uses `addDefaultsIfNotSet()` so an operator who

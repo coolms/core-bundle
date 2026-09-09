@@ -15,7 +15,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use function sprintf;
 
 /**
- * F1.b -- remove a secret from the libsodium encrypted file:
+ * Remove a secret from the libsodium encrypted file:
  * `coolms:secret:remove <key>`. Idempotent (removing an absent key is a
  * no-op success).
  */

@@ -20,7 +20,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
 
 /**
- * F6 Phase 3 -- the unhandled-exception renderer localizes
+ * The unhandled-exception renderer localizes
  * translatable exceptions and leaves everything else exactly as before.
  *
  * The four behaviours pinned here:

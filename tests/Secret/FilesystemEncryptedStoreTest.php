@@ -11,7 +11,7 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
- * F1.b -- the read store over the encrypted file. Keys are literal logical
+ * The read store over the encrypted file. Keys are literal logical
  * names (no env-style normalisation); empty stored values are absent.
  */
 final class FilesystemEncryptedStoreTest extends TestCase

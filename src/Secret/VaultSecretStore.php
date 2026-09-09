@@ -19,7 +19,7 @@ use function rtrim;
 use function sprintf;
 
 /**
- * F1.c -- the full-prod secret backend: reads secrets from HashiCorp
+ * The full-prod secret backend: reads secrets from HashiCorp
  * Vault's KV v2 secrets engine over the HTTP API.
  *
  * One configurable Vault path (`coolms_core.secret_store.vault.path`,
