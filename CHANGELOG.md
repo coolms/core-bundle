@@ -10,7 +10,7 @@ major number means here.
 history when this file was created. Every entry after that is written in the
 same commit as the change it describes.
 
-## Unreleased
+## 2.0.0-alpha5 - 2026-09-09
 
 ### Added
 
@@ -24,6 +24,22 @@ as not being a map.
 
 This covers behaviour released in 2.0.0-alpha4. Tests are shipped rather than
 export-ignored in this package, so it reaches consumers.
+
+### Changed
+
+!! **The namespace nests under the domain root: `CoolMS\CoreBundle\` becomes
+`CoolMS\Core\Bundle\`.** The package name is unchanged. Every layer in a family
+now carries a segment equal to its suffix, and the domain package keeps the root
+prefix.
+
+This release also follows the application tier's rename to
+`coolms/core-application`.
+
+- The option resource no longer publishes its class docblock into the API
+  description.
+- The secret backends are named for what they are rather than for the slices
+  that built them.
+- Comments, docblocks and changelogs are ascii.
 
 ## 2.0.0-alpha4 - 2026-09-07
 
