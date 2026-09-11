@@ -10,6 +10,33 @@ major number means here.
 history when this file was created. Every entry after that is written in the
 same commit as the change it describes.
 
+## Unreleased
+
+### Changed
+
+**`coolms:install` derives its order from what installers declare.** Both
+phases are sorted by `CoolMS\Core\Install\InstallOrder` (core, unreleased)
+instead of being iterated in registration order -- which was alphabetical, and
+which put the installer creating the VFS core structure sixth of seven. A
+prerequisite nothing provides, or a cycle, refuses before the first installer
+runs and before the secrets step has written a master key to disk. The module
+phase is sorted with the structure phase's provisions treated as satisfied: four
+VFS installers sit in both phases. Requires core with `InstallOrder::provisionsOf()`.
+
+An installer that declares nothing is unaffected. The eight `priority`
+attributes on `coolms.module.installer` tags in the application were never
+read -- the compiler pass the comment named was never written -- and the
+comment no longer names it.
+
+### Added
+
+- `StructureInstallerInterface` is autoconfigured onto the structure-phase tag
+  (`coolms.vfs.installer`, named for the VFS because every structure installer
+  used to be one). A structure installer that creates no directory -- the one
+  seeding the system users the VFS installers require -- implements Core's
+  contract alone and is collected. A class implementing both interfaces is
+  tagged once.
+
 ## 2.0.0-alpha5 - 2026-09-09
 
 ### Added

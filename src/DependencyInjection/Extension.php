@@ -17,6 +17,7 @@ use CoolMS\Core\Config\YamlFileLoader;
 use CoolMS\Core\Dashboard\DashboardWidgetProviderInterface;
 use CoolMS\Core\Install\ModuleInstallerInterface;
 use CoolMS\Core\Install\ModuleUninstallerInterface;
+use CoolMS\Core\Install\StructureInstallerInterface;
 use CoolMS\Core\Option\OptionSourceProviderInterface;
 use CoolMS\Core\Outbox\OutboxPublisherInterface;
 use CoolMS\Core\Registry\ComponentRegistry;
@@ -128,10 +129,29 @@ class Extension extends AbstractExtension
         $container->registerForAutoconfiguration(ApiResourceInstallerInterface::class)
             ->addTag('coolms.api.resource.installer');
 
-        // Module data installers -- collected by ServiceWiringPass and called by coolms:install.
-        // Priorities are applied after auto-scan by ModuleInstallerPriorityPass.
+        // Module data installers, collected by tag and called by coolms:install.
+        //
+        // !! This used to say priorities were applied by ModuleInstallerPriorityPass.
+        // That class was described and never written -- the comment was its only
+        // trace -- so eight `priority` attributes sat inert for as long as they
+        // existed and the order was alphabetical. The order is now DERIVED from
+        // DeclaresPrerequisitesInterface by InstallOrder, and nothing reads a
+        // priority. Do not add one.
         $container->registerForAutoconfiguration(ModuleInstallerInterface::class)
             ->addTag('coolms.module.installer');
+
+        // Structure installers -- the FIRST phase of coolms:install, collected by
+        // CoreServicesPass under this tag. The tag is named for the VFS because
+        // until 2026-09-11 every structure installer was one, and the VFS module
+        // autoconfigures its own VfsInstallerInterface onto it. Core types the
+        // phase against ITS contract, so Core autoconfigures that contract:
+        // a structure installer that creates no directory -- the one seeding
+        // the system users the VFS installers require -- is tagged by
+        // implementing StructureInstallerInterface alone. A class implementing
+        // both is tagged ONCE: ResolveInstanceofConditionalsPass drops a tag
+        // whose name and attributes it already carries.
+        $container->registerForAutoconfiguration(StructureInstallerInterface::class)
+            ->addTag('coolms.vfs.installer');
 
         // Module UNINSTALLERS -- the optional counterpart, collected the same
         // way. Separate from the installer contract on purpose: that interface

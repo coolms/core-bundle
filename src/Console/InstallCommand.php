@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace CoolMS\Core\Bundle\Console;
 
+use CoolMS\Core\Install\InstallOrder;
 use CoolMS\Core\Install\ModuleInstallerInterface;
 use CoolMS\Core\Install\StructureInstallerInterface;
+use CoolMS\Core\Install\UnorderableInstallersException;
 use CoolMS\Core\Install\VfsPathClaims;
 use CoolMS\Core\Bundle\Module\InstallManifest;
 use CoolMS\Core\Bundle\Module\ModuleCatalog;
@@ -41,6 +43,34 @@ final class InstallCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
         $io->title('CoolMS2 Install');
+
+        // The order is DERIVED from what each installer declares it requires and
+        // provides -- not registration order, which was alphabetical, and not a
+        // priority, which nothing ever read. A prerequisite nothing provides, or a
+        // cycle, refuses HERE.
+        //
+        // !! BEFORE THE SECRETS STEP, ON PURPOSE. `MasterKeyProvisioner::ensure()`
+        // below WRITES a key to .env.local when none exists. The failure this
+        // replaces was DecisionVfsInstaller discovering at line 76, mid-install,
+        // that no system user existed -- after that key had been written to disk.
+        // A refusal that still leaves a secret behind is the old failure with a
+        // better message; this one leaves nothing.
+        //
+        // The module phase is sorted with the structure phase's provisions
+        // already satisfied: it runs AFTER that phase completes, and four VFS
+        // installers sit in both phases requiring what a structure installer
+        // provides. Sorting the second set alone refused on a fact.
+        try {
+            $structureInstallers = InstallOrder::sort($this->installers);
+            $moduleInstallers = InstallOrder::sort(
+                $this->moduleInstallers,
+                InstallOrder::provisionsOf($structureInstallers),
+            );
+        } catch (UnorderableInstallersException $e) {
+            $io->error($e->getMessage());
+
+            return Command::FAILURE;
+        }
 
         // Seed/validate the at-rest master key FIRST: without it, sealing mailbox
         // credentials (M8) and the encrypted secret store (F1) fail closed -- and
@@ -80,9 +110,6 @@ final class InstallCommand extends Command
         // second module has already written into the first one's directory and
         // the evidence is gone. Advisory: two modules may legitimately share a
         // root, so this says what it found and installs anyway.
-        $structureInstallers = [...$this->installers];
-        $moduleInstallers = [...$this->moduleInstallers];
-
         // !! Report the DENOMINATOR, and refuse to claim success over an empty
         // set. An install that ran no installers printed the identical green to
         // one that ran every installer -- two empty sections and
