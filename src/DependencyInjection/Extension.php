@@ -128,8 +128,14 @@ class Extension extends AbstractExtension
         $container->registerForAutoconfiguration(ApiResourceInstallerInterface::class)
             ->addTag('coolms.api.resource.installer');
 
-        // Module data installers -- collected by ServiceWiringPass and called by coolms:install.
-        // Priorities are applied after auto-scan by ModuleInstallerPriorityPass.
+        // Module data installers, collected by tag and called by coolms:install.
+        //
+        // !! This used to say priorities were applied by ModuleInstallerPriorityPass.
+        // That class was described and never written -- the comment was its only
+        // trace -- so eight `priority` attributes sat inert for as long as they
+        // existed and the order was alphabetical. The order is now DERIVED from
+        // DeclaresPrerequisitesInterface by InstallOrder, and nothing reads a
+        // priority. Do not add one.
         $container->registerForAutoconfiguration(ModuleInstallerInterface::class)
             ->addTag('coolms.module.installer');
 
