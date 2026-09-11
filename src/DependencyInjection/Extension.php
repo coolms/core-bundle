@@ -17,6 +17,7 @@ use CoolMS\Core\Config\YamlFileLoader;
 use CoolMS\Core\Dashboard\DashboardWidgetProviderInterface;
 use CoolMS\Core\Install\ModuleInstallerInterface;
 use CoolMS\Core\Install\ModuleUninstallerInterface;
+use CoolMS\Core\Install\StructureInstallerInterface;
 use CoolMS\Core\Option\OptionSourceProviderInterface;
 use CoolMS\Core\Outbox\OutboxPublisherInterface;
 use CoolMS\Core\Registry\ComponentRegistry;
@@ -138,6 +139,19 @@ class Extension extends AbstractExtension
         // priority. Do not add one.
         $container->registerForAutoconfiguration(ModuleInstallerInterface::class)
             ->addTag('coolms.module.installer');
+
+        // Structure installers -- the FIRST phase of coolms:install, collected by
+        // CoreServicesPass under this tag. The tag is named for the VFS because
+        // until 2026-09-11 every structure installer was one, and the VFS module
+        // autoconfigures its own VfsInstallerInterface onto it. Core types the
+        // phase against ITS contract, so Core autoconfigures that contract:
+        // a structure installer that creates no directory -- the one seeding
+        // the system users the VFS installers require -- is tagged by
+        // implementing StructureInstallerInterface alone. A class implementing
+        // both is tagged ONCE: ResolveInstanceofConditionalsPass drops a tag
+        // whose name and attributes it already carries.
+        $container->registerForAutoconfiguration(StructureInstallerInterface::class)
+            ->addTag('coolms.vfs.installer');
 
         // Module UNINSTALLERS -- the optional counterpart, collected the same
         // way. Separate from the installer contract on purpose: that interface

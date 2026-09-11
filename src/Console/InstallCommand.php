@@ -55,9 +55,17 @@ final class InstallCommand extends Command
         // that no system user existed -- after that key had been written to disk.
         // A refusal that still leaves a secret behind is the old failure with a
         // better message; this one leaves nothing.
+        //
+        // The module phase is sorted with the structure phase's provisions
+        // already satisfied: it runs AFTER that phase completes, and four VFS
+        // installers sit in both phases requiring what a structure installer
+        // provides. Sorting the second set alone refused on a fact.
         try {
             $structureInstallers = InstallOrder::sort($this->installers);
-            $moduleInstallers = InstallOrder::sort($this->moduleInstallers);
+            $moduleInstallers = InstallOrder::sort(
+                $this->moduleInstallers,
+                InstallOrder::provisionsOf($structureInstallers),
+            );
         } catch (UnorderableInstallersException $e) {
             $io->error($e->getMessage());
 
