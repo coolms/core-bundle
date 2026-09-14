@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace CoolMS\Core\Bundle\Tests\Json;
 
-use CoolMS\Core\Exception\JsoncDecodeException;
 use CoolMS\Core\Bundle\Json\JsoncDecoder;
+use CoolMS\Core\Exception\JsoncDecodeException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

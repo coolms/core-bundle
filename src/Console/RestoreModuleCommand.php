@@ -54,10 +54,17 @@ final class RestoreModuleCommand extends Command
     protected function configure(): void
     {
         $this
-            ->addArgument('module', InputArgument::REQUIRED,
-                'Module name, as declared by its bundle')
-            ->addOption('dry-run', null, InputOption::VALUE_NONE,
-                'Report what would be restored and change nothing');
+            ->addArgument(
+                'module',
+                InputArgument::REQUIRED,
+                'Module name, as declared by its bundle',
+            )
+            ->addOption(
+                'dry-run',
+                null,
+                InputOption::VALUE_NONE,
+                'Report what would be restored and change nothing',
+            );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

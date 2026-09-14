@@ -30,40 +30,12 @@ final class DisabledBundlesInvalidatesCacheTest extends TestCase
 {
     private string $project;
 
-    protected function setUp(): void
-    {
-        $this->project = sys_get_temp_dir() . '/coolms-seed-' . bin2hex(random_bytes(6));
-        mkdir($this->project . '/config', 0o777, true);
-        mkdir($this->project . '/var', 0o777, true);
-        file_put_contents($this->project . '/config/services.yaml', "services:\n");
-    }
-
-    protected function tearDown(): void
-    {
-        // Deepest first: removing a parent before its children is a warning,
-        // and this package fails on warnings.
-        foreach (['/config/coolms_disabled_bundles.php', '/config/services.yaml',
-                  '/var/coolms_disabled_bundles.php'] as $f) {
-            if (is_file($this->project . $f)) {
-                unlink($this->project . $f);
-            }
-        }
-        foreach (['/config', '/var'] as $d) {
-            if (is_dir($this->project . $d)) {
-                rmdir($this->project . $d);
-            }
-        }
-        if (is_dir($this->project)) {
-            rmdir($this->project);
-        }
-    }
-
     #[Test]
     public function disablingAModuleMovesThePrefixSeed(): void
     {
         $before = CacheSeed::compute($this->project);
 
-        (new DisabledBundles($this->project))->disable('Acme\\Probe\\ProbeBundle');
+        new DisabledBundles($this->project)->disable('Acme\\Probe\\ProbeBundle');
 
         self::assertNotSame(
             $before,
@@ -87,7 +59,7 @@ final class DisabledBundlesInvalidatesCacheTest extends TestCase
         // what is doing the work.
         file_put_contents(
             $this->project . '/var/coolms_disabled_bundles.php',
-            "<?php" . PHP_EOL . PHP_EOL . "return ['Acme\\Probe\\ProbeBundle'];" . PHP_EOL,
+            '<?php' . PHP_EOL . PHP_EOL . "return ['Acme\\Probe\\ProbeBundle'];" . PHP_EOL,
         );
 
         self::assertSame(
@@ -97,5 +69,33 @@ final class DisabledBundlesInvalidatesCacheTest extends TestCase
             . 'test above is not evidence that living in config/ is what invalidates '
             . 'the pools. Find what else is being hashed before trusting either.',
         );
+    }
+
+    protected function setUp(): void
+    {
+        $this->project = sys_get_temp_dir() . '/coolms-seed-' . bin2hex(random_bytes(6));
+        mkdir($this->project . '/config', 0o777, true);
+        mkdir($this->project . '/var', 0o777, true);
+        file_put_contents($this->project . '/config/services.yaml', "services:\n");
+    }
+
+    protected function tearDown(): void
+    {
+        // Deepest first: removing a parent before its children is a warning,
+        // and this package fails on warnings.
+        foreach (['/config/coolms_disabled_bundles.php', '/config/services.yaml',
+            '/var/coolms_disabled_bundles.php'] as $f) {
+            if (is_file($this->project . $f)) {
+                unlink($this->project . $f);
+            }
+        }
+        foreach (['/config', '/var'] as $d) {
+            if (is_dir($this->project . $d)) {
+                rmdir($this->project . $d);
+            }
+        }
+        if (is_dir($this->project)) {
+            rmdir($this->project);
+        }
     }
 }

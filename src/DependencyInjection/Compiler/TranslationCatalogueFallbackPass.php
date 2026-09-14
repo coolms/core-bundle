@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace CoolMS\Core\Bundle\DependencyInjection\Compiler;
 
-use CoolMS\Core\Translation\InlineLabelCatalogueReaderInterface;
-use CoolMS\Core\Translation\InlineLabelCatalogueWriterInterface;
 use CoolMS\Core\Application\Translation\NullInlineLabelCatalogueReader;
 use CoolMS\Core\Application\Translation\NullInlineLabelCatalogueWriter;
+use CoolMS\Core\Translation\InlineLabelCatalogueReaderInterface;
+use CoolMS\Core\Translation\InlineLabelCatalogueWriterInterface;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 

@@ -6,9 +6,9 @@ namespace CoolMS\Core\Bundle\ApiPlatform\Resource\Provider;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
-use CoolMS\Core\Option\Exception\UnknownOptionSourceException;
-use CoolMS\Core\Bundle\ApiPlatform\Resource\OptionResource;
 use CoolMS\Core\Application\Option\OptionSourceRegistry;
+use CoolMS\Core\Bundle\ApiPlatform\Resource\OptionResource;
+use CoolMS\Core\Option\Exception\UnknownOptionSourceException;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 

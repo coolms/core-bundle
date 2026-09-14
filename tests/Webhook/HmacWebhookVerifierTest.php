@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace CoolMS\Core\Bundle\Tests\Webhook;
 
+use CoolMS\Core\Bundle\Webhook\HmacWebhookVerifier;
 use CoolMS\Core\Secret\SecretNotFoundException;
 use CoolMS\Core\Secret\SecretStoreInterface;
 use CoolMS\Core\Webhook\WebhookSignatureException;
-use CoolMS\Core\Bundle\Webhook\HmacWebhookVerifier;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

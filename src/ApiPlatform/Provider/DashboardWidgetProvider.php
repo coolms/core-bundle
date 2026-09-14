@@ -6,10 +6,10 @@ namespace CoolMS\Core\Bundle\ApiPlatform\Provider;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
-use CoolMS\Core\Dashboard\PlacedWidget;
+use CoolMS\Core\Application\Dashboard\DashboardCatalogue;
 use CoolMS\Core\Bundle\ApiPlatform\Resource\DashboardWidgetInfo;
 use CoolMS\Core\Bundle\ApiPlatform\Resource\DashboardWidgetResource;
-use CoolMS\Core\Application\Dashboard\DashboardCatalogue;
+use CoolMS\Core\Dashboard\PlacedWidget;
 
 use function array_map;
 use function is_string;

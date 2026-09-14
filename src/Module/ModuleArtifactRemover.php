@@ -62,9 +62,9 @@ final readonly class ModuleArtifactRemover
     /**
      * @param list<string> $names every name the module is known by
      *
-     * @return list<string> what was undone, or would be under $dryRun
-     *
      * @throws Throwable if any part of the teardown fails
+     *
+     * @return list<string> what was undone, or would be under $dryRun
      */
     public function removeStrict(array $names, bool $dryRun = false): array
     {
@@ -107,8 +107,11 @@ final readonly class ModuleArtifactRemover
                     'uninstaller' => $uninstaller::class,
                     'exception' => $e,
                 ]);
-                $done[] = sprintf('%s FAILED: %s', $uninstaller::class,
-                    $e->getMessage());
+                $done[] = sprintf(
+                    '%s FAILED: %s',
+                    $uninstaller::class,
+                    $e->getMessage(),
+                );
             }
         }
 

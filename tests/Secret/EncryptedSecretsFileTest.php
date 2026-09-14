@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace CoolMS\Core\Bundle\Tests\Secret;
 
-use CoolMS\Core\Secret\SecretStoreException;
 use CoolMS\Core\Bundle\Secret\EncryptedSecretsFile;
+use CoolMS\Core\Secret\SecretStoreException;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 

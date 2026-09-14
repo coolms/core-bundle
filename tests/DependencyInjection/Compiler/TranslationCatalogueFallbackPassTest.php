@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace CoolMS\Core\Bundle\Tests\DependencyInjection\Compiler;
 
-use CoolMS\Core\Translation\InlineLabelCatalogueReaderInterface;
-use CoolMS\Core\Translation\InlineLabelCatalogueWriterInterface;
-use CoolMS\Core\Bundle\DependencyInjection\Compiler\TranslationCatalogueFallbackPass;
 use CoolMS\Core\Application\Translation\NullInlineLabelCatalogueReader;
 use CoolMS\Core\Application\Translation\NullInlineLabelCatalogueWriter;
+use CoolMS\Core\Bundle\DependencyInjection\Compiler\TranslationCatalogueFallbackPass;
+use CoolMS\Core\Translation\InlineLabelCatalogueReaderInterface;
+use CoolMS\Core\Translation\InlineLabelCatalogueWriterInterface;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use stdClass;

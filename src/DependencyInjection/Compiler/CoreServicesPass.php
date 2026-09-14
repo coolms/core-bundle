@@ -40,8 +40,10 @@ final class CoreServicesPass implements CompilerPassInterface
         // uninstaller the same way InstallCommand is given every installer.
         if ($container->has(ModuleArtifactRemover::class)) {
             $container->findDefinition(ModuleArtifactRemover::class)
-                ->setArgument('$uninstallers',
-                    new TaggedIteratorArgument('coolms.module.uninstaller'));
+                ->setArgument(
+                    '$uninstallers',
+                    new TaggedIteratorArgument('coolms.module.uninstaller'),
+                );
         }
         if ($container->hasDefinition(YamlEncoder::class)) {
             // Already registered by FrameworkBundle -- ensure class and tag are present.

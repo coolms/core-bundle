@@ -103,12 +103,7 @@ final readonly class ModuleConfigFiles
             // file whose extension is gone stops the container building. A
             // refusal leaves a working application; a message in a list does
             // not.
-            throw new RuntimeException(sprintf(
-                '%s configures more than "%s", so setting it aside would '
-                . 'disable unrelated configuration. Move the "%s" block into '
-                . 'its own file, or disable it by hand.',
-                basename($path), $alias, $alias,
-            ));
+            throw new RuntimeException(sprintf('%s configures more than "%s", so setting it aside would disable unrelated configuration. Move the "%s" block into its own file, or disable it by hand.', basename($path), $alias, $alias));
         }
 
         if ($dryRun) {
@@ -116,11 +111,7 @@ final readonly class ModuleConfigFiles
         }
 
         if (!rename($path, $path . '.disabled')) {
-            throw new RuntimeException(sprintf(
-                'Could not set aside %s. The module was NOT disabled: the '
-                . 'container will not build while that file is there.',
-                basename($path),
-            ));
+            throw new RuntimeException(sprintf('Could not set aside %s. The module was NOT disabled: the container will not build while that file is there.', basename($path)));
         }
 
         return [sprintf('set aside %s', basename($path))];
@@ -154,12 +145,12 @@ final readonly class ModuleConfigFiles
 
     /**
      * @return array{0: string, 1: bool}|null path, and whether the alias is the
-     *                                       only top-level key in it
+     *                                        only top-level key in it
      */
     private function fileFor(string $alias, string $suffix): ?array
     {
         $files = glob($this->directory() . '/*' . $suffix);
-        foreach ($files === false ? [] : $files as $path) {
+        foreach (false === $files ? [] : $files as $path) {
             if (!is_file($path) || !str_ends_with($path, $suffix)) {
                 continue;
             }
@@ -182,7 +173,7 @@ final readonly class ModuleConfigFiles
     {
         $lines = file($path);
         $keys = [];
-        foreach ($lines === false ? [] : $lines as $line) {
+        foreach (false === $lines ? [] : $lines as $line) {
             // Top level only: an indented key belongs to the block above it,
             // and a commented one is not configuration at all.
             if (preg_match('/^([A-Za-z_][A-Za-z0-9_@.\-]*)\s*:/', $line, $m)) {
