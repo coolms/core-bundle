@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace CoolMS\Core\Bundle\Tests\Console;
 
+use CoolMS\Core\Application\Outbox\OutboxMaintenanceService;
+use CoolMS\Core\Bundle\Console\PruneOutboxCommand;
 use CoolMS\Core\Inbox\ProcessedMessageStoreInterface;
 use CoolMS\Core\Outbox\OutboxRelayRepositoryInterface;
-use CoolMS\Core\Bundle\Console\PruneOutboxCommand;
-use CoolMS\Core\Application\Outbox\OutboxMaintenanceService;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Clock\MockClock;

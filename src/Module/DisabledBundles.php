@@ -12,8 +12,8 @@ use function in_array;
 use function is_array;
 use function is_file;
 use function sort;
-use function unlink;
 use function sprintf;
+use function unlink;
 use function var_export;
 
 /**
@@ -46,7 +46,7 @@ final readonly class DisabledBundles
 
     public function path(): string
     {
-        return $this->projectDir . '/config' . '/coolms_disabled_bundles.php';
+        return $this->projectDir . '/config/coolms_disabled_bundles.php';
     }
 
     /**
@@ -61,7 +61,6 @@ final readonly class DisabledBundles
             return [];
         }
 
-        /** @var mixed $data */
         $data = require $path;
 
         return is_array($data) ? array_values($data) : [];
@@ -91,18 +90,15 @@ final readonly class DisabledBundles
             return;
         }
 
-        $body = "<?php" . PHP_EOL . PHP_EOL
-            . "// Written by `coolms:module:remove` and `coolms:module:restore`." . PHP_EOL
-            . "// Bundles listed here are skipped by config/bundles.php." . PHP_EOL
-            . "// Removing an entry re-enables the module; its data was never touched." . PHP_EOL
+        $body = '<?php' . PHP_EOL . PHP_EOL
+            . '// Written by `coolms:module:remove` and `coolms:module:restore`.' . PHP_EOL
+            . '// Bundles listed here are skipped by config/bundles.php.' . PHP_EOL
+            . '// Removing an entry re-enables the module; its data was never touched.' . PHP_EOL
             . PHP_EOL
             . 'return ' . var_export($bundleClasses, true) . ';' . PHP_EOL;
 
         if (false === file_put_contents($this->path(), $body)) {
-            throw new RuntimeException(sprintf(
-                'Could not write %s. The module was NOT disabled.',
-                $this->path(),
-            ));
+            throw new RuntimeException(sprintf('Could not write %s. The module was NOT disabled.', $this->path()));
         }
     }
 

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace CoolMS\Core\Bundle\Tests\Console;
 
-use CoolMS\Core\Retention\RetentionPrunerInterface;
-use CoolMS\Core\Bundle\Console\PruneRetentionCommand;
 use CoolMS\Core\Application\Retention\RetentionPruneRunner;
+use CoolMS\Core\Bundle\Console\PruneRetentionCommand;
+use CoolMS\Core\Retention\RetentionPrunerInterface;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;

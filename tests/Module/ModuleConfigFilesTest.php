@@ -25,33 +25,12 @@ final class ModuleConfigFilesTest extends TestCase
 {
     private string $dir;
 
-    protected function setUp(): void
-    {
-        $this->dir = sys_get_temp_dir() . '/coolms-cfg-' . uniqid('', true);
-        mkdir($this->dir . '/config/packages', 0o777, true);
-    }
-
-    protected function tearDown(): void
-    {
-        foreach (glob($this->dir . '/config/packages/*') ?: [] as $f) {
-            unlink($f);
-        }
-        rmdir($this->dir . '/config/packages');
-        rmdir($this->dir . '/config');
-        rmdir($this->dir);
-    }
-
-    private function write(string $name, string $body): void
-    {
-        file_put_contents($this->dir . '/config/packages/' . $name, $body);
-    }
-
     #[Test]
     public function aSinglePurposeFileIsSetAsideAndComesBack(): void
     {
-        $this->write('coolms_thing.yaml', "thing:
+        $this->write('coolms_thing.yaml', 'thing:
     enabled: true
-");
+');
         $files = new ModuleConfigFiles($this->dir);
 
         $done = $files->setAside('thing');
@@ -72,12 +51,14 @@ final class ModuleConfigFilesTest extends TestCase
     #[Test]
     public function aFileConfiguringSomethingElseTooIsRefused(): void
     {
-        $this->write('coolms_thing.yaml',
-            "thing:
+        $this->write(
+            'coolms_thing.yaml',
+            'thing:
     enabled: true
 framework:
     secret: x
-");
+',
+        );
         $files = new ModuleConfigFiles($this->dir);
 
         $this->expectException(RuntimeException::class);
@@ -89,12 +70,14 @@ framework:
     #[Test]
     public function aRefusalLeavesTheFileWhereItWas(): void
     {
-        $this->write('coolms_thing.yaml',
-            "thing:
+        $this->write(
+            'coolms_thing.yaml',
+            'thing:
     enabled: true
 framework:
     secret: x
-");
+',
+        );
         $files = new ModuleConfigFiles($this->dir);
 
         try {
@@ -106,7 +89,8 @@ framework:
             // the application between the two states.
             self::assertFileExists($this->dir . '/config/packages/coolms_thing.yaml');
             self::assertFileDoesNotExist(
-                $this->dir . '/config/packages/coolms_thing.yaml.disabled');
+                $this->dir . '/config/packages/coolms_thing.yaml.disabled',
+            );
         }
     }
 
@@ -117,5 +101,26 @@ framework:
 
         self::assertSame([], $files->setAside('nothing_here'));
         self::assertSame([], $files->restore('nothing_here'));
+    }
+
+    protected function setUp(): void
+    {
+        $this->dir = sys_get_temp_dir() . '/coolms-cfg-' . uniqid('', true);
+        mkdir($this->dir . '/config/packages', 0o777, true);
+    }
+
+    protected function tearDown(): void
+    {
+        foreach (glob($this->dir . '/config/packages/*') ?: [] as $f) {
+            unlink($f);
+        }
+        rmdir($this->dir . '/config/packages');
+        rmdir($this->dir . '/config');
+        rmdir($this->dir);
+    }
+
+    private function write(string $name, string $body): void
+    {
+        file_put_contents($this->dir . '/config/packages/' . $name, $body);
     }
 }

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace CoolMS\Core\Bundle\Tests\Application\Translation;
 
-use CoolMS\Core\Identity\UserInterface;
-use CoolMS\Core\Translation\TranslationCatalogueUnavailableException;
 use CoolMS\Core\Application\Translation\NullInlineLabelCatalogueReader;
 use CoolMS\Core\Application\Translation\NullInlineLabelCatalogueWriter;
+use CoolMS\Core\Identity\UserInterface;
+use CoolMS\Core\Translation\TranslationCatalogueUnavailableException;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use stdClass;

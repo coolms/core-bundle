@@ -6,10 +6,10 @@ namespace CoolMS\Core\Bundle\ApiPlatform\Resource\Provider;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
+use CoolMS\Core\Bundle\ApiPlatform\Resource\OutboundChannelResource;
 use CoolMS\Core\Channel\ChannelConfigField;
 use CoolMS\Core\Channel\ConfigurableChannelInterface;
 use CoolMS\Core\Channel\OutboundChannelRegistryInterface;
-use CoolMS\Core\Bundle\ApiPlatform\Resource\OutboundChannelResource;
 
 use function array_map;
 use function usort;

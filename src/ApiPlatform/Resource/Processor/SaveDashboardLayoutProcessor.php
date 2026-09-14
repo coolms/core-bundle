@@ -6,10 +6,10 @@ namespace CoolMS\Core\Bundle\ApiPlatform\Resource\Processor;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
-use CoolMS\Core\Dashboard\DashboardPlacement;
+use CoolMS\Core\Application\Dashboard\DashboardLayoutWriter;
 use CoolMS\Core\Bundle\ApiPlatform\Resource\DashboardLayoutResource;
 use CoolMS\Core\Bundle\ApiPlatform\Resource\DTO\DashboardLayoutRequest;
-use CoolMS\Core\Application\Dashboard\DashboardLayoutWriter;
+use CoolMS\Core\Dashboard\DashboardPlacement;
 use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;

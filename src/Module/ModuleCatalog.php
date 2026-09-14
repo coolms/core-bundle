@@ -17,7 +17,6 @@ use function ksort;
 use function ltrim;
 use function str_replace;
 use function strtolower;
-use function usort;
 
 /**
  * Every bundle the application declares, and what each one needs.
@@ -90,8 +89,6 @@ final readonly class ModuleCatalog
 
         return null;
     }
-
-
 
     /**
      * Which module a class belongs to, by namespace prefix.
@@ -187,12 +184,11 @@ final readonly class ModuleCatalog
      */
     public function bundleClasses(): array
     {
-        $path = $this->projectDir . '/config' . '/bundles.php';
+        $path = $this->projectDir . '/config/bundles.php';
         if (!is_file($path)) {
             return [];
         }
 
-        /** @var mixed $map */
         $map = require $path;
 
         $loading = is_array($map) ? array_keys($map) : [];

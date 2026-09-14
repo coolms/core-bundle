@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace CoolMS\Core\Bundle\Tests\EventListener;
 
-use CoolMS\Core\Config\PlatformDefaults;
 use CoolMS\Core\Bundle\EventListener\ConsoleLocaleListener;
+use CoolMS\Core\Config\PlatformDefaults;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Event\ConsoleCommandEvent;

@@ -10,8 +10,6 @@ use CoolMS\Core\Bundle\Module\ModuleArtifactRemover;
 use CoolMS\Core\Bundle\Module\ModuleCatalog;
 use CoolMS\Core\Bundle\Module\ModuleConfigFiles;
 use RuntimeException;
-use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Process\Process;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -19,13 +17,15 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Process\Process;
 
 use function count;
 use function explode;
-use function preg_match;
 use function implode;
-use function trim;
+use function preg_match;
 use function sprintf;
+use function trim;
 
 /**
  * Remove a module: stop it loading, and undo what its installation put in place.
@@ -68,71 +68,17 @@ final class RemoveModuleCommand extends Command
     protected function configure(): void
     {
         $this
-            ->addArgument('module', InputArgument::REQUIRED,
-                'Module name, as declared by its bundle')
-            ->addOption('dry-run', null, InputOption::VALUE_NONE,
-                'Report what would be undone and change nothing');
-    }
-
-    /**
-     * Build the container in a clean subprocess.
-     *
-     * @return string|null the first line of the failure, or null when it built
-     */
-    private function containerStillBuilds(): ?string
-    {
-        $console = $this->projectDir . '/bin/console';
-        $fs = new Filesystem();
-
-        // Build under a THROWAWAY environment name. Two things follow from
-        // that, and both are needed:
-        //
-        //  - the cache directory is its own (`var/cache/<name>`), so nothing
-        //    here touches the container THIS process is running from. An
-        //    earlier version deleted the live one and the command then died
-        //    part-way through reporting, needing a lazy service file it had
-        //    just removed.
-        //  - it is empty, so the build is real. `cache:clear` is not usable
-        //    here: it boots the kernel itself, so on a container that no
-        //    longer builds it fails and leaves the old cache in place -- and
-        //    the check behind it then passes against the stale container,
-        //    which is the exact mistake this check exists to catch.
-        $probeEnv = 'coolms_module_check';
-        $probeCache = $this->projectDir . '/var/cache/' . $probeEnv;
-        $fs->remove($probeCache);
-
-        $build = new Process([PHP_BINARY, $console, 'about'], null,
-            ['APP_ENV' => $probeEnv]);
-        $build->setTimeout(600);
-        $build->run();
-
-        $fs->remove($probeCache);
-
-        if ($build->isSuccessful()) {
-            return null;
-        }
-
-        $out = trim($build->getErrorOutput()) . PHP_EOL . trim($build->getOutput());
-
-        // Symfony prints a location header -- "In SomePass.php line 48:" --
-        // before the sentence a reader needs. Reporting the header names the
-        // file that noticed, never the thing that is wrong, so it is skipped.
-        $fallback = null;
-        foreach (explode(PHP_EOL, $out) as $line) {
-            $line = trim($line);
-            if ('' === $line) {
-                continue;
-            }
-            if (1 === preg_match('/^In .+ line \d+:$/', $line)) {
-                $fallback ??= $line;
-
-                continue;
-            }
-
-            return $line;
-        }
-
-        return $fallback ?? 'the container did not build, and said nothing about why';
+            ->addArgument(
+                'module',
+                InputArgument::REQUIRED,
+                'Module name, as declared by its bundle',
+            )
+            ->addOption(
+                'dry-run',
+                null,
+                InputOption::VALUE_NONE,
+                'Report what would be undone and change nothing',
+            );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -170,7 +116,6 @@ final class RemoveModuleCommand extends Command
 
         $module = $this->catalog->moduleNameOf($class);
         $already = $this->disabled->isDisabled($class);
-
 
         $dependents = $this->catalog->dependentsOf($class, $this->disabled->all());
         if ([] !== $dependents) {
@@ -261,7 +206,8 @@ final class RemoveModuleCommand extends Command
 
             $io->error(sprintf(
                 'Removing %s stops the container building, so nothing was '
-                . 'changed:', $module,
+                . 'changed:',
+                $module,
             ));
             $io->writeln('  ' . $failure);
             $io->writeln('');
@@ -296,5 +242,69 @@ final class RemoveModuleCommand extends Command
             . 'namespaced by a seed that has just changed.');
 
         return Command::SUCCESS;
+    }
+
+    /**
+     * Build the container in a clean subprocess.
+     *
+     * @return string|null the first line of the failure, or null when it built
+     */
+    private function containerStillBuilds(): ?string
+    {
+        $console = $this->projectDir . '/bin/console';
+        $fs = new Filesystem();
+
+        // Build under a THROWAWAY environment name. Two things follow from
+        // that, and both are needed:
+        //
+        //  - the cache directory is its own (`var/cache/<name>`), so nothing
+        //    here touches the container THIS process is running from. An
+        //    earlier version deleted the live one and the command then died
+        //    part-way through reporting, needing a lazy service file it had
+        //    just removed.
+        //  - it is empty, so the build is real. `cache:clear` is not usable
+        //    here: it boots the kernel itself, so on a container that no
+        //    longer builds it fails and leaves the old cache in place -- and
+        //    the check behind it then passes against the stale container,
+        //    which is the exact mistake this check exists to catch.
+        $probeEnv = 'coolms_module_check';
+        $probeCache = $this->projectDir . '/var/cache/' . $probeEnv;
+        $fs->remove($probeCache);
+
+        $build = new Process(
+            [PHP_BINARY, $console, 'about'],
+            null,
+            ['APP_ENV' => $probeEnv],
+        );
+        $build->setTimeout(600);
+        $build->run();
+
+        $fs->remove($probeCache);
+
+        if ($build->isSuccessful()) {
+            return null;
+        }
+
+        $out = trim($build->getErrorOutput()) . PHP_EOL . trim($build->getOutput());
+
+        // Symfony prints a location header -- "In SomePass.php line 48:" --
+        // before the sentence a reader needs. Reporting the header names the
+        // file that noticed, never the thing that is wrong, so it is skipped.
+        $fallback = null;
+        foreach (explode(PHP_EOL, $out) as $line) {
+            $line = trim($line);
+            if ('' === $line) {
+                continue;
+            }
+            if (1 === preg_match('/^In .+ line \d+:$/', $line)) {
+                $fallback ??= $line;
+
+                continue;
+            }
+
+            return $line;
+        }
+
+        return $fallback ?? 'the container did not build, and said nothing about why';
     }
 }

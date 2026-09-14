@@ -10,7 +10,6 @@ use CoolMS\Core\Install\ModuleInstallerInterface;
 use JsonException;
 use Throwable;
 
-use function array_values;
 use function class_exists;
 use function dirname;
 use function file_get_contents;
@@ -21,8 +20,8 @@ use function is_file;
 use function json_decode;
 use function json_encode;
 use function ksort;
-use function spl_object_id;
 use function mkdir;
+use function spl_object_id;
 
 use const JSON_PRETTY_PRINT;
 use const JSON_THROW_ON_ERROR;
@@ -84,7 +83,6 @@ final readonly class InstallManifest
         }
 
         try {
-            /** @var mixed $data */
             $data = json_decode(
                 (string) file_get_contents($this->path()),
                 true,
@@ -155,6 +153,16 @@ final readonly class InstallManifest
         $this->write($all);
     }
 
+    public function forget(string $module): void
+    {
+        $all = $this->all();
+        if (!isset($all[$module])) {
+            return;
+        }
+        unset($all[$module]);
+        $this->write($all);
+    }
+
     /**
      * The platform version that did the installing.
      *
@@ -173,16 +181,6 @@ final readonly class InstallManifest
         } catch (Throwable) {
             return null;
         }
-    }
-
-    public function forget(string $module): void
-    {
-        $all = $this->all();
-        if (!isset($all[$module])) {
-            return;
-        }
-        unset($all[$module]);
-        $this->write($all);
     }
 
     /**
