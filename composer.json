@@ -15,6 +15,10 @@
             "name": "Dmitry Popov"
         }
     ],
+    "support": {
+        "issues": "https://github.com/coolms/core-bundle/issues",
+        "source": "https://github.com/coolms/core-bundle"
+    },
     "require": {
         "api-platform/core": "^4.2",
         "composer-runtime-api": "^2.0",

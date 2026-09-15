@@ -30,6 +30,10 @@ comment no longer names it.
 
 ### Added
 
+- Declares `support` -- `issues` and `source` -- so a page imported from this
+  package, and the catalogue, know where a correction is filed. Packagist filled
+  the gap from GitHub when the manifest was silent; the declared field is the
+  one that holds on any registry.
 - `StructureInstallerInterface` is autoconfigured onto the structure-phase tag
   (`coolms.vfs.installer`, named for the VFS because every structure installer
   used to be one). A structure installer that creates no directory -- the one
