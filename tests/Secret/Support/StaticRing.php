@@ -8,6 +8,7 @@ use CoolMS\Core\Secret\MasterKey;
 use CoolMS\Core\Secret\MasterKeyException;
 use CoolMS\Core\Secret\MasterKeyRingInterface;
 
+use function array_values;
 use function sodium_crypto_secretbox_keygen;
 
 /** A ring holding exactly the keys a test hands it, current first. */
@@ -18,7 +19,7 @@ final readonly class StaticRing implements MasterKeyRingInterface
 
     public function __construct(MasterKey ...$keys)
     {
-        $this->keys = $keys;
+        $this->keys = array_values($keys);
     }
 
     public static function fresh(): MasterKey

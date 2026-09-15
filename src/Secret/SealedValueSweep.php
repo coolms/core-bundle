@@ -6,6 +6,8 @@ namespace CoolMS\Core\Bundle\Secret;
 
 use CoolMS\Core\Secret\RotationTally;
 
+use function is_string;
+
 /**
  * The sweep every kind runs, written once: read each stored value, say which
  * key opens it, and re-seal the ones under the previous key -- through a
@@ -25,18 +27,18 @@ final readonly class SealedValueSweep
     }
 
     /**
-     * Rows are [identifier, stored value]; a null or empty value is not a value
-     * and is not counted. `$rewrite` receives the identifier and the re-sealed
+     * Rows are [identifier, stored value]; a value that is not a non-empty string
+     * (a NULL column) is not a value and is not counted. `$rewrite` receives the identifier and the re-sealed
      * value, and is only called when applying. A kind that also holds PLAINTEXT
      * values passes `$isSealed`; a kind with its own outer marker passes
      * `$unwrap` (strip it before opening) and `$wrap` (put it back after
      * re-sealing).
      *
-     * @param iterable<mixed, array{mixed, ?string}> $rows
-     * @param callable(mixed, string): void          $rewrite
-     * @param callable(string): bool|null            $isSealed
-     * @param callable(string): string|null          $unwrap
-     * @param callable(string): string|null          $wrap
+     * @param iterable<mixed, array<int, mixed>> $rows
+     * @param callable(mixed, string): mixed     $rewrite
+     * @param callable(string): bool|null        $isSealed
+     * @param callable(string): string|null      $unwrap
+     * @param callable(string): string|null      $wrap
      */
     public function run(
         iterable $rows,
@@ -47,8 +49,10 @@ final readonly class SealedValueSweep
         ?callable $wrap = null,
     ): RotationTally {
         $current = $previous = $unreadable = $plaintext = $resealed = 0;
-        foreach ($rows as [$id, $stored]) {
-            if (null === $stored || '' === $stored) {
+        foreach ($rows as $row) {
+            $id = $row[0] ?? null;
+            $stored = $row[1] ?? null;
+            if (!is_string($stored) || '' === $stored) {
                 continue;
             }
             if (null !== $isSealed && !$isSealed($stored)) {

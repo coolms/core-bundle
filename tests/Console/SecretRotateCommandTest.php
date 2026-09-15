@@ -96,11 +96,8 @@ final class SecretRotateCommandTest extends TestCase
     #[Test]
     public function noCurrentKeyRefusesBeforeSweepingAnything(): void
     {
-        $swept = false;
-        $kind = new class($swept) implements SealedKindInterface {
-            public function __construct(private bool &$swept)
-            {
-            }
+        $kind = new class implements SealedKindInterface {
+            public bool $swept = false;
 
             public function name(): string
             {
@@ -117,7 +114,7 @@ final class SecretRotateCommandTest extends TestCase
         $tester = new CommandTester(new SecretRotateCommand(new StaticRing(), [$kind]));
 
         self::assertSame(Command::FAILURE, $tester->execute([]));
-        self::assertFalse($swept);
+        self::assertFalse($kind->swept);
         self::assertStringContainsString('No current master key', $tester->getDisplay());
     }
 

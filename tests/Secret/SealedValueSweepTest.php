@@ -55,14 +55,14 @@ final class SealedValueSweepTest extends TestCase
 
         $dry = $sweep->run($rows(), $rewrite, false);
         self::assertSame([1, 2, 1, 0, 0], self::counts($dry));
-        self::assertTrue(str_starts_with($store['a'], 'enc:v2:' . $old->id), 'dry run writes nothing');
+        self::assertTrue(str_starts_with((string) $store['a'], 'enc:v2:' . $old->id), 'dry run writes nothing');
 
         $first = $sweep->run($rows(), $rewrite, true);
         self::assertSame([1, 2, 1, 0, 2], self::counts($first));
-        self::assertTrue(str_starts_with($store['a'], 'enc:v2:' . $new->id), 're-sealed under the current key');
-        self::assertSame('A', $both->open($store['a'])->plaintext);
+        self::assertTrue(str_starts_with((string) $store['a'], 'enc:v2:' . $new->id), 're-sealed under the current key');
+        self::assertSame('A', $both->open((string) $store['a'])->plaintext);
         self::assertSame($strangerValue, $store['d'], 'the unreadable one is untouched');
-        self::assertSame('D', $underStranger->open($store['d'])->plaintext);
+        self::assertSame('D', $underStranger->open((string) $store['d'])->plaintext);
 
         $second = $sweep->run($rows(), $rewrite, true);
         self::assertSame([3, 0, 1, 0, 0], self::counts($second));
