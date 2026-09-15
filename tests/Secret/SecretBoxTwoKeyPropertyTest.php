@@ -57,7 +57,7 @@ final class SecretBoxTwoKeyPropertyTest extends TestCase
         $nonce = random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
         $box = sodium_crypto_secretbox($plain, $nonce, $old);
 
-        self::assertFalse(sodium_crypto_secretbox_open($box, $nonce, $new), 'the wrong key must fail, not decrypt to garbage');
+        self::assertFalse(sodium_crypto_secretbox_open($box, $nonce, $new), 'the wrong key fails, never garbage');
         self::assertSame($plain, sodium_crypto_secretbox_open($box, $nonce, $old));
     }
 

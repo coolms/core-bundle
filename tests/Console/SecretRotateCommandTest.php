@@ -27,10 +27,18 @@ final class SecretRotateCommandTest extends TestCase
     public function reportsPerKindAndClosesTheWindowAtZeroPrevious(): void
     {
         $kinds = [
-            self::kind('users.secret', apply: new RotationTally(current: 3, previous: 2, resealed: 2), dry: new RotationTally(current: 3, previous: 2)),
-            self::kind('mailboxes.password_cipher', apply: new RotationTally(current: 1, unreadable: 1), dry: new RotationTally(current: 1, unreadable: 1)),
+            self::kind(
+                'users.secret',
+                apply: new RotationTally(current: 3, previous: 2, resealed: 2),
+                dry: new RotationTally(current: 3, previous: 2),
+            ),
+            self::kind(
+                'mailboxes.password_cipher',
+                apply: new RotationTally(current: 1, unreadable: 1),
+                dry: new RotationTally(current: 1, unreadable: 1),
+            ),
         ];
-        $tester = new CommandTester(new SecretRotateCommand(new StaticRing(StaticRing::fresh(), StaticRing::fresh()), $kinds));
+        $tester = new CommandTester(new SecretRotateCommand(self::twoKeys(), $kinds));
 
         $status = $tester->execute([]);
         $out = self::unwrapped($tester->getDisplay());
@@ -45,8 +53,12 @@ final class SecretRotateCommandTest extends TestCase
     #[Test]
     public function aDryRunReportsWhatItWouldDoAndLeavesTheWindowOpen(): void
     {
-        $kinds = [self::kind('users.secret', apply: new RotationTally(), dry: new RotationTally(current: 3, previous: 2))];
-        $tester = new CommandTester(new SecretRotateCommand(new StaticRing(StaticRing::fresh(), StaticRing::fresh()), $kinds));
+        $kinds = [self::kind(
+            'users.secret',
+            apply: new RotationTally(),
+            dry: new RotationTally(current: 3, previous: 2),
+        )];
+        $tester = new CommandTester(new SecretRotateCommand(self::twoKeys(), $kinds));
 
         $status = $tester->execute(['--dry-run' => true]);
         $out = self::unwrapped($tester->getDisplay());
@@ -60,8 +72,12 @@ final class SecretRotateCommandTest extends TestCase
     public function aRunThatCannotResealEverythingLeavesTheWindowOpen(): void
     {
         // a kind that re-sealed one of two -- interrupted, or refused a write
-        $kinds = [self::kind('users.secret', apply: new RotationTally(previous: 2, resealed: 1), dry: new RotationTally(previous: 2))];
-        $tester = new CommandTester(new SecretRotateCommand(new StaticRing(StaticRing::fresh(), StaticRing::fresh()), $kinds));
+        $kinds = [self::kind(
+            'users.secret',
+            apply: new RotationTally(previous: 2, resealed: 1),
+            dry: new RotationTally(previous: 2),
+        )];
+        $tester = new CommandTester(new SecretRotateCommand(self::twoKeys(), $kinds));
 
         self::assertSame(Command::FAILURE, $tester->execute([]));
         self::assertStringContainsString('Window OPEN: 1 value(s)', self::unwrapped($tester->getDisplay()));
@@ -119,10 +135,18 @@ final class SecretRotateCommandTest extends TestCase
                 throw new RuntimeException('connection refused');
             }
         };
-        $tester = new CommandTester(new SecretRotateCommand(new StaticRing(StaticRing::fresh(), StaticRing::fresh()), [$broken]));
+        $tester = new CommandTester(new SecretRotateCommand(self::twoKeys(), [$broken]));
 
         self::assertSame(Command::FAILURE, $tester->execute([]));
-        self::assertStringContainsString('sip_credentials.secret_cipher: the sweep stopped: connection refused', self::unwrapped($tester->getDisplay()));
+        self::assertStringContainsString(
+            'sip_credentials.secret_cipher: the sweep stopped: connection refused',
+            self::unwrapped($tester->getDisplay()),
+        );
+    }
+
+    private static function twoKeys(): StaticRing
+    {
+        return new StaticRing(StaticRing::fresh(), StaticRing::fresh());
     }
 
     /** SymfonyStyle wraps at the terminal width; the assertions are about words, not line breaks. */

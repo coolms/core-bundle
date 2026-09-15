@@ -25,11 +25,18 @@ final readonly class SealedValueSweep
     }
 
     /**
-     * @param iterable<mixed, array{mixed, ?string}> $rows     [identifier, stored value]; a null or empty value is not a value and is not counted
-     * @param callable(mixed, string): void          $rewrite  receives the identifier and the re-sealed value; only called when applying
-     * @param callable(string): bool|null            $isSealed for a kind that also holds PLAINTEXT values: true when the stored value is sealed at all
-     * @param callable(string): string|null          $unwrap   strips a kind's own outer marker before the sealed value is opened
-     * @param callable(string): string|null          $wrap     puts that marker back around the re-sealed value
+     * Rows are [identifier, stored value]; a null or empty value is not a value
+     * and is not counted. `$rewrite` receives the identifier and the re-sealed
+     * value, and is only called when applying. A kind that also holds PLAINTEXT
+     * values passes `$isSealed`; a kind with its own outer marker passes
+     * `$unwrap` (strip it before opening) and `$wrap` (put it back after
+     * re-sealing).
+     *
+     * @param iterable<mixed, array{mixed, ?string}> $rows
+     * @param callable(mixed, string): void          $rewrite
+     * @param callable(string): bool|null            $isSealed
+     * @param callable(string): string|null          $unwrap
+     * @param callable(string): string|null          $wrap
      */
     public function run(
         iterable $rows,

@@ -58,7 +58,8 @@ final class SecretsFileKindTest extends TestCase
     {
         $old = StaticRing::fresh();
         $nonce = random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
-        $blob = sodium_bin2base64($nonce . sodium_crypto_secretbox('{"k":"v"}', $nonce, $old->bytes()), SODIUM_BASE64_VARIANT_ORIGINAL);
+        $box = sodium_crypto_secretbox('{"k":"v"}', $nonce, $old->bytes());
+        $blob = sodium_bin2base64($nonce . $box, SODIUM_BASE64_VARIANT_ORIGINAL);
         new EncryptedSecretsFile($this->path)->replaceRaw($blob);
 
         $file = new EncryptedSecretsFile($this->path, new KeyRingSealer(new StaticRing(StaticRing::fresh(), $old)));
@@ -78,12 +79,14 @@ final class SecretsFileKindTest extends TestCase
 
         $dry = $kind->sweep(false);
         self::assertSame([0, 1, 0, 0], [$dry->current, $dry->previous, $dry->unreadable, $dry->resealed]);
-        self::assertFalse(str_starts_with((string) file_get_contents($this->path), 'enc:v2:' . $new->id), 'dry run writes nothing');
+        $onDisk = (string) file_get_contents($this->path);
+        self::assertFalse(str_starts_with($onDisk, 'enc:v2:' . $new->id), 'dry run writes nothing');
 
         $first = $kind->sweep(true);
         self::assertSame([0, 1, 0, 1], [$first->current, $first->previous, $first->unreadable, $first->resealed]);
         self::assertTrue(str_starts_with((string) file_get_contents($this->path), 'enc:v2:' . $new->id));
-        self::assertSame(['k' => 'v'], new EncryptedSecretsFile($this->path, new KeyRingSealer(new StaticRing($new)))->load(), 'readable with the new key alone now');
+        $newOnly = new EncryptedSecretsFile($this->path, new KeyRingSealer(new StaticRing($new)));
+        self::assertSame(['k' => 'v'], $newOnly->load(), 'readable with the new key alone now');
 
         $second = $kind->sweep(true);
         self::assertSame([1, 0, 0, 0], [$second->current, $second->previous, $second->unreadable, $second->resealed]);

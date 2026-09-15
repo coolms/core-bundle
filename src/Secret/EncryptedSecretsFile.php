@@ -78,7 +78,9 @@ final readonly class EncryptedSecretsFile
         try {
             $opened = $this->sealer->open($raw);
         } catch (SealedValueException $e) {
-            throw new SecretStoreException(sprintf('Cannot decrypt secrets file "%s": %s', $this->path, $e->getMessage()), 0, $e);
+            $message = sprintf('Cannot decrypt secrets file "%s": %s', $this->path, $e->getMessage());
+
+            throw new SecretStoreException($message, 0, $e);
         }
 
         return $this->decode($opened->plaintext);

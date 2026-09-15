@@ -7,6 +7,7 @@ namespace CoolMS\Core\Bundle\Tests\Secret;
 use CoolMS\Core\Bundle\Secret\KeyRingSealer;
 use CoolMS\Core\Bundle\Secret\SealedValueSweep;
 use CoolMS\Core\Bundle\Tests\Secret\Support\StaticRing;
+use CoolMS\Core\Secret\RotationTally;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -53,18 +54,18 @@ final class SealedValueSweepTest extends TestCase
         $strangerValue = $store['d'];
 
         $dry = $sweep->run($rows(), $rewrite, false);
-        self::assertSame([1, 2, 1, 0, 0], [$dry->current, $dry->previous, $dry->unreadable, $dry->plaintext, $dry->resealed]);
+        self::assertSame([1, 2, 1, 0, 0], self::counts($dry));
         self::assertTrue(str_starts_with($store['a'], 'enc:v2:' . $old->id), 'dry run writes nothing');
 
         $first = $sweep->run($rows(), $rewrite, true);
-        self::assertSame([1, 2, 1, 0, 2], [$first->current, $first->previous, $first->unreadable, $first->plaintext, $first->resealed]);
+        self::assertSame([1, 2, 1, 0, 2], self::counts($first));
         self::assertTrue(str_starts_with($store['a'], 'enc:v2:' . $new->id), 're-sealed under the current key');
         self::assertSame('A', $both->open($store['a'])->plaintext);
         self::assertSame($strangerValue, $store['d'], 'the unreadable one is untouched');
         self::assertSame('D', $underStranger->open($store['d'])->plaintext);
 
         $second = $sweep->run($rows(), $rewrite, true);
-        self::assertSame([3, 0, 1, 0, 0], [$second->current, $second->previous, $second->unreadable, $second->plaintext, $second->resealed]);
+        self::assertSame([3, 0, 1, 0, 0], self::counts($second));
         self::assertTrue($second->closed());
     }
 
@@ -88,8 +89,14 @@ final class SealedValueSweepTest extends TestCase
             wrap: fn (string $s) => $marker . $s,
         );
 
-        self::assertSame([0, 1, 0, 1, 1], [$tally->current, $tally->previous, $tally->unreadable, $tally->plaintext, $tally->resealed]);
+        self::assertSame([0, 1, 0, 1, 1], self::counts($tally));
         self::assertTrue(str_starts_with($store['x'], $marker . 'enc:v2:' . $new->id));
         self::assertSame('From: a@b', $store['plain'], 'plaintext is counted and left for the kind\'s own backfill');
+    }
+
+    /** @return list<int> current, previous, unreadable, plaintext, resealed */
+    private static function counts(RotationTally $t): array
+    {
+        return [$t->current, $t->previous, $t->unreadable, $t->plaintext, $t->resealed];
     }
 }

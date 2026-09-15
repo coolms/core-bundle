@@ -94,6 +94,11 @@ final readonly class KeyRingSealer
      */
     public function open(string $stored): OpenedValue
     {
+        $keys = $this->ring->keys();
+        if ([] === $keys) {
+            // No key at all is a configuration fault, named as such -- not a value that failed to open.
+            $this->ring->current();
+        }
         [$namedId, $payload] = $this->split($stored);
         try {
             $bin = sodium_base642bin($payload, SODIUM_BASE64_VARIANT_ORIGINAL);

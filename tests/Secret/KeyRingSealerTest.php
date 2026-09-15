@@ -96,7 +96,11 @@ final class KeyRingSealerTest extends TestCase
         self::assertSame('JBSWY3DPEHPK3PXP', $opened->plaintext);
         self::assertTrue($opened->key->is($new));
         self::assertFalse($opened->currentForm, 'the old form does not name its key');
-        self::assertSame(SealedValueState::Current, $both->classify($v1), 'under the current key: a rotation leaves it, whatever the form');
+        self::assertSame(
+            SealedValueState::Current,
+            $both->classify($v1),
+            'under the current key: a rotation leaves it, whatever the form',
+        );
         self::assertTrue(KeyRingSealer::isMarked($v1));
         self::assertFalse(KeyRingSealer::isMarked($bare));
     }
@@ -156,6 +160,8 @@ final class KeyRingSealerTest extends TestCase
     {
         $nonce = random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
 
-        return sodium_bin2base64($nonce . sodium_crypto_secretbox($plain, $nonce, $key), SODIUM_BASE64_VARIANT_ORIGINAL);
+        $box = sodium_crypto_secretbox($plain, $nonce, $key);
+
+        return sodium_bin2base64($nonce . $box, SODIUM_BASE64_VARIANT_ORIGINAL);
     }
 }

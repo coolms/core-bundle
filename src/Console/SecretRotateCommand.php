@@ -77,7 +77,8 @@ final class SecretRotateCommand extends Command
         $current = $this->ring->current();
         if (1 === count($keys)) {
             $io->warning(sprintf(
-                'The ring holds one key (%s) and no previous key: every value is either under it or unreadable. Set the previous key to rotate.',
+                'The ring holds one key (%s) and no previous key: every value is either under it or unreadable.'
+                . ' Set the previous key to rotate.',
                 $current->id,
             ));
         } else {
@@ -115,12 +116,16 @@ final class SecretRotateCommand extends Command
         $left = $apply ? $sum->previous - $sum->resealed : $sum->previous;
         if ($sum->unreadable > 0) {
             $io->caution(sprintf(
-                '%d value(s) open under neither key this host holds. A rotation cannot repair them; each one needs the key it was sealed under, or re-entry.',
+                '%d value(s) open under neither key this host holds. A rotation cannot repair them;'
+                . ' each one needs the key it was sealed under, or re-entry.',
                 $sum->unreadable,
             ));
         }
         if ($sum->plaintext > 0) {
-            $io->note(sprintf('%d value(s) are not sealed at all; the kind\'s own backfill seals them, a rotation does not.', $sum->plaintext));
+            $io->note(sprintf(
+                '%d value(s) are not sealed at all; the kind\'s own backfill seals them, a rotation does not.',
+                $sum->plaintext,
+            ));
         }
         if (0 === $left) {
             $io->success(sprintf(
