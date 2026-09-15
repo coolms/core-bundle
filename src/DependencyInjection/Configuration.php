@@ -86,6 +86,7 @@ class Configuration implements ConfigurationInterface
             ->children()
             ->scalarNode('path')->defaultValue('%kernel.project_dir%/var/secrets/secrets.enc')->cannotBeEmpty()->info('Encrypted secrets file, written by coolms:secret:set. Keep it out of VCS.')->end()
             ->scalarNode('key_env')->defaultValue('COOLMS_SECRET_MASTER_KEY')->cannotBeEmpty()->info('Env var holding the base64 32-byte master key (generate via coolms:secret:generate-key).')->end()
+            ->scalarNode('previous_key_env')->defaultValue('COOLMS_SECRET_MASTER_KEY_PREVIOUS')->cannotBeEmpty()->info('Env var holding the PREVIOUS master key during a rotation window: read after the current key, never written under. Unset outside a window.')->end()
             ->end()
             ->end()
             ->arrayNode('vault')

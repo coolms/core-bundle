@@ -20,6 +20,7 @@ use CoolMS\Core\Backup\BackupContributorInterface;
 use CoolMS\Core\Bundle\Config\ConfigCacheWarmer;
 use CoolMS\Core\Bundle\Json\JsoncDecoder;
 use CoolMS\Core\Bundle\Outbox\DispatchingOutboxPublisher;
+use CoolMS\Core\Bundle\Secret\EnvMasterKeyRing;
 use CoolMS\Core\Bundle\Secret\EnvSecretStore;
 use CoolMS\Core\Bundle\Secret\FilesystemEncryptedStore;
 use CoolMS\Core\Bundle\Secret\VaultSecretStore;
@@ -39,6 +40,8 @@ use CoolMS\Core\Option\OptionSourceProviderInterface;
 use CoolMS\Core\Outbox\OutboxPublisherInterface;
 use CoolMS\Core\Registry\ComponentRegistry;
 use CoolMS\Core\Retention\RetentionPrunerInterface;
+use CoolMS\Core\Secret\MasterKeyRingInterface;
+use CoolMS\Core\Secret\SealedKindInterface;
 use CoolMS\Core\Secret\SecretStoreInterface;
 use CoolMS\Core\Serializer\AlreadyInstantiatedObjectDenormalizer;
 use CoolMS\Core\Serializer\DateTimeObjectDenormalizer;
@@ -103,6 +106,7 @@ class Extension extends AbstractExtension
         $container->setParameter('coolms.secret_store.env_prefix', $config['secret_store']['env_prefix']);
         $container->setParameter('coolms.secret_store.fs_path', $config['secret_store']['filesystem']['path']);
         $container->setParameter('coolms.secret_store.fs_key_env', $config['secret_store']['filesystem']['key_env']);
+        $container->setParameter('coolms.secret_store.fs_previous_key_env', $config['secret_store']['filesystem']['previous_key_env']);
         $container->setParameter('coolms.secret_store.key_file_owner', $config['secret_store']['key_file_owner']);
         $container->setParameter('coolms.secret_store.vault_addr', $config['secret_store']['vault']['addr']);
         $container->setParameter('coolms.secret_store.vault_token_env', $config['secret_store']['vault']['token_env']);
@@ -115,6 +119,17 @@ class Extension extends AbstractExtension
             default => throw new LogicException('Unsupported coolms_core.secret_store.driver: ' . $config['secret_store']['driver']),
         };
         $container->setAlias(SecretStoreInterface::class, $secretStoreId);
+
+        // The master key ring every at-rest reader shares: the current key and,
+        // during a rotation window, the previous one. Read from the environment;
+        // the two variable names come from the configuration above.
+        $container->setAlias(MasterKeyRingInterface::class, EnvMasterKeyRing::class);
+
+        // Kinds of sealed value, one per column/file a module seals, collected by
+        // coolms:secret:rotate. Declared here rather than by an attribute on the
+        // interface so coolms/core carries no dependency on the container.
+        $container->registerForAutoconfiguration(SealedKindInterface::class)
+            ->addTag('coolms.secret.sealed_kind');
 
         // Register interface-to-class resolution for runtime lookup
         $this->setResolveTargetEntities($container, []);

@@ -44,7 +44,7 @@ jobs:
           # zip arrives via coolms/core-application, whose bundle archiver requires
           # ext-zip. A transitive platform requirement is still a requirement:
           # composer refuses the install without it.
-          extensions: none, ctype, dom, filter, json, libxml, mbstring, tokenizer, xml, xmlwriter, curl, phar, zip
+          extensions: none, ctype, dom, filter, json, libxml, mbstring, sodium, tokenizer, xml, xmlwriter, curl, phar, zip
 
       - name: Validate composer.json
         run: composer validate --strict

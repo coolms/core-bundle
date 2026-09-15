@@ -37,6 +37,35 @@ comment no longer names it.
   contract alone and is collected. A class implementing both interfaces is
   tagged once.
 
+**`coolms:secret:rotate`, and the key ring behind every reader.** The master
+key can be rotated without an outage: set the new key as the current one and
+the old key as the PREVIOUS one (`coolms_core.secret_store.filesystem.previous_key_env`,
+default `COOLMS_SECRET_MASTER_KEY_PREVIOUS`), and every sealed value stays
+readable while the command re-seals what is still under the old key. It reads
+every value of every registered kind -- a marker names the form a value was
+written in, never the key, so only opening it can say -- and reports three
+numbers per kind: under the current key, under the previous key, under
+neither. The window is closed when every kind reports zero under the previous
+key; the exit status says so (0 closed, 1 open), a measurement rather than a
+judgement. Idempotent and resumable: a value under the current key is skipped
+whatever its form, so a second run re-seals nothing. `--dry-run` counts and
+writes nothing. The command never removes the previous key: retiring it from
+the runtime is the operator's act, and retiring it from the vault waits on
+which backups must stay restorable.
+
+`Secret\EnvMasterKeyRing` is the ring read from the environment (a set-but-broken
+previous key is refused by name, never ignored); `Secret\KeyRingSealer` is the
+one codec every reader now shares, writing `enc:v2:<key id>:base64(nonce || box)`
+and reading that, the earlier `enc:v1:` form and bare base64, trying the named
+key first and then every other held key; `Secret\SealedValueSweep` is the sweep
+a kind runs. `Secret\EncryptedSecretsFile` reads and writes through the sealer
+(a file written before key ids still loads) and `Secret\SecretsFileKind` is
+the secrets file as a kind. Kinds are collected by autoconfiguration on
+`CoolMS\Core\Secret\SealedKindInterface` (tag `coolms.secret.sealed_kind`),
+declared by the extension so the contract package stays container-free.
+Requires core with the ring contracts (unreleased). `ext-sodium`, which this
+package has always used, is declared.
+
 ## 2.0.0-alpha5 - 2026-09-09
 
 ### Added
