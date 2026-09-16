@@ -12,6 +12,13 @@ same commit as the change it describes.
 
 ## Unreleased
 
+### Added
+- `coolms:outbox:relay --status`: publishes nothing, prints the undelivered
+  backlog (unpublished rows, rows unpublished for more than a minute, the
+  oldest row's age) and exits 1 when any row has waited longer than a minute --
+  the number that should be zero while a relay runs, for any monitor to watch.
+  Requires the persistence adapter to provide `OutboxBacklogInterface`.
+
 ### Changed
 
 **`coolms:install` derives its order from what installers declare.** Both
