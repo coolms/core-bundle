@@ -33,6 +33,7 @@ use CoolMS\Core\Config\SupportedLocalesProvider;
 use CoolMS\Core\Config\XmlFileLoader;
 use CoolMS\Core\Config\YamlFileLoader;
 use CoolMS\Core\Dashboard\DashboardWidgetProviderInterface;
+use CoolMS\Core\Health\LivenessProbeInterface;
 use CoolMS\Core\Install\ModuleInstallerInterface;
 use CoolMS\Core\Install\ModuleUninstallerInterface;
 use CoolMS\Core\Install\StructureInstallerInterface;
@@ -192,6 +193,16 @@ class Extension extends AbstractExtension
         // `retention.prune` scheduled handler.
         $container->registerForAutoconfiguration(RetentionPrunerInterface::class)
             ->addTag('coolms.retention.pruner');
+
+        // Liveness probes -- any module with a long-running dependency (a realtime
+        // node, a worker, a search index) implements the L0 LivenessProbeInterface
+        // and is auto-collected by LivenessRunner behind `coolms:doctor`. The
+        // platform owns the collecting and the number that should be zero; each
+        // module owns the QUESTION, because only it knows what a meaningful one is.
+        // Registered here rather than by an attribute for the same reason as the
+        // pruners above: the contract is L0 Domain and may not import DI.
+        $container->registerForAutoconfiguration(LivenessProbeInterface::class)
+            ->addTag('coolms.diagnostics.probe');
 
         // Dashboard widgets -- any module with something worth showing on
         // /admin implements DashboardWidgetProviderInterface and is collected

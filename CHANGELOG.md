@@ -13,6 +13,19 @@ same commit as the change it describes.
 ## Unreleased
 
 ### Added
+- `coolms:doctor` (`Console\DoctorCommand`): asks every registered liveness probe
+  and prints each dependency's state beside the question that produced it.
+  Exit code is the alert -- SUCCESS only when no required dependency is silent --
+  and `--json` carries `failingRequired` plus a row per dependency for a monitor
+  or a session hook to read.
+  A run with NO probes registered reports FAILURE rather than "0 failing": a
+  doctor that was asked nothing has established nothing, and reporting health
+  there would repeat the very silence it exists to break.
+- The Core extension auto-tags `CoolMS\Core\Health\LivenessProbeInterface` as
+  `coolms.diagnostics.probe`, beside the retention pruners, so a module's probe
+  needs no wiring beyond implementing the interface.
+
+### Added
 - `coolms:outbox:relay --status`: publishes nothing, prints the undelivered
   backlog (unpublished rows, rows unpublished for more than a minute, the
   oldest row's age) and exits 1 when any row has waited longer than a minute --
