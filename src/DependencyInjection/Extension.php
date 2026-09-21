@@ -152,7 +152,8 @@ class Extension extends AbstractExtension
         $container->registerForAutoconfiguration(ApiManifestContributorInterface::class)
             ->addTag('coolms.api_manifest_contributor');
 
-        // Host contracts (the platform rule: hosts implement contracts, modules offer entries): the modules' UI entries, read from
+        // Host contracts (the platform rule: hosts implement contracts, modules
+        // offer entries): the modules' UI entries, read from
         // config/modules/<id>/ui.yaml by the catalogue the App scan registers.
         // The theme's commands, coolms:install and the app-config contributor
         // all ask this one reader.
