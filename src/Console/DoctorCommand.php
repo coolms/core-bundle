@@ -28,7 +28,7 @@ use const JSON_UNESCAPED_SLASHES;
  *
  * Every long-running thing an installation needs is ASKED something that fails when
  * it is down -- a query, a publish, a socket, a cursor's age -- and the answer is
- * printed beside the question that produced it. Written because Centrifugo was dead
+ * printed beside the question that produced it. Written because a realtime node was dead
  * for nine hours while every gate stayed green: gates read the code, and nothing read
  * the machine.
  *
