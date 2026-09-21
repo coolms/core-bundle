@@ -13,7 +13,8 @@ use CoolMS\Core\Install\ModuleInstallerInterface;
 use CoolMS\Core\Install\StructureInstallerInterface;
 use CoolMS\Core\Install\UnorderableInstallersException;
 use CoolMS\Core\Install\VfsPathClaims;
-use CoolMS\Core\Ui\ActiveThemeContractsInterface;
+use CoolMS\Core\Ui\HostContracts;
+use CoolMS\Core\Ui\InstalledThemeContractsInterface;
 use CoolMS\Core\Ui\UiContractMatcher;
 use CoolMS\Core\Ui\UiEntryCatalogInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -47,7 +48,7 @@ final class InstallCommand extends Command
          */
         private readonly ?UiEntryCatalogInterface $uiEntries = null,
         private readonly ?UiContractMatcher $uiMatcher = null,
-        private readonly ?ActiveThemeContractsInterface $activeTheme = null,
+        private readonly ?InstalledThemeContractsInterface $themes = null,
     ) {
         parent::__construct();
     }
@@ -86,12 +87,14 @@ final class InstallCommand extends Command
         }
 
         // Host contracts, before anything is written: every module's UI entry
-        // against the active theme's declaration. A module whose range the
-        // theme's version does not include is refused BY NAME here rather than
-        // installed with an entry the host cannot mount. No active theme, or no
-        // theme module: every entry is unused, nothing refuses.
+        // against the installed themes' declarations. A module whose range the
+        // implementing theme's version does not include is refused BY NAME here
+        // rather than installed with an entry the host cannot mount. No theme
+        // declaring anything, or no theme module: every entry is unused,
+        // nothing refuses.
         if (null !== $this->uiEntries && null !== $this->uiMatcher) {
-            $refusals = $this->uiMatcher->refusals($this->activeTheme?->active(), $this->uiEntries->entries());
+            $hosts = $this->themes?->installed() ?? HostContracts::none();
+            $refusals = $this->uiMatcher->refusalsAll($hosts, $this->uiEntries->entries());
             if ([] !== $refusals) {
                 $io->section('UI contracts');
                 foreach ($refusals as $refusal) {
