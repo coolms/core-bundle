@@ -107,7 +107,13 @@ final readonly class UiEntryCatalog implements UiEntryCatalogInterface
                 }
             }
             try {
-                $entries[] = new UiEntry($module, $item['contract'], $item['range'], $item['framework'], $item['entry']);
+                $entries[] = new UiEntry(
+                    $module,
+                    $item['contract'],
+                    $item['range'],
+                    $item['framework'],
+                    $item['entry'],
+                );
             } catch (InvalidArgumentException $e) {
                 throw new RuntimeException(sprintf('%s: %s', $file, $e->getMessage()), 0, $e);
             }

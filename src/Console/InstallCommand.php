@@ -39,8 +39,9 @@ final class InstallCommand extends Command
         private readonly InstallManifest $manifest,
         private readonly MasterKeyProvisioner $masterKey,
         /**
-         * The host-contract check (the platform rule: hosts implement contracts, modules offer entries): a module installed
-         * after the theme meets the theme's declared contracts here. Appended
+         * The host-contract check (the platform rule: hosts implement
+         * contracts, modules offer entries): a module installed after the
+         * theme meets the theme's declared contracts here. Appended
          * and nullable, as the trailing parameters of InstallThemeCommand are:
          * CoreServicesPass sets the two iterables BY NAME, so these autowire.
          */
