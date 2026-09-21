@@ -19,6 +19,7 @@ use CoolMS\Core\Application\Translation\LabelResolver;
 use CoolMS\Core\Backup\BackupContributorInterface;
 use CoolMS\Core\Bundle\Config\ConfigCacheWarmer;
 use CoolMS\Core\Bundle\Json\JsoncDecoder;
+use CoolMS\Core\Bundle\Outbox\CachedRelayHeartbeat;
 use CoolMS\Core\Bundle\Outbox\DispatchingOutboxPublisher;
 use CoolMS\Core\Bundle\Secret\EnvMasterKeyRing;
 use CoolMS\Core\Bundle\Secret\EnvSecretStore;
@@ -39,6 +40,7 @@ use CoolMS\Core\Install\ModuleUninstallerInterface;
 use CoolMS\Core\Install\StructureInstallerInterface;
 use CoolMS\Core\Option\OptionSourceProviderInterface;
 use CoolMS\Core\Outbox\OutboxPublisherInterface;
+use CoolMS\Core\Outbox\RelayHeartbeatInterface;
 use CoolMS\Core\Registry\ComponentRegistry;
 use CoolMS\Core\Retention\RetentionPrunerInterface;
 use CoolMS\Core\Secret\MasterKeyRingInterface;
@@ -67,6 +69,13 @@ class Extension extends AbstractExtension
         // on the registry, so configurable wiring stays in configuration and
         // the `App\:` services glob cannot drop the argument.
         $container->setParameter('coolms_core.outbound_channels', $config['outbound_channels']);
+
+        // The pool the outbox relay's heartbeat lives in -- a configuration
+        // choice because the relay and the doctor run in different containers
+        // (see CachedRelayHeartbeat); bound onto the service by
+        // RelayHeartbeatPoolPass, since the App\ scan re-registers the class
+        // after this method and would drop an argument asserted here.
+        $container->setParameter('coolms_core.outbox.heartbeat_pool', $config['outbox']['heartbeat_pool']);
 
         $container->register(SupportedLocalesProvider::class)
             ->setArgument('$locales', $config['supported_locales'])
@@ -350,6 +359,12 @@ class Extension extends AbstractExtension
         // service + `coolms:outbox:relay` command consume them, so these aliases
         // are NOT pruned (no public flag needed).
         $container->setAlias(OutboxPublisherInterface::class, DispatchingOutboxPublisher::class)
+            ->setPublic(false);
+
+        // The relay's heartbeat: written by the relay each pass, read by the
+        // doctor's outbox probe. Its pool is the parameter load() set from the
+        // configuration, bound onto the service in RelayHeartbeatPoolPass.
+        $container->setAlias(RelayHeartbeatInterface::class, CachedRelayHeartbeat::class)
             ->setPublic(false);
 
         // F7 section 2 -- consumer idempotency store. The concrete is glob-autowired +
