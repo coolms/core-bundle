@@ -7,7 +7,6 @@ namespace CoolMS\Core\Bundle\Tests\EventListener;
 use CoolMS\Core\Bundle\EventListener\UnhandledExceptionListener;
 use CoolMS\Core\Config\PlatformDefaults;
 use CoolMS\Core\Exception\TranslatableExceptionInterface;
-use CoolMS\Core\Exception\TranslatableExceptionTrait;
 use DomainException;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -184,11 +183,18 @@ final class UnhandledExceptionListenerTest extends TestCase
  */
 final class FixtureTranslatableException extends RuntimeException implements TranslatableExceptionInterface
 {
-    use TranslatableExceptionTrait;
-
-    public function __construct(string $rawMessage)
+    public function getTranslationKey(): string
     {
-        parent::__construct($rawMessage);
-        $this->setTranslation('errors.fixture', ['%detail%' => 'x'], 'exceptions');
+        return 'errors.fixture';
+    }
+
+    public function getTranslationParameters(): array
+    {
+        return ['%detail%' => 'x'];
+    }
+
+    public function getTranslationDomain(): string
+    {
+        return 'exceptions';
     }
 }

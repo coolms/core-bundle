@@ -13,6 +13,13 @@ same commit as the change it describes.
 ## Unreleased
 
 ### Added
+- `Outbox\CachedRelayHeartbeat`: the relay's heartbeat in a cache pool -- one
+  key, the latest beat, overwritten each pass, with a one-hour lifetime so a
+  stopped relay lapses to "none" rather than dating from last week. The pool is
+  the new `core.outbox.heartbeat_pool` option (default `cache.app`), bound by
+  `RelayHeartbeatPoolPass`; set it to a pool the relay's container and the
+  doctor's both reach (a shared Redis pool), because the filesystem default
+  reads "no heartbeat" from every container but the relay's.
 - `coolms:doctor` (`Console\DoctorCommand`): asks every registered liveness probe
   and prints each dependency's state beside the question that produced it.
   Exit code is the alert -- SUCCESS only when no required dependency is silent --
