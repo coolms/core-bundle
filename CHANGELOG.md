@@ -13,6 +13,14 @@ same commit as the change it describes.
 ## Unreleased
 
 ### Added
+- `Ui\UiEntryCatalog`: the modules' UI entries, read from every registered
+  bundle's and the application's `config/modules/<id>/ui.yaml` (the roots the
+  navigation loader walks); a malformed file refuses the whole catalogue by
+  name. `Ui\UiApiManifestContributor`: the `ui` section of the API manifest --
+  the active theme's declared contracts and the entries the matcher accepted
+  against them, which is what a host mounts. `coolms:install` runs the same
+  match before it writes anything and refuses a module whose range the active
+  theme's version does not include, by name (the platform rule: hosts implement contracts, modules offer entries).
 - `Outbox\CachedRelayHeartbeat`: the relay's heartbeat in a cache pool -- one
   key, the latest beat, overwritten each pass, with a one-hour lifetime so a
   stopped relay lapses to "none" rather than dating from last week. The pool is

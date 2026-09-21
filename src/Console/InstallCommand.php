@@ -13,6 +13,9 @@ use CoolMS\Core\Install\ModuleInstallerInterface;
 use CoolMS\Core\Install\StructureInstallerInterface;
 use CoolMS\Core\Install\UnorderableInstallersException;
 use CoolMS\Core\Install\VfsPathClaims;
+use CoolMS\Core\Ui\ActiveThemeContractsInterface;
+use CoolMS\Core\Ui\UiContractMatcher;
+use CoolMS\Core\Ui\UiEntryCatalogInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -35,6 +38,15 @@ final class InstallCommand extends Command
         private readonly ModuleCatalog $catalog,
         private readonly InstallManifest $manifest,
         private readonly MasterKeyProvisioner $masterKey,
+        /**
+         * The host-contract check (the platform rule: hosts implement contracts, modules offer entries): a module installed
+         * after the theme meets the theme's declared contracts here. Appended
+         * and nullable, as the trailing parameters of InstallThemeCommand are:
+         * CoreServicesPass sets the two iterables BY NAME, so these autowire.
+         */
+        private readonly ?UiEntryCatalogInterface $uiEntries = null,
+        private readonly ?UiContractMatcher $uiMatcher = null,
+        private readonly ?ActiveThemeContractsInterface $activeTheme = null,
     ) {
         parent::__construct();
     }
@@ -70,6 +82,23 @@ final class InstallCommand extends Command
             $io->error($e->getMessage());
 
             return Command::FAILURE;
+        }
+
+        // Host contracts, before anything is written: every module's UI entry
+        // against the active theme's declaration. A module whose range the
+        // theme's version does not include is refused BY NAME here rather than
+        // installed with an entry the host cannot mount. No active theme, or no
+        // theme module: every entry is unused, nothing refuses.
+        if (null !== $this->uiEntries && null !== $this->uiMatcher) {
+            $refusals = $this->uiMatcher->refusals($this->activeTheme?->active(), $this->uiEntries->entries());
+            if ([] !== $refusals) {
+                $io->section('UI contracts');
+                foreach ($refusals as $refusal) {
+                    $io->error($refusal->reason);
+                }
+
+                return Command::FAILURE;
+            }
         }
 
         // Seed/validate the at-rest master key FIRST: without it, sealing mailbox
