@@ -44,7 +44,7 @@ use const SODIUM_CRYPTO_SECRETBOX_KEYBYTES;
  *
  * This is the ONE bootstrap secret that is deliberately NOT kept in the encrypted
  * secret store (it is the key that decrypts that store -- see
- * {@see EncryptedSecretsFile}), so it stays a raw
+ * the sealed secrets file), so it stays a raw
  * env var, read exactly the way the mailbox credential cipher
  * reads it (`$_ENV` then `getenv()`) -- keeping detection and format in lock-step.
  *
