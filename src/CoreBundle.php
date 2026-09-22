@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CoolMS\Core\Bundle;
 
 use CoolMS\Core\Bundle\DependencyInjection\Compiler\CachePrefixSeedPass;
+use CoolMS\Core\Bundle\DependencyInjection\Compiler\ConfigStoreFallbackPass;
 use CoolMS\Core\Bundle\DependencyInjection\Compiler\CoreConstantProviderPass;
 use CoolMS\Core\Bundle\DependencyInjection\Compiler\CoreMessengerRoutingPass;
 use CoolMS\Core\Bundle\DependencyInjection\Compiler\CoreServicesPass;
@@ -34,6 +35,10 @@ class CoreBundle extends AbstractCoolmsBundle
         // platform compiles + runs when the I18n module is absent. Runs after
         // all extensions, so I18n's real impls (when present) win.
         $container->addCompilerPass(new TranslationCatalogueFallbackPass());
+        // Same shape for the config STORE: the rows and the file writer
+        // belong to whichever module owns operator configuration, and the
+        // platform falls back to reading files when none is installed.
+        $container->addCompilerPass(new ConfigStoreFallbackPass());
         // prependExtensionConfig must run during build(), before extensions load.
         // Do NOT use addCompilerPass() for routing defaults -- see AbstractMessengerRoutingPass.
         new CoreMessengerRoutingPass()->prepend($container);

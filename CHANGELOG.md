@@ -13,6 +13,10 @@ same commit as the change it describes.
 ## Unreleased
 
 ### Removed
+- The config-store wiring: the `FileConfigWriter` / `DbConfigWriter`
+  registrations, the `coolms.core.config_writer` chain and the
+  `ConfigWriterInterface` alias. The read half (`ChainedConfigLoader` ->
+  `ConfigLoaderInterface`) is unchanged.
 - The outbox wiring: the relay heartbeat and its pool pass, the in-process
   publisher, `coolms:outbox:relay` and `coolms:outbox:prune`, the `outbox`
   configuration block and the two retention parameters. The platform's
@@ -20,6 +24,13 @@ same commit as the change it describes.
   keeps rows and relays them belongs to whatever installs it.
 
 ### Added
+- `DependencyInjection\Compiler\ConfigStoreFallbackPass`: makes the config
+  STORE optional the way `TranslationCatalogueFallbackPass` makes the I18n
+  catalogue optional. A module that owns operator configuration aliases
+  `ConfigWriterInterface` and `ConfigOverrideReaderInterface` in its own
+  Extension; this pass supplies the platform's own answers only when nobody
+  has. A pass rather than a check in the Extension, because this bundle loads
+  before the modules' and would otherwise always win.
 - `Ui\UiEntryCatalog`: the modules' UI entries, read from every registered
   bundle's and the application's `config/modules/<id>/ui.yaml` (the roots the
   navigation loader walks); a malformed file refuses the whole catalogue by
