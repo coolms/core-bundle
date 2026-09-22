@@ -25,6 +25,7 @@ use CoolMS\Core\Bundle\Secret\EnvMasterKeyRing;
 use CoolMS\Core\Bundle\Secret\EnvSecretStore;
 use CoolMS\Core\Bundle\Secret\FilesystemEncryptedStore;
 use CoolMS\Core\Bundle\Secret\VaultSecretStore;
+use CoolMS\Core\Bundle\Ui\UiEntryCatalog;
 use CoolMS\Core\ChangeFeed\SyncBlobContributorInterface;
 use CoolMS\Core\ChangeFeed\SyncSectionPartitionInterface;
 use CoolMS\Core\Channel\OutboundChannelInterface;
@@ -50,6 +51,7 @@ use CoolMS\Core\Serializer\AlreadyInstantiatedObjectDenormalizer;
 use CoolMS\Core\Serializer\DateTimeObjectDenormalizer;
 use CoolMS\Core\Service\TransliterationRuleSetInterface;
 use CoolMS\Core\Translation\LabelResolverInterface;
+use CoolMS\Core\Ui\UiEntryCatalogInterface;
 use LogicException;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
@@ -149,6 +151,14 @@ class Extension extends AbstractExtension
         // via #[AutowireIterator('coolms.api_manifest_contributor')].
         $container->registerForAutoconfiguration(ApiManifestContributorInterface::class)
             ->addTag('coolms.api_manifest_contributor');
+
+        // Host contracts (the platform rule: hosts implement contracts, modules
+        // offer entries): the modules' UI entries, read from
+        // config/modules/<id>/ui.yaml by the catalogue the App scan registers.
+        // The theme's commands, coolms:install and the app-config contributor
+        // all ask this one reader.
+        $container->setAlias(UiEntryCatalogInterface::class, UiEntryCatalog::class)
+            ->setPublic(false);
 
         // API resource installers -- collected by ApiResourceSyncService to populate VFS resource nodes.
         $container->registerForAutoconfiguration(ApiResourceInstallerInterface::class)
