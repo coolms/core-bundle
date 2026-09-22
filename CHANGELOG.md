@@ -12,6 +12,13 @@ same commit as the change it describes.
 
 ## Unreleased
 
+### Removed
+- The outbox wiring: the relay heartbeat and its pool pass, the in-process
+  publisher, `coolms:outbox:relay` and `coolms:outbox:prune`, the `outbox`
+  configuration block and the two retention parameters. The platform's
+  contracts for outbound messages remain in `coolms/core`; the machinery that
+  keeps rows and relays them belongs to whatever installs it.
+
 ### Added
 - `Ui\UiEntryCatalog`: the modules' UI entries, read from every registered
   bundle's and the application's `config/modules/<id>/ui.yaml` (the roots the

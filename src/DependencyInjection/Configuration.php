@@ -100,16 +100,6 @@ class Configuration implements ConfigurationInterface
             ->end()
             ->end()
             ->end()
-            ->arrayNode('outbox')
-            ->addDefaultsIfNotSet()
-            ->children()
-            ->scalarNode('heartbeat_pool')
-            ->defaultValue('cache.app')
-            ->cannotBeEmpty()
-            ->info('Cache pool the outbox relay writes its heartbeat to and coolms:doctor reads it from. They run in different containers, so it must be a SHARED pool (Redis); the default filesystem pool reads "no heartbeat" from every container but the relay\'s.')
-            ->end()
-            ->end()
-            ->end()
             ->end();
 
         return $treeBuilder;
