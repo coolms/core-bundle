@@ -19,8 +19,6 @@ use CoolMS\Core\Application\Translation\LabelResolver;
 use CoolMS\Core\Backup\BackupContributorInterface;
 use CoolMS\Core\Bundle\Config\ConfigCacheWarmer;
 use CoolMS\Core\Bundle\Json\JsoncDecoder;
-use CoolMS\Core\Bundle\Outbox\CachedRelayHeartbeat;
-use CoolMS\Core\Bundle\Outbox\DispatchingOutboxPublisher;
 use CoolMS\Core\Bundle\Secret\EnvMasterKeyRing;
 use CoolMS\Core\Bundle\Secret\EnvSecretStore;
 use CoolMS\Core\Bundle\Secret\FilesystemEncryptedStore;
@@ -40,8 +38,6 @@ use CoolMS\Core\Install\ModuleInstallerInterface;
 use CoolMS\Core\Install\ModuleUninstallerInterface;
 use CoolMS\Core\Install\StructureInstallerInterface;
 use CoolMS\Core\Option\OptionSourceProviderInterface;
-use CoolMS\Core\Outbox\OutboxPublisherInterface;
-use CoolMS\Core\Outbox\RelayHeartbeatInterface;
 use CoolMS\Core\Registry\ComponentRegistry;
 use CoolMS\Core\Retention\RetentionPrunerInterface;
 use CoolMS\Core\Secret\MasterKeyRingInterface;
@@ -71,13 +67,6 @@ class Extension extends AbstractExtension
         // on the registry, so configurable wiring stays in configuration and
         // the `App\:` services glob cannot drop the argument.
         $container->setParameter('coolms_core.outbound_channels', $config['outbound_channels']);
-
-        // The pool the outbox relay's heartbeat lives in -- a configuration
-        // choice because the relay and the doctor run in different containers
-        // (see CachedRelayHeartbeat); bound onto the service by
-        // RelayHeartbeatPoolPass, since the App\ scan re-registers the class
-        // after this method and would drop an argument asserted here.
-        $container->setParameter('coolms_core.outbox.heartbeat_pool', $config['outbox']['heartbeat_pool']);
 
         $container->register(SupportedLocalesProvider::class)
             ->setArgument('$locales', $config['supported_locales'])
@@ -357,35 +346,6 @@ class Extension extends AbstractExtension
 
         $container->register(DateTimeObjectDenormalizer::class)
             ->addTag('serializer.normalizer', ['priority' => 100]);
-
-        // F7 -- the transactional-outbox append port. The concrete
-        // PersistingOutboxAppender is registered + made public by the App\ glob
-        // (#[Autoconfigure(public: true)]) so it survives before any producer
-        // consumes the port; here we only alias the L0 contract to it. The alias
-        // stays private and is pruned-as-unused until the first producer migrates
-        // onto the outbox -- by design, mirroring the analytics sink.
-        // F7 relay side (the read/publish half of the outbox). The DBAL claim
-        // repo + the in-process event publisher are glob-autowired; the relay
-        // service + `coolms:outbox:relay` command consume them, so these aliases
-        // are NOT pruned (no public flag needed).
-        $container->setAlias(OutboxPublisherInterface::class, DispatchingOutboxPublisher::class)
-            ->setPublic(false);
-
-        // The relay's heartbeat: written by the relay each pass, read by the
-        // doctor's outbox probe. Its pool is the parameter load() set from the
-        // configuration, bound onto the service in RelayHeartbeatPoolPass.
-        $container->setAlias(RelayHeartbeatInterface::class, CachedRelayHeartbeat::class)
-            ->setPublic(false);
-
-        // F7 section 2 -- consumer idempotency store. The concrete is glob-autowired +
-        // #[Autoconfigure(public: true)] (resolvable before the first idempotent
-        // consumer wires the port); the alias stays private + pruned-until-then.
-        // F7 retention windows for `coolms:outbox:prune` (read via #[Autowire]).
-        // Delivered outbox rows are done -> a short window; the inbox window MUST
-        // stay longer than the longest redelivery horizon (a late replay must
-        // still hit a dedupe row). <1 disables that table's prune.
-        $container->setParameter('coolms_core.outbox.published_retention_days', 7);
-        $container->setParameter('coolms_core.inbox.processed_retention_days', 30);
 
         // Platform JSONC decoder seam (extracted from BpmnLiteJsonParser).
         // First consumer is the BPMN-Lite parser; future consumers

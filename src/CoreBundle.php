@@ -11,7 +11,6 @@ use CoolMS\Core\Bundle\DependencyInjection\Compiler\CoreServicesPass;
 use CoolMS\Core\Bundle\DependencyInjection\Compiler\ModuleConfigDirsPass;
 use CoolMS\Core\Bundle\DependencyInjection\Compiler\OptionSourceRegistryPass;
 use CoolMS\Core\Bundle\DependencyInjection\Compiler\OutboundChannelRegistryConfigPass;
-use CoolMS\Core\Bundle\DependencyInjection\Compiler\RelayHeartbeatPoolPass;
 use CoolMS\Core\Bundle\DependencyInjection\Compiler\SystemUserPass;
 use CoolMS\Core\Bundle\DependencyInjection\Compiler\TranslationCatalogueFallbackPass;
 use CoolMS\Core\Bundle\DependencyInjection\Extension;
@@ -31,8 +30,6 @@ class CoreBundle extends AbstractCoolmsBundle
         // F3 per-channel enablement -- must run as a PASS because the
         // `App\:` glob would otherwise clobber the argument.
         $container->addCompilerPass(new OutboundChannelRegistryConfigPass());
-        // The outbox relay's heartbeat pool, for the same reason.
-        $container->addCompilerPass(new RelayHeartbeatPoolPass());
         // Null-object fallbacks for the translation catalogue seam so the
         // platform compiles + runs when the I18n module is absent. Runs after
         // all extensions, so I18n's real impls (when present) win.
