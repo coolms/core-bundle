@@ -13,6 +13,11 @@ same commit as the change it describes.
 ## Unreleased
 
 ### Changed
+- `coolms_core.secret_store.filesystem` is now `secret_store.key_ring`, and its
+  two parameters are `coolms.secret_store.key_env` /
+  `...previous_key_env` (they were `fs_*`). The node only ever configured the
+  master KEY RING once the sealed file left this package, and a node named
+  after a file that is not here is a name that lies.
 - `coolms_core.secret_store.driver`: the `filesystem` value is now `stored`,
   and selects the service id `coolms.secret_store.stored` rather than a class
   this package holds. `env` (the default) and `vault` are unchanged: both read
