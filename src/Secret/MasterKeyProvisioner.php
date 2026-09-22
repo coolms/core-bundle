@@ -68,7 +68,7 @@ use const SODIUM_CRYPTO_SECRETBOX_KEYBYTES;
 final class MasterKeyProvisioner
 {
     public function __construct(
-        #[Autowire('%coolms.secret_store.fs_key_env%')]
+        #[Autowire('%coolms.secret_store.key_env%')]
         private readonly string $keyEnvVar,
         #[Autowire('%kernel.project_dir%')]
         private readonly string $projectDir,

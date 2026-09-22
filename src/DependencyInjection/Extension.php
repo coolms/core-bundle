@@ -102,8 +102,8 @@ class Extension extends AbstractExtension
         // selects it. The platform names an id, not a class: it neither writes
         // those secrets nor knows where they sit.
         $container->setParameter('coolms.secret_store.env_prefix', $config['secret_store']['env_prefix']);
-        $container->setParameter('coolms.secret_store.fs_key_env', $config['secret_store']['filesystem']['key_env']);
-        $container->setParameter('coolms.secret_store.fs_previous_key_env', $config['secret_store']['filesystem']['previous_key_env']);
+        $container->setParameter('coolms.secret_store.key_env', $config['secret_store']['key_ring']['key_env']);
+        $container->setParameter('coolms.secret_store.previous_key_env', $config['secret_store']['key_ring']['previous_key_env']);
         $container->setParameter('coolms.secret_store.key_file_owner', $config['secret_store']['key_file_owner']);
         $container->setParameter('coolms.secret_store.vault_addr', $config['secret_store']['vault']['addr']);
         $container->setParameter('coolms.secret_store.vault_token_env', $config['secret_store']['vault']['token_env']);

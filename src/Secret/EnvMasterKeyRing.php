@@ -26,9 +26,9 @@ use function is_string;
 final readonly class EnvMasterKeyRing implements MasterKeyRingInterface
 {
     public function __construct(
-        #[Autowire('%coolms.secret_store.fs_key_env%')]
+        #[Autowire('%coolms.secret_store.key_env%')]
         private string $currentEnvVar = 'COOLMS_SECRET_MASTER_KEY',
-        #[Autowire('%coolms.secret_store.fs_previous_key_env%')]
+        #[Autowire('%coolms.secret_store.previous_key_env%')]
         private string $previousEnvVar = 'COOLMS_SECRET_MASTER_KEY_PREVIOUS',
     ) {
     }
