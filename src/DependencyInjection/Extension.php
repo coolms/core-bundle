@@ -7,12 +7,8 @@ namespace CoolMS\Core\Bundle\DependencyInjection;
 use CoolMS\Core\Api\ApiResourceInstallerInterface;
 use CoolMS\Core\Application\ApiManifest\ApiManifestContributorInterface;
 use CoolMS\Core\Application\Config\ChainedConfigLoader;
-use CoolMS\Core\Application\Config\ChainedConfigWriter;
 use CoolMS\Core\Application\Config\ConfigLoaderInterface;
-use CoolMS\Core\Application\Config\ConfigWriterInterface;
-use CoolMS\Core\Application\Config\DbConfigWriter;
 use CoolMS\Core\Application\Config\FileConfigLoader;
-use CoolMS\Core\Application\Config\FileConfigWriter;
 use CoolMS\Core\Application\Json\JsoncDecoderInterface;
 use CoolMS\Core\Application\Service\LocalizedSlugger;
 use CoolMS\Core\Application\Translation\LabelResolver;
@@ -24,8 +20,6 @@ use CoolMS\Core\Bundle\Secret\EnvSecretStore;
 use CoolMS\Core\Bundle\Secret\FilesystemEncryptedStore;
 use CoolMS\Core\Bundle\Secret\VaultSecretStore;
 use CoolMS\Core\Bundle\Ui\UiEntryCatalog;
-use CoolMS\Core\Sync\BlobContributorInterface;
-use CoolMS\Core\Sync\SectionPartitionInterface;
 use CoolMS\Core\Channel\OutboundChannelInterface;
 use CoolMS\Core\Config\PhpFileLoader;
 use CoolMS\Core\Config\PlatformDefaults;
@@ -46,6 +40,8 @@ use CoolMS\Core\Secret\SecretStoreInterface;
 use CoolMS\Core\Serializer\AlreadyInstantiatedObjectDenormalizer;
 use CoolMS\Core\Serializer\DateTimeObjectDenormalizer;
 use CoolMS\Core\Service\TransliterationRuleSetInterface;
+use CoolMS\Core\Sync\BlobContributorInterface;
+use CoolMS\Core\Sync\SectionPartitionInterface;
 use CoolMS\Core\Translation\LabelResolverInterface;
 use CoolMS\Core\Ui\UiEntryCatalogInterface;
 use LogicException;
@@ -270,44 +266,25 @@ class Extension extends AbstractExtension
             ->setAutoconfigured(false)
             ->setPublic(false);
 
-        // The config STORE. Reads layer the DB over the files and
-        // writes go wherever this host allows, so a feature that reads its
-        // config can save it without knowing which of the two it got.
+        // The READ half of the config store. Reads layer the stored
+        // overrides over the files, so a save that had to go to the database
+        // comes back on the next request.
         //
-        // !! ConfigLoaderInterface now points at the CHAINED loader. Every
-        // existing consumer keeps working -- the chain falls through to
-        // FileConfigLoader whenever no override row exists, which is always
-        // until something writes one.
-        foreach ([ChainedConfigLoader::class, FileConfigWriter::class, DbConfigWriter::class] as $class) {
-            $container->register($class)
-                ->setAutowired(true)
-                ->setAutoconfigured(false)
-                ->setPublic(false);
-        }
-
-        // The store order IS the policy: file first so a developer's edit lands
-        // in git, database only when the filesystem refuses. Passed explicitly
-        // rather than through a tag -- a tagged iterator would let any module
-        // reorder where an operator's config is kept just by existing, and the
-        // glob-override trap makes a tagged argument easy to lose silently.
+        // !! ConfigLoaderInterface points at the CHAINED loader. Every consumer
+        // keeps working -- the chain falls through to FileConfigLoader whenever
+        // no override is stored, which is always until something writes one.
         //
-        // !! Registered under a NAMED id, not its FQCN, and that is required
-        // rather than stylistic. The class is excluded from the App\ glob (it
-        // cannot be autowired), and an excluded class still gets an ABSTRACT
-        // definition under its own FQCN -- which an alias cannot point at. The
-        // other exclusions in services.yaml survive for the same reason: every
-        // one of them is registered under an id of its own.
-        $container->register('coolms.core.config_writer', ChainedConfigWriter::class)
-            ->setArgument('$stores', [
-                new Reference(FileConfigWriter::class),
-                new Reference(DbConfigWriter::class),
-            ])
-            ->setAutowired(false)
+        // The WRITE half and the stored rows left this package on 2026-09-22:
+        // they are one deployment's operator configuration, so the Settings
+        // module owns them and answers ConfigWriterInterface +
+        // ConfigOverrideReaderInterface. ConfigStoreFallbackPass supplies the
+        // platform's own answers when no such module is installed.
+        $container->register(ChainedConfigLoader::class)
+            ->setAutowired(true)
             ->setAutoconfigured(false)
             ->setPublic(false);
 
         $container->setAlias(ConfigLoaderInterface::class, ChainedConfigLoader::class);
-        $container->setAlias(ConfigWriterInterface::class, 'coolms.core.config_writer');
 
         $container->register(ConfigCacheWarmer::class)
             ->setAutowired(true)
