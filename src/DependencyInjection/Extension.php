@@ -24,8 +24,8 @@ use CoolMS\Core\Bundle\Secret\EnvSecretStore;
 use CoolMS\Core\Bundle\Secret\FilesystemEncryptedStore;
 use CoolMS\Core\Bundle\Secret\VaultSecretStore;
 use CoolMS\Core\Bundle\Ui\UiEntryCatalog;
-use CoolMS\Core\ChangeFeed\SyncBlobContributorInterface;
-use CoolMS\Core\ChangeFeed\SyncSectionPartitionInterface;
+use CoolMS\Core\Sync\BlobContributorInterface;
+use CoolMS\Core\Sync\SectionPartitionInterface;
 use CoolMS\Core\Channel\OutboundChannelInterface;
 use CoolMS\Core\Config\PhpFileLoader;
 use CoolMS\Core\Config\PlatformDefaults;
@@ -232,19 +232,19 @@ class Extension extends AbstractExtension
 
         // Sync blob contributors -- any module whose SYNCED ROWS refer to bytes
         // those rows don't contain (VFS nodes -> their content-addressed blobs) implements
-        // the L0 SyncBlobContributorInterface and is auto-collected by SyncBlobRegistry
+        // the L0 BlobContributorInterface and is auto-collected by whatever serves the feed
         // (via #[AutowireIterator('coolms.sync.blob.contributor')]). Rows sync by delta,
         // bytes sync by reference -- a separate channel on purpose, so a lean feed stays
         // lean. The sync module drives it over HTTP without importing the owning module.
-        $container->registerForAutoconfiguration(SyncBlobContributorInterface::class)
+        $container->registerForAutoconfiguration(BlobContributorInterface::class)
             ->addTag('coolms.sync.blob.contributor');
 
         // Sync section partitions -- a module whose synced tables
         // partition by site section (Section: the `/content/<slug>` namespace over
-        // VFS's tables) implements the L0 SyncSectionPartitionInterface; the sync
+        // VFS's tables) implements the L0 SectionPartitionInterface; the sync
         // surface's EdgeScopePolicy collects them by tag to enforce a per-edge
         // `sections` scope without importing the owning module.
-        $container->registerForAutoconfiguration(SyncSectionPartitionInterface::class)
+        $container->registerForAutoconfiguration(SectionPartitionInterface::class)
             ->addTag('coolms.sync.section_partition');
 
         // Transliteration rule sets -- national Cyrillic/umlaut->ASCII maps
