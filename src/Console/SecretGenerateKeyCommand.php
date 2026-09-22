@@ -23,7 +23,7 @@ use const SODIUM_BASE64_VARIANT_ORIGINAL;
  */
 #[AsCommand(
     name: 'coolms:secret:generate-key',
-    description: 'Generate a base64 master key for the filesystem secret store.',
+    description: 'Generate a base64 master key for the platform key ring.',
 )]
 final class SecretGenerateKeyCommand extends Command
 {

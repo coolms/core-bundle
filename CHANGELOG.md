@@ -12,7 +12,25 @@ same commit as the change it describes.
 
 ## Unreleased
 
+### Changed
+- `coolms_core.secret_store.driver`: the `filesystem` value is now `stored`,
+  and selects the service id `coolms.secret_store.stored` rather than a class
+  this package holds. `env` (the default) and `vault` are unchanged: both read
+  secrets kept OUTSIDE the application, which is why they remain the
+  platform's. A host that selects `stored` without a module registering that
+  id fails to compile naming the id.
+
 ### Removed
+- The STORED secrets: `Secret\EncryptedSecretsFile`, `Secret\FilesystemEncryptedStore`,
+  `Secret\SecretsFileKind` and the `coolms:secret:set` / `:remove` / `:list`
+  commands, with their four tests. Sealing, the key ring and the rotation
+  sweep are a platform capability and stay; what is STORED is operator
+  configuration, so the module that keeps it owns the file it is kept in. In
+  CoolMS that is Settings, which registers `coolms.secret_store.stored` and
+  keeps the values sealed exactly as before, at the same path.
+- `coolms_core.secret_store.filesystem.path`: the file is no longer this
+  package's to place. `key_env` and `previous_key_env` stay -- they name the
+  master KEY RING, which every sealed value shares.
 - The config-store wiring: the `FileConfigWriter` / `DbConfigWriter`
   registrations, the `coolms.core.config_writer` chain and the
   `ConfigWriterInterface` alias. The read half (`ChainedConfigLoader` ->

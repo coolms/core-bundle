@@ -28,7 +28,7 @@ use function sprintf;
  * cached for the instance lifetime (one round-trip per request). Logical
  * keys are LITERAL Vault data keys (no env-style normalisation), so
  * `secret('stripe_api_key')` reads `data.data.stripe_api_key` -- consistent
- * with {@see FilesystemEncryptedStore}.
+ * with the sealed file a module may keep.
  *
  * The Vault token is read from an env var (`vault.token_env`, default
  * `VAULT_TOKEN`) -- the one bootstrap credential, kept out of config the

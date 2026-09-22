@@ -17,7 +17,6 @@ use CoolMS\Core\Bundle\Config\ConfigCacheWarmer;
 use CoolMS\Core\Bundle\Json\JsoncDecoder;
 use CoolMS\Core\Bundle\Secret\EnvMasterKeyRing;
 use CoolMS\Core\Bundle\Secret\EnvSecretStore;
-use CoolMS\Core\Bundle\Secret\FilesystemEncryptedStore;
 use CoolMS\Core\Bundle\Secret\VaultSecretStore;
 use CoolMS\Core\Bundle\Ui\UiEntryCatalog;
 use CoolMS\Core\Channel\OutboundChannelInterface;
@@ -87,21 +86,22 @@ class Extension extends AbstractExtension
             ->setAutoconfigured(false)
             ->setPublic(false);
 
-        // F1 -- platform secret store. The concrete stores (EnvSecretStore,
-        // FilesystemEncryptedStore) + the encrypted-file codec are registered
-        // by the App\ services glob (autowired); their scalar constructor args
-        // resolve from these parameters via #[Autowire('%...%')]. We bind via
-        // parameters rather than an explicit register() here because
-        // services.yaml's glob loads AFTER this extension and would otherwise
-        // re-register the same ids and clobber an explicit definition (the
-        // `coolms:secret:*` commands inject the codec, so it must be a normal
-        // autowirable service). The driver below only selects which concrete
-        // the SecretStoreInterface aliases to; the encrypted-file tooling is
-        // available regardless so an operator can prepare the file before
-        // switching `driver` to `filesystem`. New backends (Vault) add an enum
-        // value (Configuration) + a `match` arm here.
+        // F1 -- platform secret store. The two stores the platform itself
+        // has (EnvSecretStore, VaultSecretStore) are registered by the services
+        // glob (autowired); their scalar constructor args resolve from these
+        // parameters via #[Autowire('%...%')]. We bind via parameters rather
+        // than an explicit register() here because services.yaml's glob loads
+        // AFTER this extension and would otherwise re-register the same ids and
+        // clobber an explicit definition.
+        //
+        // Both read secrets kept OUTSIDE the application -- an environment, a
+        // vault -- which is why they are the platform's. Secrets the
+        // application itself STORES are operator configuration: the module that
+        // keeps them registers `coolms.secret_store.stored` (in CoolMS that is
+        // Settings, which keeps them in a sealed file), and the `stored` driver
+        // selects it. The platform names an id, not a class: it neither writes
+        // those secrets nor knows where they sit.
         $container->setParameter('coolms.secret_store.env_prefix', $config['secret_store']['env_prefix']);
-        $container->setParameter('coolms.secret_store.fs_path', $config['secret_store']['filesystem']['path']);
         $container->setParameter('coolms.secret_store.fs_key_env', $config['secret_store']['filesystem']['key_env']);
         $container->setParameter('coolms.secret_store.fs_previous_key_env', $config['secret_store']['filesystem']['previous_key_env']);
         $container->setParameter('coolms.secret_store.key_file_owner', $config['secret_store']['key_file_owner']);
@@ -111,7 +111,10 @@ class Extension extends AbstractExtension
 
         $secretStoreId = match ($config['secret_store']['driver']) {
             'env' => EnvSecretStore::class,
-            'filesystem' => FilesystemEncryptedStore::class,
+            // Registered by the module that keeps stored secrets; a host
+            // that selects this driver without one fails to compile, naming
+            // the id, which is the clearest thing that can happen.
+            'stored' => 'coolms.secret_store.stored',
             'vault' => VaultSecretStore::class,
             default => throw new LogicException('Unsupported coolms_core.secret_store.driver: ' . $config['secret_store']['driver']),
         };
