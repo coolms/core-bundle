@@ -5,8 +5,12 @@ declare(strict_types=1);
 namespace CoolMS\Core\Bundle\Secret;
 
 /**
- * Which key a stored value opens under, found by opening it -- the only way
- * to know, since a marker names a format and not a key.
+ * Which key a stored value opens under, found by opening it.
+ *
+ * The current form names its key id, so a cheaper guess is available; it is
+ * not used, because {@see KeyRingSealer::candidates()} treats the id as a
+ * hint and the box as the proof. See {@see \CoolMS\Core\Secret\RotationTally}
+ * for why the count a rotation is gated on has to be the proof.
  */
 enum SealedValueState: string
 {

@@ -17,6 +17,10 @@ use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 use Throwable;
 
 use function count;
+use function hrtime;
+use function memory_get_peak_usage;
+use function memory_reset_peak_usage;
+use function round;
 use function sprintf;
 
 /**
@@ -25,17 +29,38 @@ use function sprintf;
  *
  * The window of a rotation is open while the ring holds two keys: new values
  * are sealed under the current key, old ones still open under the previous
- * one. This command walks every kind a module registered, opens every value
- * (a marker names a form, not a key, so only a read can say), re-seals the
- * ones under the previous key, and reports three numbers per kind: under the
- * current key, under the previous key, and under neither. The window is
- * CLOSED when every kind reports zero under the previous key -- a measurement
- * this command makes, not a judgement the operator makes -- and the exit
- * status says so: 0 closed, 1 open.
+ * one. This command walks every kind a module registered, opens every value,
+ * re-seals the ones under the previous key, and reports three numbers per
+ * kind: under the current key, under the previous key, and under neither.
+ *
+ * HOW THE NUMBER THAT GATES THE KEY IS OBTAINED. The `previous` column is
+ * the count of values the PREVIOUS key opened and the current key did not,
+ * arrived at by opening every value the kind holds -- not by reading its
+ * marker. The marker would be cheaper and is not trusted on purpose: the
+ * form `KeyRingSealer` writes today, `enc:v2:<key id>:...`, does carry the
+ * id of the key it was sealed under, but {@see KeyRingSealer::candidates()}
+ * treats that id as a HINT and the box as the PROOF -- it tries the other
+ * keys when the named one fails. A value whose marker names the current key
+ * but does not open under it is exactly the value a rotation must not miss,
+ * and a marker-only count would report it as done. The two older forms
+ * (`enc:v1:` and bare base64) carry no id at all, so for them opening is the
+ * only answer there has ever been.
+ *
+ * That number is what the operator waits on: the previous key may leave the
+ * ring when it is ZERO IN EVERY KIND, and not before. `--dry-run` is how it
+ * is obtained without writing anything -- it reports the same per-kind
+ * column and exits 1 while any of it is non-zero. The exit status says the
+ * same thing: 0 closed, 1 open.
  *
  * Idempotent and resumable: a value already under the current key is skipped
- * whatever form it is in, so a second run re-seals nothing and an interrupted
- * run continues by being run again. `--dry-run` counts and writes nothing.
+ * whatever form it is in, so a second run re-seals nothing, and a run killed
+ * half way continues by being run again -- it re-reads what it already did
+ * and finds it done. The sweeps page by key rather than by offset, which is
+ * what keeps that true while rows are being rewritten underneath.
+ *
+ * Each kind reports its wall time and its own peak memory, because this is
+ * the emergency procedure -- it is run when a key has leaked -- and "it died"
+ * is a thing the operator must be able to see coming rather than discover.
  *
  * What it does not do, on purpose: it never removes the previous key. The
  * command's job ends at zero; retiring the key from the runtime is an
@@ -60,7 +85,12 @@ final class SecretRotateCommand extends Command
 
     protected function configure(): void
     {
-        $this->addOption('dry-run', null, InputOption::VALUE_NONE, 'Count per kind without re-sealing anything');
+        $this->addOption(
+            'dry-run',
+            null,
+            InputOption::VALUE_NONE,
+            'Count per kind without re-sealing anything: the number that must be zero before the previous key is dropped',
+        );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -90,6 +120,8 @@ final class SecretRotateCommand extends Command
         $kindCount = 0;
         foreach ($this->kinds as $kind) {
             ++$kindCount;
+            memory_reset_peak_usage();
+            $started = hrtime(true);
             try {
                 $tally = $kind->sweep($apply);
             } catch (Throwable $e) {
@@ -104,6 +136,8 @@ final class SecretRotateCommand extends Command
                 $tally->unreadable,
                 $tally->plaintext,
                 $apply ? $tally->resealed : sprintf('(would: %d)', $tally->previous),
+                sprintf('%.1f', (hrtime(true) - $started) / 1_000_000_000),
+                sprintf('%d MB', (int) round(memory_get_peak_usage(true) / 1_048_576)),
             ];
             $sum = $sum->add($tally);
         }
@@ -111,7 +145,10 @@ final class SecretRotateCommand extends Command
         if (0 === $kindCount) {
             $io->warning('No sealed kinds are registered; nothing was swept.');
         }
-        $io->table(['kind', 'current', 'previous', 'unreadable', 'plaintext', 're-sealed'], $rows);
+        $io->table(
+            ['kind', 'current', 'previous', 'unreadable', 'plaintext', 're-sealed', 's', 'peak'],
+            $rows,
+        );
 
         $left = $apply ? $sum->previous - $sum->resealed : $sum->previous;
         if ($sum->unreadable > 0) {
@@ -129,7 +166,8 @@ final class SecretRotateCommand extends Command
         }
         if (0 === $left) {
             $io->success(sprintf(
-                'Window CLOSED: zero values under the previous key in every kind (%d read%s).',
+                'Window CLOSED: zero values under the previous key in every kind (%d read%s).'
+                . ' The previous key can leave the ring.',
                 $sum->total(),
                 $apply && $sum->resealed > 0 ? sprintf(', %d re-sealed this run', $sum->resealed) : '',
             ));
@@ -137,7 +175,7 @@ final class SecretRotateCommand extends Command
             return Command::SUCCESS;
         }
         $io->warning(sprintf(
-            'Window OPEN: %d value(s) still under the previous key%s.',
+            'Window OPEN: %d value(s) still under the previous key%s. Keep the previous key on the ring.',
             $left,
             $apply ? '' : ' (dry run: nothing was re-sealed)',
         ));
