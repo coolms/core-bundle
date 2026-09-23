@@ -6,8 +6,10 @@ namespace CoolMS\Core\Bundle\Tests\Console;
 
 use CoolMS\Core\Bundle\Console\SecretRotateCommand;
 use CoolMS\Core\Bundle\Tests\Secret\Support\StaticRing;
+use CoolMS\Core\Secret\ResidueTally;
 use CoolMS\Core\Secret\RotationTally;
 use CoolMS\Core\Secret\SealedKindInterface;
+use CoolMS\Core\Secret\SealedResidueInterface;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
@@ -141,6 +143,85 @@ final class SecretRotateCommandTest extends TestCase
         );
     }
 
+    /**
+     * The whole point of the second question. Every value is under the current
+     * key -- the old verdict said CLOSED and exited 0 on exactly this input --
+     * and copies the ring cannot open are still on disk.
+     */
+    #[Test]
+    public function copiesTheRingCannotOpenKeepTheWindowOpenEvenAtZeroValues(): void
+    {
+        $kinds = [self::kind(
+            'email bodies (VFS /mail)',
+            apply: new RotationTally(current: 5687),
+            dry: new RotationTally(current: 5687),
+            residue: ResidueTally::counted(6821, 5686, 'database dumps and backup bundles'),
+        )];
+        $tester = new CommandTester(new SecretRotateCommand(self::twoKeys(), $kinds));
+
+        $status = $tester->execute([]);
+        $out = self::unwrapped($tester->getDisplay());
+
+        self::assertSame(Command::FAILURE, $status, $out);
+        self::assertStringNotContainsString('Window CLOSED', $out);
+        self::assertStringContainsString('5686 copies of that ciphertext remain', $out);
+        self::assertStringContainsString('5686 of 6821', $out);
+        // It names where it did not look, so the zero it will eventually report
+        // is not mistaken for a statement about the whole estate.
+        self::assertStringContainsString('database dumps and backup bundles', $out);
+    }
+
+    /**
+     * NOT ASKED IS NOT ZERO. A kind with no residue implementation must not be
+     * counted as reporting none, or the verdict is a green assembled from
+     * silence.
+     */
+    #[Test]
+    public function aKindThatDoesNotAnswerTheResidueQuestionBlocksTheVerdict(): void
+    {
+        $kinds = [
+            self::kind('users.secret', apply: new RotationTally(current: 1), dry: new RotationTally(current: 1)),
+            self::kindWithoutResidue('sip_credentials.secret_cipher'),
+        ];
+        $tester = new CommandTester(new SecretRotateCommand(self::twoKeys(), $kinds));
+
+        $status = $tester->execute([]);
+        $out = self::unwrapped($tester->getDisplay());
+
+        self::assertSame(Command::FAILURE, $status, $out);
+        self::assertStringNotContainsString('Window CLOSED', $out);
+        self::assertStringContainsString('NOT ESTABLISHED', $out);
+        self::assertStringContainsString('sip_credentials.secret_cipher', $out);
+        self::assertStringContainsString('NOT ASKED', $out);
+    }
+
+    /**
+     * The control for both of the above: with every kind answering and none
+     * holding anything, the window closes and the verdict says which two
+     * questions it is answering.
+     */
+    #[Test]
+    public function theWindowClosesOnlyWhenBothNumbersAreZeroAndBothWereAsked(): void
+    {
+        $kinds = [self::kind(
+            'email bodies (VFS /mail)',
+            apply: new RotationTally(current: 5687),
+            dry: new RotationTally(current: 5687),
+            residue: ResidueTally::counted(6821, 0, 'database dumps and backup bundles'),
+        )];
+        $tester = new CommandTester(new SecretRotateCommand(self::twoKeys(), $kinds));
+
+        $status = $tester->execute([]);
+        $out = self::unwrapped($tester->getDisplay());
+
+        self::assertSame(Command::SUCCESS, $status, $out);
+        self::assertStringContainsString('Window CLOSED', $out);
+        self::assertStringContainsString('every kind was asked for its residue', $out);
+        // The denominator reaches the operator: a zero out of 6,821 is a
+        // different statement from a zero out of nothing.
+        self::assertStringContainsString('0 of 6821', $out);
+    }
+
     private static function twoKeys(): StaticRing
     {
         return new StaticRing(StaticRing::fresh(), StaticRing::fresh());
@@ -152,11 +233,28 @@ final class SecretRotateCommandTest extends TestCase
         return (string) preg_replace('/\s+/', ' ', $display);
     }
 
-    private static function kind(string $name, RotationTally $apply, RotationTally $dry): SealedKindInterface
-    {
-        return new class($name, $apply, $dry) implements SealedKindInterface {
-            public function __construct(private string $name, private RotationTally $apply, private RotationTally $dry)
-            {
+    /**
+     * A kind that answers BOTH questions. The default residue is a structural
+     * none, because these tests are about the VALUE count and a kind that does
+     * not answer the second question now blocks the verdict on purpose -- which
+     * {@see aKindThatDoesNotAnswerTheResidueQuestionBlocksTheVerdict()} is the
+     * test for.
+     */
+    private static function kind(
+        string $name,
+        RotationTally $apply,
+        RotationTally $dry,
+        ?ResidueTally $residue = null,
+    ): SealedKindInterface {
+        $residue ??= ResidueTally::noCopyKept('nothing this fake keeps');
+
+        return new class($name, $apply, $dry, $residue) implements SealedKindInterface, SealedResidueInterface {
+            public function __construct(
+                private string $name,
+                private RotationTally $apply,
+                private RotationTally $dry,
+                private ResidueTally $residue,
+            ) {
             }
 
             public function name(): string
@@ -167,6 +265,31 @@ final class SecretRotateCommandTest extends TestCase
             public function sweep(bool $apply): RotationTally
             {
                 return $apply ? $this->apply : $this->dry;
+            }
+
+            public function residue(): ResidueTally
+            {
+                return $this->residue;
+            }
+        };
+    }
+
+    /** A kind from before the residue port existed: it answers the first question only. */
+    private static function kindWithoutResidue(string $name): SealedKindInterface
+    {
+        return new class($name) implements SealedKindInterface {
+            public function __construct(private string $name)
+            {
+            }
+
+            public function name(): string
+            {
+                return $this->name;
+            }
+
+            public function sweep(bool $apply): RotationTally
+            {
+                return new RotationTally(current: 1);
             }
         };
     }
