@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace CoolMS\Core\Bundle\Tests\Secret;
 
-use ArrayIterator;
 use CoolMS\Core\Bundle\Secret\KeyRingSealer;
 use CoolMS\Core\Bundle\Secret\SealedValueSweep;
 use CoolMS\Core\Bundle\Tests\Secret\Support\StaticRing;
 use CoolMS\Core\Secret\RotationTally;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\DependencyInjection\ServicesResetter;
 use Symfony\Contracts\Service\ResetInterface;
 
 use function array_filter;
@@ -150,10 +148,7 @@ final class SealedValueSweepTest extends TestCase
         }
         $recorder = $this->createMock(ResetInterface::class);
         $recorder->expects(self::exactly(2))->method('reset');
-        $sweep = new SealedValueSweep(
-            new KeyRingSealer(new StaticRing(StaticRing::fresh())),
-            new ServicesResetter(new ArrayIterator(['probe' => $recorder]), ['probe' => 'reset']),
-        );
+        $sweep = new SealedValueSweep(new KeyRingSealer(new StaticRing(StaticRing::fresh())), $recorder);
 
         $tally = $sweep->run(
             $sweep->batched(static fn (mixed $after, int $limit): array => self::page($all, $after, $limit)),
@@ -185,10 +180,7 @@ final class SealedValueSweepTest extends TestCase
                 $this->calls[] = 'release';
             }
         };
-        $sweep = new SealedValueSweep(
-            new KeyRingSealer(new StaticRing(StaticRing::fresh())),
-            new ServicesResetter(new ArrayIterator(['probe' => $log]), ['probe' => 'reset']),
-        );
+        $sweep = new SealedValueSweep(new KeyRingSealer(new StaticRing(StaticRing::fresh())), $log);
         $all = [];
         for ($i = 0; $i < 7; ++$i) {
             $all[] = [$i, 'v'];

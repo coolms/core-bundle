@@ -6,7 +6,7 @@ namespace CoolMS\Core\Bundle\Secret;
 
 use CoolMS\Core\Secret\RotationTally;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Symfony\Component\DependencyInjection\ServicesResetter;
+use Symfony\Contracts\Service\ResetInterface;
 
 use function count;
 use function is_string;
@@ -41,6 +41,15 @@ use function is_string;
  * `services_resetter` rather than a hand-picked list -- it reaches the
  * collectors and caches nobody thought to name, and it is the same seam a
  * Messenger worker uses between messages.
+ *
+ * The release is typed on the CONTRACT and wired to that service by id, not
+ * typed on the class: CI's lowest-dependency job resolves
+ * symfony/dependency-injection v8.0.0, where
+ * `Symfony\Component\DependencyInjection\ServicesResetter` does not exist
+ * yet -- it arrives in 8.1 -- while `ResetInterface` has been in
+ * symfony/service-contracts throughout. Naming the interface is also the
+ * truer statement: what this needs is something that lets go, and a host that
+ * wants to hand it something narrower may.
  */
 final readonly class SealedValueSweep
 {
@@ -52,7 +61,7 @@ final readonly class SealedValueSweep
     public function __construct(
         private KeyRingSealer $sealer,
         #[Autowire(service: 'services_resetter')]
-        private ?ServicesResetter $release = null,
+        private ?ResetInterface $release = null,
     ) {
     }
 
