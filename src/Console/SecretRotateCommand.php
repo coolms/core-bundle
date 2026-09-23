@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace CoolMS\Core\Bundle\Console;
 
 use CoolMS\Core\Secret\MasterKeyRingInterface;
+use CoolMS\Core\Secret\ResidueTally;
 use CoolMS\Core\Secret\RotationTally;
 use CoolMS\Core\Secret\SealedKindInterface;
+use CoolMS\Core\Secret\SealedResidueInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -18,6 +20,7 @@ use Throwable;
 
 use function count;
 use function hrtime;
+use function implode;
 use function memory_get_peak_usage;
 use function memory_reset_peak_usage;
 use function round;
@@ -118,6 +121,11 @@ final class SecretRotateCommand extends Command
         $rows = [];
         $sum = new RotationTally();
         $kindCount = 0;
+        /** @var list<string> $notAsked kinds that do not answer the residue question at all */
+        $notAsked = [];
+        /** @var array<string, ResidueTally> $holding kinds still holding copies the ring cannot open */
+        $holding = [];
+        $residueTotal = 0;
         foreach ($this->kinds as $kind) {
             ++$kindCount;
             memory_reset_peak_usage();
@@ -129,6 +137,19 @@ final class SecretRotateCommand extends Command
 
                 return Command::FAILURE;
             }
+            // The second question, and the one the `previous` column above
+            // cannot answer: what copies of this kind's ciphertext does the
+            // estate still hold that the ring cannot open? A kind that does not
+            // implement the port reports NOT ASKED -- never zero.
+            $residue = $kind instanceof SealedResidueInterface ? $kind->residue() : null;
+            if (null === $residue) {
+                $notAsked[] = $kind->name();
+            } else {
+                $residueTotal += $residue->retained;
+                if (!$residue->closed()) {
+                    $holding[$kind->name()] = $residue;
+                }
+            }
             $rows[] = [
                 $kind->name(),
                 $tally->current,
@@ -136,6 +157,7 @@ final class SecretRotateCommand extends Command
                 $tally->unreadable,
                 $tally->plaintext,
                 $apply ? $tally->resealed : sprintf('(would: %d)', $tally->previous),
+                self::residueCell($residue),
                 sprintf('%.1f', (hrtime(true) - $started) / 1_000_000_000),
                 sprintf('%d MB', (int) round(memory_get_peak_usage(true) / 1_048_576)),
             ];
@@ -146,7 +168,7 @@ final class SecretRotateCommand extends Command
             $io->warning('No sealed kinds are registered; nothing was swept.');
         }
         $io->table(
-            ['kind', 'current', 'previous', 'unreadable', 'plaintext', 're-sealed', 's', 'peak'],
+            ['kind', 'current', 'previous', 'unreadable', 'plaintext', 're-sealed', 'residue', 's', 'peak'],
             $rows,
         );
 
@@ -164,22 +186,69 @@ final class SecretRotateCommand extends Command
                 $sum->plaintext,
             ));
         }
-        if (0 === $left) {
-            $io->success(sprintf(
-                'Window CLOSED: zero values under the previous key in every kind (%d read%s).'
-                . ' The previous key can leave the ring.',
-                $sum->total(),
-                $apply && $sum->resealed > 0 ? sprintf(', %d re-sealed this run', $sum->resealed) : '',
+        if (0 !== $left) {
+            $io->warning(sprintf(
+                'Window OPEN: %d value(s) still under the previous key%s. Keep the previous key on the ring.',
+                $left,
+                $apply ? '' : ' (dry run: nothing was re-sealed)',
             ));
 
-            return Command::SUCCESS;
+            return Command::FAILURE;
         }
-        $io->warning(sprintf(
-            'Window OPEN: %d value(s) still under the previous key%s. Keep the previous key on the ring.',
-            $left,
-            $apply ? '' : ' (dry run: nothing was re-sealed)',
+
+        // Values are done. Copies are a different number, and the word CLOSED
+        // belongs to neither of them alone.
+        if ([] !== $holding) {
+            foreach ($holding as $name => $residue) {
+                $io->text(sprintf(
+                    '  %s: %d of %d copies the ring cannot open. Not seen by this count: %s',
+                    $name,
+                    $residue->retained,
+                    $residue->examined,
+                    $residue->blindSpot,
+                ));
+            }
+            $io->error(sprintf(
+                'Window OPEN: zero values are under the previous key, and %d cop%s of that ciphertext'
+                . ' remain that the ring cannot open. A rotation that leaves what the retired key opens'
+                . ' has closed nothing; collect them, then run this again.',
+                $residueTotal,
+                1 === $residueTotal ? 'y' : 'ies',
+            ));
+
+            return Command::FAILURE;
+        }
+
+        if ([] !== $notAsked) {
+            $io->warning(sprintf(
+                'Window NOT ESTABLISHED: zero values are under the previous key, but %d kind(s) do not answer'
+                . ' the residue question at all -- %s. Not asked is not zero, so whether the retired key still'
+                . ' opens something cannot be said from here. The previous key stays on the ring.',
+                count($notAsked),
+                implode(', ', $notAsked),
+            ));
+
+            return Command::FAILURE;
+        }
+
+        $io->success(sprintf(
+            'Window CLOSED: zero values under the previous key in every kind (%d read%s),'
+            . ' and every kind was asked for its residue and reported none.'
+            . ' The previous key can leave the ring.',
+            $sum->total(),
+            $apply && $sum->resealed > 0 ? sprintf(', %d re-sealed this run', $sum->resealed) : '',
         ));
 
-        return Command::FAILURE;
+        return Command::SUCCESS;
+    }
+
+    /** What the residue column says for one kind: a counted number, a structural none, or NOT ASKED. */
+    private static function residueCell(?ResidueTally $residue): string
+    {
+        return match (true) {
+            null === $residue => 'NOT ASKED',
+            !$residue->walked => 'none kept',
+            default => sprintf('%d of %d', $residue->retained, $residue->examined),
+        };
     }
 }
