@@ -13,6 +13,10 @@ same commit as the change it describes.
 ## Unreleased
 
 ### Changed
+- `/public-options/{source}` (OptionResource) is marked `documented` in its extra
+  properties; it was `public_api`. The marker puts an operation in the published API
+  document and says nothing about access, and "public" read as "no token needed".
+  An application that still reads only `public_api` stops documenting this operation.
 - `coolms_core.secret_store.filesystem` is now `secret_store.key_ring`, and its
   two parameters are `coolms.secret_store.key_env` /
   `...previous_key_env` (they were `fs_*`). The node only ever configured the

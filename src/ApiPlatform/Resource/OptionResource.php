@@ -62,7 +62,9 @@ use Symfony\Component\Serializer\Attribute\Groups;
         ),
         new GetCollection(
             uriTemplate: '/public-options/{source}',
-            extraProperties: ['public_api' => true],
+            // Documented: in the published document. That says nothing about access -- whether it
+            // answers without a token is the application's list of token-free routes.
+            extraProperties: ['documented' => true],
             description: 'Reference lists a caller may read without authenticating -- ISO countries, IANA timezones and the like. Only a source declared public is served here, so this cannot reach application data.',
             uriVariables: ['source'],
             requirements: ['source' => '[a-z][a-z0-9._-]*'],
