@@ -10,7 +10,14 @@ major number means here.
 history when this file was created. Every entry after that is written in the
 same commit as the change it describes.
 
-## Unreleased
+## 2.0.0-alpha6 - 2026-10-07
+
+### Deprecated
+- The old host contract names in the app-config manifest's `ui` section:
+  `console` (now `admin`) and `desk` (now `workspace`), as keys of `contracts`
+  and `hosts` and as the second `modules` row of each matched entry. They are
+  emitted beside the new names only while coolms/core keeps its aliases, and
+  are removed with them. Read `admin` and `workspace`.
 
 ### Changed
 - The app-config manifest's `ui` section names the host contracts canonically:
