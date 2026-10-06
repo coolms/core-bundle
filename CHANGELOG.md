@@ -13,6 +13,14 @@ same commit as the change it describes.
 ## Unreleased
 
 ### Changed
+- The app-config manifest's `ui` section names the host contracts canonically:
+  `admin`, `workspace`, `site` (coolms/core renamed `console` and `desk`). While
+  the old names are deprecated aliases, each is ALSO emitted beside its new one:
+  a key in `contracts` and `hosts` with the same value, and a second row in
+  `modules` for each matched entry. A host built before the rename, which asks
+  for `console`, still finds every module it found before. Nothing is removed
+  from the section; the additions go when the aliases do. Needs the coolms/core
+  release that carries `Ui\ContractName`.
 - `/public-options/{source}` (OptionResource) is marked `documented` in its extra
   properties; it was `public_api`. The marker puts an operation in the published API
   document and says nothing about access, and "public" read as "no token needed".
