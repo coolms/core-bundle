@@ -57,9 +57,11 @@ final class UnhandledExceptionListenerTest extends TestCase
 
         $listener($event);
 
-        self::assertSame(500, $event->getResponse()?->getStatusCode());
+        $response = $event->getResponse();
+        self::assertNotNull($response);
+        self::assertSame(500, $response->getStatusCode());
         self::assertSame('Internal Server Error', $this->detail($event));
-        self::assertStringNotContainsString('/var/www', (string) $event->getResponse()?->getContent());
+        self::assertStringNotContainsString('/var/www', (string) $response->getContent());
     }
 
     #[Test]
@@ -79,9 +81,11 @@ final class UnhandledExceptionListenerTest extends TestCase
 
         self::assertSame(422, $domain->getResponse()?->getStatusCode());
         self::assertSame('Unprocessable Content', $this->detail($domain));
-        self::assertSame(400, $argument->getResponse()?->getStatusCode());
+        $response = $argument->getResponse();
+        self::assertNotNull($response);
+        self::assertSame(400, $response->getStatusCode());
         self::assertSame('Bad Request', $this->detail($argument));
-        self::assertStringNotContainsString('/var/www', (string) $argument->getResponse()?->getContent());
+        self::assertStringNotContainsString('/var/www', (string) $response->getContent());
         self::assertSame(
             ['row 42 of coolms_ledger breaks rule R7', 'expected a uuid, got "/var/www/x"'],
             $logger->messages,
