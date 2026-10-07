@@ -16,8 +16,12 @@ same commit as the change it describes.
 - An unhandled server error (500) answers `"detail": "Internal Server Error"`
   in every environment. Until now its `detail` was the exception's own
   message, which may name a file, a query or a host; the message goes to the
-  log only. Client errors (400, 422) keep their message, translated when
-  the exception is translatable.
+  log only.
+- A client error (400, 422) keeps its message only when its exception says
+  the message is meant for the client: an `InvalidInputExceptionInterface`,
+  or a `TranslatableExceptionInterface` (translated, as before). A plain
+  `InvalidArgumentException` or `DomainException` answers its status text
+  (`Bad Request`, `Unprocessable Content`), and its message is logged.
 
 ## 2.0.0-alpha6 - 2026-10-07
 

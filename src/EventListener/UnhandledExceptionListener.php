@@ -12,6 +12,7 @@ use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -29,11 +30,14 @@ use Throwable;
  * environment. Its message is the developer's and may name a file, a query or a
  * host, so it goes to the log, never into the response.
  *
- * A client error (400, 422) keeps its message as the `detail`; a
- * {@see TranslatableExceptionInterface} has it rendered through the translator
- * against the request locale, so error messages are localized like the rest of
- * the platform. The log line always uses the raw message -- operators read logs
- * in one language, not the requester's.
+ * A client error (400, 422) keeps its message only when the exception says the
+ * message is meant for the client: an {@see InvalidInputExceptionInterface} (always
+ * the caller's fault) or a {@see TranslatableExceptionInterface}, whose message is
+ * rendered through the translator against the request locale. A plain
+ * `InvalidArgumentException` or `DomainException` says only its status text, like a
+ * server error: its message was written for whoever reads the code. Every hidden
+ * message goes to the log, and the log line always uses the raw message --
+ * operators read logs in one language, not the requester's.
  */
 #[AsEventListener(event: KernelEvents::EXCEPTION, priority: -100)]
 final class UnhandledExceptionListener
@@ -61,10 +65,20 @@ final class UnhandledExceptionListener
             default => 500,
         };
 
+        $meantForTheClient = 500 !== $status
+            && ($throwable instanceof InvalidInputExceptionInterface
+                || $throwable instanceof TranslatableExceptionInterface);
+
         if (500 === $status) {
             // Raw message: developer-facing, source language, not the
             // requester's locale.
             $this->logger->critical('Unhandled exception', [
+                'exception' => $throwable,
+                'message' => $throwable->getMessage(),
+            ]);
+        } elseif (!$meantForTheClient) {
+            // A client error whose message stays out of the response: the log keeps it.
+            $this->logger->notice('Client error answered with its status text only', [
                 'exception' => $throwable,
                 'message' => $throwable->getMessage(),
             ]);
@@ -74,7 +88,9 @@ final class UnhandledExceptionListener
             'type' => '/errors/' . $status,
             'title' => 500 === $status ? 'Internal Server Error' : 'An error occurred',
             'status' => $status,
-            'detail' => 500 === $status ? 'Internal Server Error' : $this->resolveDetail($throwable, $event),
+            'detail' => $meantForTheClient
+                ? $this->resolveDetail($throwable, $event)
+                : (Response::$statusTexts[$status] ?? 'Error'),
         ], $status, ['Content-Type' => 'application/problem+json']));
     }
 
