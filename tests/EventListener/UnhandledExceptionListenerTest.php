@@ -19,14 +19,15 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
 
 /**
- * The unhandled-exception renderer localizes
- * translatable exceptions and leaves everything else exactly as before.
+ * The unhandled-exception renderer: a server error says only its status, and a
+ * client error says why, localized when it can be.
  *
- * The four behaviours pinned here:
- *   1. translatable exception -> `detail` is the translated string
- *   2. plain exception        -> `detail` is the raw message (unchanged)
- *   3. missing catalogue entry -> raw message (no key leaks to the wire)
- *   4. translator throws       -> raw message (no mask-the-original)
+ * The behaviours pinned here:
+ *   1. a server error (500)    -> `detail` is "Internal Server Error", never its message
+ *   2. translatable client error -> `detail` is the translated string
+ *   3. plain client error       -> `detail` is its message (unchanged)
+ *   4. missing catalogue entry  -> its message (no key leaks to the wire)
+ *   5. translator throws        -> its message (no mask-the-original)
  * plus the status-code mapping stays intact.
  */
 final class UnhandledExceptionListenerTest extends TestCase
@@ -43,14 +44,27 @@ final class UnhandledExceptionListenerTest extends TestCase
     }
 
     #[Test]
-    public function plainExceptionPassesRawMessageThrough(): void
+    public function aServerErrorSaysOnlyItsStatus(): void
     {
         $listener = $this->listener($this->translatorThatMustNotBeCalled());
-        $event = $this->event(new RuntimeException('boom'));
+        $event = $this->event(new RuntimeException('Failed to open /var/www/var/storage/secret: permission denied'));
 
         $listener($event);
 
-        self::assertSame('boom', $this->detail($event));
+        self::assertSame(500, $event->getResponse()?->getStatusCode());
+        self::assertSame('Internal Server Error', $this->detail($event));
+        self::assertStringNotContainsString('/var/www', (string) $event->getResponse()?->getContent());
+    }
+
+    #[Test]
+    public function aPlainClientErrorSaysWhy(): void
+    {
+        $listener = $this->listener($this->translatorThatMustNotBeCalled());
+        $event = $this->event(new DomainException('nope'));
+
+        $listener($event);
+
+        self::assertSame('nope', $this->detail($event));
     }
 
     #[Test]
@@ -181,7 +195,7 @@ final class UnhandledExceptionListenerTest extends TestCase
  * Test-local translatable exception. Carries a stable key + the
  * `exceptions` domain; the raw constructor message is the fallback.
  */
-final class FixtureTranslatableException extends RuntimeException implements TranslatableExceptionInterface
+final class FixtureTranslatableException extends DomainException implements TranslatableExceptionInterface
 {
     public function getTranslationKey(): string
     {

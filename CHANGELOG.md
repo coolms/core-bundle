@@ -10,6 +10,15 @@ major number means here.
 history when this file was created. Every entry after that is written in the
 same commit as the change it describes.
 
+## Unreleased
+
+### Security
+- An unhandled server error (500) answers `"detail": "Internal Server Error"`
+  in every environment. Until now its `detail` was the exception's own
+  message, which may name a file, a query or a host; the message goes to the
+  log only. Client errors (400, 422) keep their message, translated when
+  the exception is translatable.
+
 ## 2.0.0-alpha6 - 2026-10-07
 
 ### Deprecated

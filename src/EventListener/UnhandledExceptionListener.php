@@ -25,12 +25,15 @@ use Throwable;
  * Priority -100 runs after API Platform's own exception normalizer (priority 0),
  * so only exceptions that slipped through all earlier listeners reach here.
  *
- * A {@see TranslatableExceptionInterface} has its
- * `detail` rendered through the translator against the request locale,
- * so error messages are localized like the rest of the platform.
- * Plain exceptions pass their raw message through unchanged
- * (behaviour-preserving). The log line always uses the raw message --
- * operators read logs in one language, not the requester's.
+ * A server error (500) says only its status: "Internal Server Error", in every
+ * environment. Its message is the developer's and may name a file, a query or a
+ * host, so it goes to the log, never into the response.
+ *
+ * A client error (400, 422) keeps its message as the `detail`; a
+ * {@see TranslatableExceptionInterface} has it rendered through the translator
+ * against the request locale, so error messages are localized like the rest of
+ * the platform. The log line always uses the raw message -- operators read logs
+ * in one language, not the requester's.
  */
 #[AsEventListener(event: KernelEvents::EXCEPTION, priority: -100)]
 final class UnhandledExceptionListener
@@ -71,7 +74,7 @@ final class UnhandledExceptionListener
             'type' => '/errors/' . $status,
             'title' => 500 === $status ? 'Internal Server Error' : 'An error occurred',
             'status' => $status,
-            'detail' => $this->resolveDetail($throwable, $event),
+            'detail' => 500 === $status ? 'Internal Server Error' : $this->resolveDetail($throwable, $event),
         ], $status, ['Content-Type' => 'application/problem+json']));
     }
 
