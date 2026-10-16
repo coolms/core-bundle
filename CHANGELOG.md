@@ -10,7 +10,13 @@ Versioning is described in the [CoolMS contributing guide](https://github.com/co
 history when this file was created. Every entry after that is written in the
 same commit as the change it describes.
 
-## Unreleased
+## 2.0.0-alpha7 - 2026-10-17
+
+### Changed
+- Requires coolms/core 2.0.0-alpha4 or later. The master key ring and the UI
+  entry catalogue this release registers implement interfaces that coolms/core
+  first ships in 2.0.0-alpha4; an earlier coolms/core installed beside it
+  would leave the container unable to compile.
 
 ### Fixed
 - The extension registers every service its aliases point to. Four aliases
