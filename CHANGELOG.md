@@ -12,6 +12,17 @@ same commit as the change it describes.
 
 ## Unreleased
 
+### Fixed
+- The extension registers every service its aliases point to. Four aliases
+  named classes nothing registered -- the secret store (`env` and `vault`
+  drivers), the master key ring, the UI entry catalogue and the label
+  resolver -- so an application that installs the bundle without its own scan
+  of the package failed to compile as soon as anything asked for one of them.
+- The extension registers coolms/rql's `RqlParser` and `RqlExpressionParser`,
+  and `RequestRqlParser` over them, which bundles above this one ask for.
+- A test kernel with this bundle alone, every alias made public, compiles and
+  resolves each one.
+
 ### Security
 - An unhandled server error (500) answers `"detail": "Internal Server Error"`
   in every environment. Until now its `detail` was the exception's own
