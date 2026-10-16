@@ -54,7 +54,8 @@
         "coolms/core-doctrine": "^2.0",
         "phpunit/phpunit": "^12.5",
         "symfony/filesystem": "^8.0",
-        "symfony/http-client": "^8.0"
+        "symfony/http-client": "^8.0",
+        "symfony/translation": "^8.0"
     },
     "autoload": {
         "psr-4": {

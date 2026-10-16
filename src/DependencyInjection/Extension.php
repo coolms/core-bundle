@@ -15,6 +15,7 @@ use CoolMS\Core\Application\Translation\LabelResolver;
 use CoolMS\Core\Backup\BackupContributorInterface;
 use CoolMS\Core\Bundle\Config\ConfigCacheWarmer;
 use CoolMS\Core\Bundle\Json\JsoncDecoder;
+use CoolMS\Core\Bundle\Rql\RequestRqlParser;
 use CoolMS\Core\Bundle\Secret\EnvMasterKeyRing;
 use CoolMS\Core\Bundle\Secret\EnvSecretStore;
 use CoolMS\Core\Bundle\Secret\VaultSecretStore;
@@ -43,6 +44,8 @@ use CoolMS\Core\Sync\BlobContributorInterface;
 use CoolMS\Core\Sync\SectionPartitionInterface;
 use CoolMS\Core\Translation\LabelResolverInterface;
 use CoolMS\Core\Ui\UiEntryCatalogInterface;
+use CoolMS\Rql\RqlExpressionParser;
+use CoolMS\Rql\RqlParser;
 use LogicException;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
@@ -118,11 +121,19 @@ class Extension extends AbstractExtension
             'vault' => VaultSecretStore::class,
             default => throw new LogicException('Unsupported coolms_core.secret_store.driver: ' . $config['secret_store']['driver']),
         };
+        // The store this bundle ships is registered beside the alias that selects
+        // it. An alias to a class nothing registers compiles only where the
+        // application scans this package itself; an application that installs the
+        // bundle alone fails on it (measured 2026-10-16, a bundle-only kernel).
+        if (EnvSecretStore::class === $secretStoreId || VaultSecretStore::class === $secretStoreId) {
+            $container->autowire($secretStoreId)->setAutoconfigured(true)->setPublic(false);
+        }
         $container->setAlias(SecretStoreInterface::class, $secretStoreId);
 
         // The master key ring every at-rest reader shares: the current key and,
         // during a rotation window, the previous one. Read from the environment;
         // the two variable names come from the configuration above.
+        $container->autowire(EnvMasterKeyRing::class)->setAutoconfigured(true)->setPublic(false);
         $container->setAlias(MasterKeyRingInterface::class, EnvMasterKeyRing::class);
 
         // Kinds of sealed value, one per column/file a module seals, collected by
@@ -142,9 +153,10 @@ class Extension extends AbstractExtension
 
         // Host contracts (the platform rule: hosts implement contracts, modules
         // offer entries): the modules' UI entries, read from
-        // config/modules/<id>/ui.yaml by the catalogue the App scan registers.
+        // config/modules/<id>/ui.yaml by the catalogue registered here.
         // The theme's commands, coolms:install and the app-config contributor
         // all ask this one reader.
+        $container->autowire(UiEntryCatalog::class)->setAutoconfigured(true)->setPublic(false);
         $container->setAlias(UiEntryCatalogInterface::class, UiEntryCatalog::class)
             ->setPublic(false);
 
@@ -343,9 +355,18 @@ class Extension extends AbstractExtension
         // NaviNode, SiteSection, etc.) and routes through Symfony's
         // translator, which is decorated by `VfsOverlayingTranslator`
         // so VFS XLIFF overrides win over bundled `.xlf` files. The
-        // resolver itself stays in `CoolMS\Core\Application\Translation\`;
-        // only the alias is wired here.
+        // resolver itself stays in `CoolMS\Core\Application\Translation\` (a
+        // package this bundle requires) and is registered here with its alias.
+        $container->autowire(LabelResolver::class)->setAutoconfigured(true)->setPublic(false);
         $container->setAlias(LabelResolverInterface::class, LabelResolver::class);
+
+        // coolms/rql's two parsers and the request reader over them. Plain library
+        // classes, required by this package and asked for by the bundles above it
+        // (entity-bundle's alias resolver takes an RqlParser); registered here so
+        // an application that installs the bundles does not have to.
+        $container->register(RqlParser::class)->setPublic(false);
+        $container->register(RqlExpressionParser::class)->setPublic(false);
+        $container->autowire(RequestRqlParser::class)->setPublic(false);
     }
 
     public function getAlias(): string
