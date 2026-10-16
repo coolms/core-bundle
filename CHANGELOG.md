@@ -17,6 +17,10 @@ same commit as the change it describes.
   entry catalogue this release registers implement interfaces that coolms/core
   first ships in 2.0.0-alpha4; an earlier coolms/core installed beside it
   would leave the container unable to compile.
+- Requires coolms/core-application 2.0.0-alpha3 or later. Its 2.0.0-alpha1
+  autoloads under another namespace and its 2.0.0-alpha2 lacks the config
+  and liveness classes this bundle imports, so an earlier one installed
+  beside this release would leave classes undefined.
 
 ### Fixed
 - The extension registers every service its aliases point to. Four aliases
