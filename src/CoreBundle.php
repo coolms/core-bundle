@@ -12,6 +12,7 @@ use CoolMS\Core\Bundle\DependencyInjection\Compiler\CoreServicesPass;
 use CoolMS\Core\Bundle\DependencyInjection\Compiler\ModuleConfigDirsPass;
 use CoolMS\Core\Bundle\DependencyInjection\Compiler\OptionSourceRegistryPass;
 use CoolMS\Core\Bundle\DependencyInjection\Compiler\OutboundChannelRegistryConfigPass;
+use CoolMS\Core\Bundle\DependencyInjection\Compiler\PersonalDashboardLayoutsFallbackPass;
 use CoolMS\Core\Bundle\DependencyInjection\Compiler\SystemUserPass;
 use CoolMS\Core\Bundle\DependencyInjection\Compiler\TranslationCatalogueFallbackPass;
 use CoolMS\Core\Bundle\DependencyInjection\Extension;
@@ -39,6 +40,10 @@ class CoreBundle extends AbstractCoolmsBundle
         // belong to whichever module owns operator configuration, and the
         // platform falls back to reading files when none is installed.
         $container->addCompilerPass(new ConfigStoreFallbackPass());
+        // And for each person's dashboard arrangements: the host keeps them with
+        // the person's settings; with no such module every dashboard is the
+        // module default and nothing can be arranged.
+        $container->addCompilerPass(new PersonalDashboardLayoutsFallbackPass());
         // prependExtensionConfig must run during build(), before extensions load.
         // Do NOT use addCompilerPass() for routing defaults -- see AbstractMessengerRoutingPass.
         new CoreMessengerRoutingPass()->prepend($container);

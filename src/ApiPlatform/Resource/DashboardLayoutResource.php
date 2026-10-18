@@ -12,15 +12,26 @@ use CoolMS\Core\Bundle\ApiPlatform\Resource\Processor\ResetDashboardLayoutProces
 use CoolMS\Core\Bundle\ApiPlatform\Resource\Processor\SaveDashboardLayoutProcessor;
 
 /**
- * `PUT|DELETE /api/v1/dashboard/layout` -- arranging the dashboard.
+ * `PUT|DELETE /api/v1/dashboard/layout` -- arranging one's own dashboard.
  *
- * ## Why `ROLE_ADMIN` when reading the catalogue only needs a login
+ * ## The person's own, so a sign-in is all it takes
  *
- * Because a layout is SHARED. It is written to `config/modules` (git-tracked,
- * reviewed, deployed) or to the config-override table, and either way the next
- * person to open the dashboard sees what this request decided. A per-user
- * arrangement would be a preference and would belong in the profile store; this
- * is not that, and the role is what says so.
+ * An arrangement is the signed-in person's runtime state, kept by the host with
+ * their other settings ({@see \CoolMS\Core\Application\Dashboard\PersonalDashboardLayoutsInterface}).
+ * Nobody else sees it, so it needs no role. It is never written into
+ * `config/modules`: the module's YAML is the default every person starts from,
+ * changed in a commit, not by a drag. (Until 2026-10-18 a save rewrote that
+ * file, shared by everyone -- and a person without `ROLE_ADMIN` was offered an
+ * Arrange whose Save was refused.)
+ *
+ * ## Versioned
+ *
+ * A save and a reset name the version the client read (If-Match, the ETag of
+ * `GET /dashboard/widgets`). One version covers all of a person's dashboards:
+ * an arrangement changed since -- on another device, or another section --
+ * answers 412 and nothing is written. The new version comes back as the ETag.
+ * An installation that keeps no personal arrangements answers 501, and its
+ * catalogue says `canArrange: false` so no client offers the action.
  *
  * ## PUT, not PATCH
  *
@@ -39,11 +50,11 @@ use CoolMS\Core\Bundle\ApiPlatform\Resource\Processor\SaveDashboardLayoutProcess
  */
 #[ApiResource(
     shortName: 'DashboardLayout',
-    description: 'The saved arrangement of the dashboard: order, widths, and which cards are hidden.',
+    description: "The signed-in person's own arrangement of a dashboard: order, widths, and which cards are hidden.",
     operations: [
         new Put(
             uriTemplate: '/dashboard/layout',
-            security: "is_granted('ROLE_ADMIN')",
+            security: "is_granted('IS_AUTHENTICATED_FULLY')",
             // No provider: there is nothing to read first. The processor resolves
             // the dashboard from the route and the viewer from the token, never
             // from the body.
@@ -56,7 +67,7 @@ use CoolMS\Core\Bundle\ApiPlatform\Resource\Processor\SaveDashboardLayoutProcess
         new Delete(
             uriTemplate: '/dashboard/layout',
             status: 204,
-            security: "is_granted('ROLE_ADMIN')",
+            security: "is_granted('IS_AUTHENTICATED_FULLY')",
             read: false,
             output: false,
             name: 'dashboard_layout_reset',
@@ -67,16 +78,8 @@ use CoolMS\Core\Bundle\ApiPlatform\Resource\Processor\SaveDashboardLayoutProcess
 final class DashboardLayoutResource
 {
     public function __construct(
-        /**
-         * Where the layout was stored -- an absolute path, or `db://dashboard/main`.
-         *
-         * Returned because the answer is not obvious and someone will ask: a
-         * developer expects to find it in their working copy and commit it, and
-         * on a host with a read-only `config/` it is a database row instead.
-         * Saying which turns "why is it not in my diff" into information the
-         * response already gave.
-         */
-        public string $storedAt = '',
+        /** The version written -- also the response's ETag, and what the next save names as If-Match. */
+        public string $version = '',
     ) {
     }
 }

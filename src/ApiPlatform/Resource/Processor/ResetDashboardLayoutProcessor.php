@@ -7,21 +7,12 @@ namespace CoolMS\Core\Bundle\ApiPlatform\Resource\Processor;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use CoolMS\Core\Application\Dashboard\DashboardLayoutWriter;
-use Symfony\Component\HttpFoundation\RequestStack;
-
-use function is_string;
 
 /**
- * `DELETE /dashboard/layout` -- reset to what the modules themselves offer.
+ * `DELETE /dashboard/layout` -- the person's arrangement dropped, so the module default applies again.
  *
- * ## Why a reset has to exist, and why it clears BOTH stores
- *
- * A layout can be saved to a YAML file or to the override table depending on
- * what the host allows, and the reader lets the row win. Without a reset,
- * "put it back how it was" means hunting for whichever copy is currently
- * winning -- and an operator who deletes the file they can see would be left
- * with a dashboard the row still decides. The writer clears every store; this
- * just exposes it.
+ * Against the version the client read (If-Match), like a save: a reset from a stale screen would otherwise throw away
+ * an arrangement made since on another device. The new version is answered as the ETag.
  *
  * ## 204 whether or not anything was there
  *
@@ -36,19 +27,16 @@ final readonly class ResetDashboardLayoutProcessor implements ProcessorInterface
 {
     public function __construct(
         private DashboardLayoutWriter $layouts,
-        private RequestStack $requests,
+        private DashboardLayoutWrite $write,
     ) {
     }
 
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): null
     {
-        // From the REQUEST, not $context['filters'] -- API-Platform does not
-        // fill those for a Delete, so resetting a section would have cleared
-        // the MAIN dashboard's layout instead of its own. Same trap as the
-        // save, and silent in the same way.
-        $section = $this->requests->getCurrentRequest()?->query->get('section');
+        $section = $this->write->section();
+        $expected = $this->write->expectedVersion();
 
-        $this->layouts->reset(is_string($section) && '' !== $section ? $section : null);
+        $this->write->answer(fn (): string => $this->layouts->reset($section, $expected));
 
         return null;
     }
