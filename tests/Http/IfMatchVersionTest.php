@@ -28,4 +28,15 @@ final class IfMatchVersionTest extends TestCase
     {
         self::assertSame($expected, IfMatchVersion::parse($header));
     }
+
+    #[Test]
+    #[TestWith(['"a", "b"', true])]
+    #[TestWith(['"a",W/"b"', true])]
+    #[TestWith(['"a"', false])]
+    #[TestWith(['*', false])]
+    #[TestWith([null, false])]
+    public function tellsAListFromOneVersion(?string $header, bool $several): void
+    {
+        self::assertSame($several, IfMatchVersion::namesSeveral($header));
+    }
 }

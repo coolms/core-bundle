@@ -19,7 +19,8 @@ same commit as the change it describes.
   writing `config/modules`, so they need a sign-in rather than `ROLE_ADMIN`.
   Both name the version the client read in `If-Match`: an arrangement changed
   since answers 412 and nothing is written; one that names no version is
-  applied. The answer carries the new version as a strong `ETag`, and its body
+  applied; one naming several versions answers 412 rather than being read as
+  naming none. The answer carries the new version as a strong `ETag`, and its body
   is `{"version": "..."}` (`storedAt` is gone). An unknown widget or a
   dashboard id that is not a plain token answers 422; an installation that
   keeps no personal arrangements answers 501.

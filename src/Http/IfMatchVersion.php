@@ -32,4 +32,13 @@ final class IfMatchVersion
 
         return '' === $version ? null : $version;
     }
+
+    /**
+     * Whether the header names several versions. {@see parse()} reads such a header as naming none, so a writer that
+     * must not ignore a precondition the client sent asks this first and refuses.
+     */
+    public static function namesSeveral(?string $header): bool
+    {
+        return str_contains((string) $header, ',');
+    }
 }

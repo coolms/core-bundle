@@ -48,6 +48,19 @@ final class DashboardLayoutWriteTest extends TestCase
         self::assertNull($write->expectedVersion());
     }
 
+    /** A precondition the client sent is never ignored: several versions named is a refusal, not "none named". */
+    #[Test]
+    public function anIfMatchNamingSeveralVersionsIsRefused(): void
+    {
+        $write = $this->write(Request::create('/api/v1/dashboard/layout', 'PUT', server: [
+            'HTTP_IF_MATCH' => '"v3", "v4"',
+        ]));
+
+        $this->expectException(PreconditionFailedHttpException::class);
+
+        $write->expectedVersion();
+    }
+
     #[Test]
     public function theVersionWrittenIsLeftForTheEtag(): void
     {

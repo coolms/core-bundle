@@ -44,9 +44,20 @@ final readonly class DashboardLayoutWrite
         return is_string($section) && '' !== $section ? $section : null;
     }
 
+    /**
+     * The one version If-Match names, or null for none.
+     *
+     * A header naming several is refused (412) rather than read as none: the client sent a precondition, and applying
+     * the write unversioned would ignore it. An arrangement has one version to name -- the one the client read.
+     */
     public function expectedVersion(): ?string
     {
-        return IfMatchVersion::parse($this->requests->getCurrentRequest()?->headers->get('If-Match'));
+        $header = $this->requests->getCurrentRequest()?->headers->get('If-Match');
+        if (IfMatchVersion::namesSeveral($header)) {
+            throw new PreconditionFailedHttpException('Name the one version this arrangement was read at.');
+        }
+
+        return IfMatchVersion::parse($header);
     }
 
     /**
