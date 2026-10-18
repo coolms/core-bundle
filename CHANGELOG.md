@@ -10,6 +10,30 @@ Versioning is described in the [CoolMS contributing guide](https://github.com/co
 history when this file was created. Every entry after that is written in the
 same commit as the change it describes.
 
+## Unreleased
+
+### Changed
+- Dashboard arrangements are each person's own. `PUT` and `DELETE
+  /dashboard/layout` save and drop the signed-in person's arrangement through
+  `coolms/core-application`'s `PersonalDashboardLayoutsInterface` instead of
+  writing `config/modules`, so they need a sign-in rather than `ROLE_ADMIN`.
+  Both name the version the client read in `If-Match`: an arrangement changed
+  since answers 412 and nothing is written; one that names no version is
+  applied. The answer carries the new version as a strong `ETag`, and its body
+  is `{"version": "..."}` (`storedAt` is gone). An unknown widget or a
+  dashboard id that is not a plain token answers 422; an installation that
+  keeps no personal arrangements answers 501.
+- `GET /dashboard/widgets` answers the version of the person's arrangements as
+  a strong `ETag`, read before the arrangement, with `Cache-Control: no-store,
+  private`, and its body gains `canArrange`.
+
+### Added
+- `PersonalDashboardLayoutsFallbackPass`: binds `NoPersonalDashboardLayouts`
+  when no module answers the port, so the platform compiles without a
+  per-person store and every dashboard is the module default.
+- `EventListener\DashboardVersionAnswer`, `Http\IfMatchVersion` and the
+  processors' shared `DashboardLayoutWrite`.
+
 ## 2.0.0-alpha7 - 2026-10-17
 
 ### Changed
