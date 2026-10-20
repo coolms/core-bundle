@@ -12,6 +12,17 @@ same commit as the change it describes.
 
 ## Unreleased
 
+### Added
+
+- One commit owner per request, message handler and console command (`coolms_core.transaction`, `mode` off by
+  default): `Transaction\HttpUnitOfWorkOwner` (commit on success; discard on an exception or a status of 400 or
+  above; a failed commit answers 500), `Transaction\ConsoleUnitOfWorkOwner` (by exit code; `unscoped_commands` for
+  long-running ones), `Transaction\MessageUnitOfWorkMiddleware` (a message received from an asynchronous transport
+  is one unit; a sync-transport message is its caller's work) and `Transaction\HoldAsyncDispatchMiddleware` (an async
+  dispatch inside a unit is sent after its commit, dropped on a discard). The application provides the
+  `UnitOfWorkOwnerInterface` service and names the two middlewares in its bus.
+- Requires `symfony/messenger`.
+
 ### Changed
 - Dashboard arrangements are each person's own. `PUT` and `DELETE
   /dashboard/layout` save and drop the signed-in person's arrangement through
