@@ -23,7 +23,8 @@ final class IfMatchVersionTest extends TestCase
     #[TestWith(['', null])]
     #[TestWith(['*', null])]
     #[TestWith(['"a", "b"', null])]
-    #[TestWith(['""', null])]
+    #[TestWith(['""', ''])]
+    #[TestWith(['W/""', ''])]
     public function readsTheOneVersionNamed(?string $header, ?string $expected): void
     {
         self::assertSame($expected, IfMatchVersion::parse($header));
