@@ -19,6 +19,10 @@ use CoolMS\Core\Bundle\Rql\RequestRqlParser;
 use CoolMS\Core\Bundle\Secret\EnvMasterKeyRing;
 use CoolMS\Core\Bundle\Secret\EnvSecretStore;
 use CoolMS\Core\Bundle\Secret\VaultSecretStore;
+use CoolMS\Core\Bundle\Transaction\ConsoleUnitOfWorkOwner;
+use CoolMS\Core\Bundle\Transaction\HoldAsyncDispatchMiddleware;
+use CoolMS\Core\Bundle\Transaction\HttpUnitOfWorkOwner;
+use CoolMS\Core\Bundle\Transaction\MessageUnitOfWorkMiddleware;
 use CoolMS\Core\Bundle\Ui\UiEntryCatalog;
 use CoolMS\Core\Channel\OutboundChannelInterface;
 use CoolMS\Core\Config\PhpFileLoader;
@@ -42,12 +46,16 @@ use CoolMS\Core\Serializer\DateTimeObjectDenormalizer;
 use CoolMS\Core\Service\TransliterationRuleSetInterface;
 use CoolMS\Core\Sync\BlobContributorInterface;
 use CoolMS\Core\Sync\SectionPartitionInterface;
+use CoolMS\Core\Transaction\UnitOfWorkInterface;
+use CoolMS\Core\Transaction\UnitOfWorkOwnerInterface;
 use CoolMS\Core\Translation\LabelResolverInterface;
 use CoolMS\Core\Ui\UiEntryCatalogInterface;
 use CoolMS\Rql\RqlExpressionParser;
 use CoolMS\Rql\RqlParser;
 use LogicException;
+use Symfony\Component\DependencyInjection\Argument\ServiceClosureArgument;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Reference;
 
 class Extension extends AbstractExtension
@@ -65,6 +73,31 @@ class Extension extends AbstractExtension
         // on the registry, so configurable wiring stays in configuration and
         // the `App\:` services glob cannot drop the argument.
         $container->setParameter('coolms_core.outbound_channels', $config['outbound_channels']);
+
+        // One commit owner per request, message handler and console command (coolms_core.transaction). The owners
+        // reach the unit of work through its owner-facing contract, which the application provides; while the mode
+        // is off an application without it still compiles, and every owner does nothing.
+        $container->setParameter('coolms_core.transaction.mode', $config['transaction']['mode']);
+        $owner = new Reference(UnitOfWorkOwnerInterface::class, ContainerInterface::NULL_ON_INVALID_REFERENCE);
+        $unit = new Reference(UnitOfWorkInterface::class, ContainerInterface::NULL_ON_INVALID_REFERENCE);
+        $container->register(HttpUnitOfWorkOwner::class)
+            ->setArguments([$config['transaction']['mode'], $owner, new Reference('logger')])
+            ->addTag('kernel.event_subscriber');
+        $container->register(ConsoleUnitOfWorkOwner::class)
+            ->setArguments([$config['transaction']['mode'], $owner, $config['transaction']['unscoped_commands'], new Reference('logger')])
+            ->addTag('kernel.event_subscriber');
+        // The two middlewares are named in the application's bus configuration (framework.messenger.buses):
+        // the hold before send_message, the unit around the handlers.
+        $container->register(MessageUnitOfWorkMiddleware::class)
+            ->setArguments([$config['transaction']['mode'], $owner]);
+        $container->register(HoldAsyncDispatchMiddleware::class)
+            ->setArguments([
+                $config['transaction']['mode'],
+                $owner,
+                $unit,
+                new Reference('messenger.senders_locator'),
+                new ServiceClosureArgument(new Reference('messenger.default_bus')),
+            ]);
 
         $container->register(SupportedLocalesProvider::class)
             ->setArgument('$locales', $config['supported_locales'])
