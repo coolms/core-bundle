@@ -18,7 +18,11 @@ use function trim;
  */
 final class IfMatchVersion
 {
-    /** The version named, unquoted; null when the header names none (absent, empty, `*`, or a list). */
+    /**
+     * The version named, unquoted; '' for a present, EMPTY tag (`""`, `W/""`) -- compared like any version, it
+     * matches none, so the write is refused rather than applied unchecked; null when the header names none (absent,
+     * blank, `*`, or a list).
+     */
     public static function parse(?string $header): ?string
     {
         $raw = trim((string) $header);
@@ -28,9 +32,8 @@ final class IfMatchVersion
         if (str_starts_with($raw, 'W/')) {
             $raw = substr($raw, 2);
         }
-        $version = trim($raw, '"');
 
-        return '' === $version ? null : $version;
+        return trim($raw, '"');
     }
 
     /**
