@@ -69,6 +69,7 @@ final class MessengerUnitOfWorkTest extends TestCase
     #[Test]
     public function anAsyncDispatchInsideAUnitIsSentOnlyAfterTheCommit(): void
     {
+        /** @var ArrayObject<int, Envelope> $sent */
         $sent = new ArrayObject();
         $hold = $this->hold(['async'], $sent);
         $this->unit->begin();
