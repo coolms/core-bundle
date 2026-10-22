@@ -22,8 +22,8 @@
     "require": {
         "api-platform/core": "^4.2",
         "composer-runtime-api": "^2.0",
-        "coolms/core": "^2.0.0-alpha4",
-        "coolms/core-application": "^2.0.0-alpha3",
+        "coolms/core": "^2.0.0-alpha5",
+        "coolms/core-application": "^2.0.0-alpha4",
         "coolms/dtmpl": "^2.0",
         "coolms/rql": "^1.0",
         "ext-mbstring": "*",
