@@ -67,6 +67,20 @@ final class MessengerUnitOfWorkTest extends TestCase
     }
 
     #[Test]
+    public function anUnscopedMessageIsNotOneUnitAndOthersStillAre(): void
+    {
+        $unscoped = new MessageUnitOfWorkMiddleware(true, $this->unit, [ArrayObject::class]);
+
+        $this->handle($unscoped, new Envelope(new ArrayObject(), [new ReceivedStamp('async')]));
+        self::assertSame([], $this->unit->calls, 'a listed class opens nothing: each write in its handler is its own unit');
+        $this->handle($unscoped, new Envelope(new class extends ArrayObject {}, [new ReceivedStamp('async')]));
+        self::assertSame([], $this->unit->calls, 'nor does a subclass of one');
+
+        $this->handle($unscoped, new Envelope(new stdClass(), [new ReceivedStamp('async')]));
+        self::assertSame(['begin', 'commit'], $this->unit->calls, 'control: a class not listed is still one unit');
+    }
+
+    #[Test]
     public function anAsyncDispatchInsideAUnitIsSentOnlyAfterTheCommit(): void
     {
         /** @var ArrayObject<int, Envelope> $sent */

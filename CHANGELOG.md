@@ -10,6 +10,16 @@ Versioning is described in the [CoolMS contributing guide](https://github.com/co
 history when this file was created. Every entry after that is written in the
 same commit as the change it describes.
 
+## Unreleased
+
+### Added
+
+- `coolms_core.transaction.unscoped_messages`: message classes, and their subclasses, whose handling is not one unit
+  of work. It is for a handler that talks to another system between its writes, such as a mailbox sync fetching
+  batch after batch: no transaction stays open across that conversation, and each `transactional()` call inside the
+  handler is a unit of its own. The default is none. A name that is no class or interface stops the container
+  build: it would match nothing, and its messages would be one unit again.
+
 ## 2.0.0-alpha8 - 2026-10-22
 
 ### Changed

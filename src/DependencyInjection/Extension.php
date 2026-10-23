@@ -89,7 +89,7 @@ class Extension extends AbstractExtension
         // The two middlewares are named in the application's bus configuration (framework.messenger.buses):
         // the hold before send_message, the unit around the handlers.
         $container->register(MessageUnitOfWorkMiddleware::class)
-            ->setArguments([$config['transaction']['mode'], $owner]);
+            ->setArguments([$config['transaction']['mode'], $owner, $config['transaction']['unscoped_messages']]);
         $container->register(HoldAsyncDispatchMiddleware::class)
             ->setArguments([
                 $config['transaction']['mode'],
