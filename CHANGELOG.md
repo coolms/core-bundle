@@ -20,6 +20,19 @@ same commit as the change it describes.
   handler is a unit of its own. The default is none. A name that is no class or interface stops the container
   build: it would match nothing, and its messages would be one unit again.
 
+### Changed
+
+- **`coolms:retention:prune` is a dry run unless `--execute`.** It deleted by
+  default, with `--dry-run` opt-in. Under `--no-interaction` it now refuses to
+  act (exit 2) without `--force`; interactive, it asks, and the default is no.
+  `--dry-run` is still accepted and wins over `--execute`. The scheduled
+  `retention.prune` handler calls the runner, not the command, so scheduled
+  retention is unchanged.
+- Every report says "N of M" per pruner and in total. M is the population a
+  pruner counts through `coolms/core`'s `RetentionPopulationInterface`, and
+  "unknown" for one that does not implement it -- in which case the dry run
+  exits 2, unevaluable, never a clean 0.
+
 ## 2.0.0-alpha8 - 2026-10-22
 
 ### Changed
