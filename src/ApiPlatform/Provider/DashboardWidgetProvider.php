@@ -9,7 +9,9 @@ use ApiPlatform\State\ProviderInterface;
 use CoolMS\Core\Application\Dashboard\DashboardCatalogue;
 use CoolMS\Core\Bundle\ApiPlatform\Resource\DashboardWidgetInfo;
 use CoolMS\Core\Bundle\ApiPlatform\Resource\DashboardWidgetResource;
+use CoolMS\Core\Bundle\EventListener\DashboardVersionAnswer;
 use CoolMS\Core\Dashboard\PlacedWidget;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 use function array_map;
 use function is_string;
@@ -22,17 +24,29 @@ use function is_string;
  * a card goes, which is what keeps a section dashboard the same page with a
  * different catalogue.
  *
+ * ## Versioned, and the version is read FIRST
+ *
+ * The answer carries the version of the viewer's arrangements as its ETag
+ * ({@see DashboardVersionAnswer}) -- what a save sends back as If-Match. It is
+ * read before the catalogue: a save landing between the two reads then leaves
+ * the version older than what was drawn, so the next save is refused and
+ * re-read, never let through over it.
+ *
  * @implements ProviderInterface<DashboardWidgetResource>
  */
 final readonly class DashboardWidgetProvider implements ProviderInterface
 {
     public function __construct(
         private DashboardCatalogue $widgets,
+        private RequestStack $requests,
     ) {
     }
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): DashboardWidgetResource
     {
+        $version = $this->widgets->versionForCurrentUser();
+        $this->requests->getCurrentRequest()?->attributes->set(DashboardVersionAnswer::VERSION, $version);
+
         // `?section=content` picks a section dashboard; absent or empty is the
         // main one. A query parameter rather than a path variable because this
         // is one catalogue seen from one angle, not a collection of dashboards
@@ -55,6 +69,6 @@ final readonly class DashboardWidgetProvider implements ProviderInterface
                 explicitColumns: $placed->explicitColumns,
             ),
             $this->widgets->forCurrentUser($section),
-        ), $this->widgets->sectionsForCurrentUser());
+        ), $this->widgets->sectionsForCurrentUser(), $this->widgets->canArrange());
     }
 }

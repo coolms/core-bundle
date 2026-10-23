@@ -15,9 +15,14 @@ use CoolMS\Core\Application\Translation\LabelResolver;
 use CoolMS\Core\Backup\BackupContributorInterface;
 use CoolMS\Core\Bundle\Config\ConfigCacheWarmer;
 use CoolMS\Core\Bundle\Json\JsoncDecoder;
+use CoolMS\Core\Bundle\Rql\RequestRqlParser;
 use CoolMS\Core\Bundle\Secret\EnvMasterKeyRing;
 use CoolMS\Core\Bundle\Secret\EnvSecretStore;
 use CoolMS\Core\Bundle\Secret\VaultSecretStore;
+use CoolMS\Core\Bundle\Transaction\ConsoleUnitOfWorkOwner;
+use CoolMS\Core\Bundle\Transaction\HoldAsyncDispatchMiddleware;
+use CoolMS\Core\Bundle\Transaction\HttpUnitOfWorkOwner;
+use CoolMS\Core\Bundle\Transaction\MessageUnitOfWorkMiddleware;
 use CoolMS\Core\Bundle\Ui\UiEntryCatalog;
 use CoolMS\Core\Channel\OutboundChannelInterface;
 use CoolMS\Core\Config\PhpFileLoader;
@@ -41,10 +46,16 @@ use CoolMS\Core\Serializer\DateTimeObjectDenormalizer;
 use CoolMS\Core\Service\TransliterationRuleSetInterface;
 use CoolMS\Core\Sync\BlobContributorInterface;
 use CoolMS\Core\Sync\SectionPartitionInterface;
+use CoolMS\Core\Transaction\UnitOfWorkInterface;
+use CoolMS\Core\Transaction\UnitOfWorkOwnerInterface;
 use CoolMS\Core\Translation\LabelResolverInterface;
 use CoolMS\Core\Ui\UiEntryCatalogInterface;
+use CoolMS\Rql\RqlExpressionParser;
+use CoolMS\Rql\RqlParser;
 use LogicException;
+use Symfony\Component\DependencyInjection\Argument\ServiceClosureArgument;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Reference;
 
 class Extension extends AbstractExtension
@@ -62,6 +73,31 @@ class Extension extends AbstractExtension
         // on the registry, so configurable wiring stays in configuration and
         // the `App\:` services glob cannot drop the argument.
         $container->setParameter('coolms_core.outbound_channels', $config['outbound_channels']);
+
+        // One commit owner per request, message handler and console command (coolms_core.transaction). The owners
+        // reach the unit of work through its owner-facing contract, which the application provides; while the mode
+        // is off an application without it still compiles, and every owner does nothing.
+        $container->setParameter('coolms_core.transaction.mode', $config['transaction']['mode']);
+        $owner = new Reference(UnitOfWorkOwnerInterface::class, ContainerInterface::NULL_ON_INVALID_REFERENCE);
+        $unit = new Reference(UnitOfWorkInterface::class, ContainerInterface::NULL_ON_INVALID_REFERENCE);
+        $container->register(HttpUnitOfWorkOwner::class)
+            ->setArguments([$config['transaction']['mode'], $owner, new Reference('logger')])
+            ->addTag('kernel.event_subscriber');
+        $container->register(ConsoleUnitOfWorkOwner::class)
+            ->setArguments([$config['transaction']['mode'], $owner, $config['transaction']['unscoped_commands'], new Reference('logger')])
+            ->addTag('kernel.event_subscriber');
+        // The two middlewares are named in the application's bus configuration (framework.messenger.buses):
+        // the hold before send_message, the unit around the handlers.
+        $container->register(MessageUnitOfWorkMiddleware::class)
+            ->setArguments([$config['transaction']['mode'], $owner, $config['transaction']['unscoped_messages']]);
+        $container->register(HoldAsyncDispatchMiddleware::class)
+            ->setArguments([
+                $config['transaction']['mode'],
+                $owner,
+                $unit,
+                new Reference('messenger.senders_locator'),
+                new ServiceClosureArgument(new Reference('messenger.default_bus')),
+            ]);
 
         $container->register(SupportedLocalesProvider::class)
             ->setArgument('$locales', $config['supported_locales'])
@@ -118,11 +154,19 @@ class Extension extends AbstractExtension
             'vault' => VaultSecretStore::class,
             default => throw new LogicException('Unsupported coolms_core.secret_store.driver: ' . $config['secret_store']['driver']),
         };
+        // The store this bundle ships is registered beside the alias that selects
+        // it. An alias to a class nothing registers compiles only where the
+        // application scans this package itself; an application that installs the
+        // bundle alone fails on it (measured 2026-10-16, a bundle-only kernel).
+        if (EnvSecretStore::class === $secretStoreId || VaultSecretStore::class === $secretStoreId) {
+            $container->autowire($secretStoreId)->setAutoconfigured(true)->setPublic(false);
+        }
         $container->setAlias(SecretStoreInterface::class, $secretStoreId);
 
         // The master key ring every at-rest reader shares: the current key and,
         // during a rotation window, the previous one. Read from the environment;
         // the two variable names come from the configuration above.
+        $container->autowire(EnvMasterKeyRing::class)->setAutoconfigured(true)->setPublic(false);
         $container->setAlias(MasterKeyRingInterface::class, EnvMasterKeyRing::class);
 
         // Kinds of sealed value, one per column/file a module seals, collected by
@@ -142,9 +186,10 @@ class Extension extends AbstractExtension
 
         // Host contracts (the platform rule: hosts implement contracts, modules
         // offer entries): the modules' UI entries, read from
-        // config/modules/<id>/ui.yaml by the catalogue the App scan registers.
+        // config/modules/<id>/ui.yaml by the catalogue registered here.
         // The theme's commands, coolms:install and the app-config contributor
         // all ask this one reader.
+        $container->autowire(UiEntryCatalog::class)->setAutoconfigured(true)->setPublic(false);
         $container->setAlias(UiEntryCatalogInterface::class, UiEntryCatalog::class)
             ->setPublic(false);
 
@@ -343,9 +388,18 @@ class Extension extends AbstractExtension
         // NaviNode, SiteSection, etc.) and routes through Symfony's
         // translator, which is decorated by `VfsOverlayingTranslator`
         // so VFS XLIFF overrides win over bundled `.xlf` files. The
-        // resolver itself stays in `CoolMS\Core\Application\Translation\`;
-        // only the alias is wired here.
+        // resolver itself stays in `CoolMS\Core\Application\Translation\` (a
+        // package this bundle requires) and is registered here with its alias.
+        $container->autowire(LabelResolver::class)->setAutoconfigured(true)->setPublic(false);
         $container->setAlias(LabelResolverInterface::class, LabelResolver::class);
+
+        // coolms/rql's two parsers and the request reader over them. Plain library
+        // classes, required by this package and asked for by the bundles above it
+        // (entity-bundle's alias resolver takes an RqlParser); registered here so
+        // an application that installs the bundles does not have to.
+        $container->register(RqlParser::class)->setPublic(false);
+        $container->register(RqlExpressionParser::class)->setPublic(false);
+        $container->autowire(RequestRqlParser::class)->setPublic(false);
     }
 
     public function getAlias(): string

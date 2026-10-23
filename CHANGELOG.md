@@ -3,14 +3,22 @@
 All notable changes to `coolms/core-bundle` are recorded here.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
-Versioning is described in `CONTRIBUTING.md` -- read it before assuming what a
-major number means here.
+Versioning is described in the [CoolMS contributing guide](https://github.com/coolms/.github/blob/develop/CONTRIBUTING.md)
+-- read it before assuming what a major number means here.
 
 !! Entries dated before 2026-09-01 were **reconstructed** from tags and commit
 history when this file was created. Every entry after that is written in the
 same commit as the change it describes.
 
 ## Unreleased
+
+### Added
+
+- `coolms_core.transaction.unscoped_messages`: message classes, and their subclasses, whose handling is not one unit
+  of work. It is for a handler that talks to another system between its writes, such as a mailbox sync fetching
+  batch after batch: no transaction stays open across that conversation, and each `transactional()` call inside the
+  handler is a unit of its own. The default is none. A name that is no class or interface stops the container
+  build: it would match nothing, and its messages would be one unit again.
 
 ### Changed
 
@@ -25,7 +33,105 @@ same commit as the change it describes.
   "unknown" for one that does not implement it -- in which case the dry run
   exits 2, unevaluable, never a clean 0.
 
+## 2.0.0-alpha8 - 2026-10-22
+
 ### Changed
+
+- Requires `coolms/core` 2.0.0-alpha5 and `coolms/core-application` 2.0.0-alpha4: the commit owners
+  implement `UnitOfWorkInterface` and `UnitOfWorkOwnerInterface`, and the dashboard endpoints use
+  `PersonalDashboardLayoutsInterface`, `NoPersonalDashboardLayouts` and their two exceptions, which
+  earlier alphas of those packages do not have.
+
+### Added
+
+- One commit owner per request, message handler and console command (`coolms_core.transaction`, `mode` off by
+  default): `Transaction\HttpUnitOfWorkOwner` (commit on success; discard on an exception or a status of 400 or
+  above; a failed commit answers 500), `Transaction\ConsoleUnitOfWorkOwner` (by exit code; `unscoped_commands` for
+  long-running ones), `Transaction\MessageUnitOfWorkMiddleware` (a message received from an asynchronous transport
+  is one unit; a sync-transport message is its caller's work) and `Transaction\HoldAsyncDispatchMiddleware` (an async
+  dispatch inside a unit is sent after its commit, dropped on a discard). The application provides the
+  `UnitOfWorkOwnerInterface` service and names the two middlewares in its bus.
+- Requires `symfony/messenger`.
+
+### Changed
+- Dashboard arrangements are each person's own. `PUT` and `DELETE
+  /dashboard/layout` save and drop the signed-in person's arrangement through
+  `coolms/core-application`'s `PersonalDashboardLayoutsInterface` instead of
+  writing `config/modules`, so they need a sign-in rather than `ROLE_ADMIN`.
+  Both name the version the client read in `If-Match`: an arrangement changed
+  since answers 412 and nothing is written; one that names no version is
+  applied; one naming several versions answers 412 rather than being read as
+  naming none. The answer carries the new version as a strong `ETag`, and its body
+  is `{"version": "..."}` (`storedAt` is gone). An unknown widget or a
+  dashboard id that is not a plain token answers 422; an installation that
+  keeps no personal arrangements answers 501.
+- `GET /dashboard/widgets` answers the version of the person's arrangements as
+  a strong `ETag`, read before the arrangement, with `Cache-Control: no-store,
+  private`, and its body gains `canArrange`.
+
+### Added
+- `PersonalDashboardLayoutsFallbackPass`: binds `NoPersonalDashboardLayouts`
+  when no module answers the port, so the platform compiles without a
+  per-person store and every dashboard is the module default.
+- `EventListener\DashboardVersionAnswer`, `Http\IfMatchVersion` and the
+  processors' shared `DashboardLayoutWrite`.
+
+## 2.0.0-alpha7 - 2026-10-17
+
+### Changed
+- Requires coolms/core 2.0.0-alpha4 or later. The master key ring and the UI
+  entry catalogue this release registers implement interfaces that coolms/core
+  first ships in 2.0.0-alpha4; an earlier coolms/core installed beside it
+  would leave the container unable to compile.
+- Requires coolms/core-application 2.0.0-alpha3 or later. Its 2.0.0-alpha1
+  autoloads under another namespace and its 2.0.0-alpha2 lacks the config
+  and liveness classes this bundle imports, so an earlier one installed
+  beside this release would leave classes undefined.
+
+### Fixed
+- The extension registers every service its aliases point to. Four aliases
+  named classes nothing registered -- the secret store (`env` and `vault`
+  drivers), the master key ring, the UI entry catalogue and the label
+  resolver -- so an application that installs the bundle without its own scan
+  of the package failed to compile as soon as anything asked for one of them.
+- The extension registers coolms/rql's `RqlParser` and `RqlExpressionParser`,
+  and `RequestRqlParser` over them, which bundles above this one ask for.
+- A test kernel with this bundle alone, every alias made public, compiles and
+  resolves each one.
+
+### Security
+- An unhandled server error (500) answers `"detail": "Internal Server Error"`
+  in every environment. Until now its `detail` was the exception's own
+  message, which may name a file, a query or a host; the message goes to the
+  log only.
+- A client error (400, 422) keeps its message only when its exception says
+  the message is meant for the client: an `InvalidInputExceptionInterface`,
+  or a `TranslatableExceptionInterface` (translated, as before). A plain
+  `InvalidArgumentException` or `DomainException` answers its status text
+  (`Bad Request`, `Unprocessable Content`), and its message is logged.
+
+## 2.0.0-alpha6 - 2026-10-07
+
+### Deprecated
+- The old host contract names in the app-config manifest's `ui` section:
+  `console` (now `admin`) and `desk` (now `workspace`), as keys of `contracts`
+  and `hosts` and as the second `modules` row of each matched entry. They are
+  emitted beside the new names only while coolms/core keeps its aliases, and
+  are removed with them. Read `admin` and `workspace`.
+
+### Changed
+- The app-config manifest's `ui` section names the host contracts canonically:
+  `admin`, `workspace`, `site` (coolms/core renamed `console` and `desk`). While
+  the old names are deprecated aliases, each is ALSO emitted beside its new one:
+  a key in `contracts` and `hosts` with the same value, and a second row in
+  `modules` for each matched entry. A host built before the rename, which asks
+  for `console`, still finds every module it found before. Nothing is removed
+  from the section; the additions go when the aliases do. Needs the coolms/core
+  release that carries `Ui\ContractName`.
+- `/public-options/{source}` (OptionResource) is marked `documented` in its extra
+  properties; it was `public_api`. The marker puts an operation in the published API
+  document and says nothing about access, and "public" read as "no token needed".
+  An application that still reads only `public_api` stops documenting this operation.
 - `coolms_core.secret_store.filesystem` is now `secret_store.key_ring`, and its
   two parameters are `coolms.secret_store.key_env` /
   `...previous_key_env` (they were `fs_*`). The node only ever configured the

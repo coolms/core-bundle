@@ -11,7 +11,6 @@ use CoolMS\Core\Bundle\ApiPlatform\Resource\DashboardLayoutResource;
 use CoolMS\Core\Bundle\ApiPlatform\Resource\DTO\DashboardLayoutRequest;
 use CoolMS\Core\Dashboard\DashboardPlacement;
 use InvalidArgumentException;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 use function is_array;
@@ -29,13 +28,17 @@ use function sprintf;
  * the same shape out of a config file and DROPS bad entries because there is
  * nobody to tell and a whole dashboard riding on the rest of the file.
  *
+ * The arrangement is the signed-in person's own, saved against the version they
+ * read (If-Match): 412 when it changed since, and the new version answered as
+ * the ETag ({@see DashboardLayoutWrite}).
+ *
  * @implements ProcessorInterface<DashboardLayoutRequest, DashboardLayoutResource>
  */
 final readonly class SaveDashboardLayoutProcessor implements ProcessorInterface
 {
     public function __construct(
         private DashboardLayoutWriter $layouts,
-        private RequestStack $requests,
+        private DashboardLayoutWrite $write,
     ) {
     }
 
@@ -45,15 +48,12 @@ final readonly class SaveDashboardLayoutProcessor implements ProcessorInterface
         foreach ($data->widgets as $index => $entry) {
             $placements[] = $this->placement($entry, (int) $index);
         }
+        $section = $this->write->section();
+        $expected = $this->write->expectedVersion();
 
-        try {
-            return new DashboardLayoutResource($this->layouts->save($placements, $this->section()));
-        } catch (InvalidArgumentException $e) {
-            // An id no installed module offers. 422 rather than 400 -- the
-            // request is well-formed JSON asking for something the dashboard
-            // cannot do.
-            throw new UnprocessableEntityHttpException($e->getMessage(), $e);
-        }
+        return new DashboardLayoutResource(
+            $this->write->answer(fn (): string => $this->layouts->save($placements, $section, $expected)),
+        );
     }
 
     private function placement(mixed $entry, int $index): DashboardPlacement
@@ -78,29 +78,6 @@ final readonly class SaveDashboardLayoutProcessor implements ProcessorInterface
             // A width outside the grid -- the value object's own guard.
             throw $this->refuse($index, $e->getMessage());
         }
-    }
-
-    /**
-     * `?section=content` arranges that section; absent is the main dashboard.
-     *
-     * !! Read from the REQUEST, not from `$context['filters']`. API-Platform
-     * fills `filters` for the read side -- the provider uses it and works -- but
-     * not for a Put or a Delete, so the first cut silently arranged the MAIN
-     * dashboard whichever tab you were on. It surfaced only because the writer
-     * refuses a widget the target dashboard does not offer: "No installed
-     * module offers vfs.storage-used", on a screen that was showing it.
-     *
-     * !! Not sanitised here, deliberately. The value becomes a config key and
-     * therefore a FILE NAME, and the store enforces
-     * {@see \CoolMS\Core\Application\Config\ConfigWriterInterface::KEY_PATTERN}
-     * itself -- a check in this processor would be one of several places that
-     * have to agree, and the one that got forgotten would be the hole.
-     */
-    private function section(): ?string
-    {
-        $section = $this->requests->getCurrentRequest()?->query->get('section');
-
-        return is_string($section) && '' !== $section ? $section : null;
     }
 
     private function refuse(int $index, string $why): UnprocessableEntityHttpException

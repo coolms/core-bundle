@@ -62,6 +62,12 @@ final class DashboardWidgetResource
     public function __construct(
         public array $widgets = [],
         public array $sections = [],
+        /**
+         * Whether this viewer can arrange a dashboard here: false when the
+         * installation keeps no arrangement per person, and then a client
+         * draws no "Arrange" (a save would answer 501).
+         */
+        public bool $canArrange = false,
     ) {
     }
 }

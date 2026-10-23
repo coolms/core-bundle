@@ -15,9 +15,11 @@ namespace CoolMS\Core\Bundle\Ui;
 final readonly class UiApiManifest
 {
     /**
-     * @param array<string, string> $contracts contract name -> MAJOR.MINOR; empty when no installed theme declares one
-     * @param array<string, string> $hosts     contract name -> the installed theme implementing it
-     * @param list<Entry>           $modules   the matched entries, what a host mounts
+     * @param array<string, string> $contracts contract name -> MAJOR.MINOR; empty when no installed theme declares one;
+     *                                         a deprecated name beside its new one while the aliases last
+     * @param array<string, string> $hosts     contract name -> the installed theme implementing it; likewise
+     * @param list<Entry>           $modules   the matched entries, what a host mounts; an entry for a contract with a
+     *                                         deprecated name is listed under that name too
      */
     public function __construct(
         public array $contracts,
