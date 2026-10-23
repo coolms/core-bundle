@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\Definition\Processor;
+use Throwable;
 
 use function sprintf;
 use function var_export;
@@ -97,6 +98,22 @@ final class ConfigurationTest extends TestCase
         // platform default.
         $this->expectException(InvalidConfigurationException::class);
         $this->process([['platform_defaults' => ['timezone' => '']]]);
+    }
+
+    #[Test]
+    public function theUnscopedListsDefaultAndAnUnscopedMessageMustNameAClass(): void
+    {
+        $transaction = $this->process([])['transaction'];
+        self::assertSame(['messenger:consume'], $transaction['unscoped_commands']);
+        self::assertSame([], $transaction['unscoped_messages']);
+
+        $listed = $this->process([['transaction' => ['unscoped_messages' => [self::class, Throwable::class]]]]);
+        self::assertSame([self::class, Throwable::class], $listed['transaction']['unscoped_messages'], 'a class and an interface');
+
+        // A typo, or a class renamed later, would match nothing, and its messages would be one unit again.
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('FetchMailboxMesage" is no class or interface');
+        $this->process([['transaction' => ['unscoped_messages' => ['Acme\Mail\FetchMailboxMesage']]]]);
     }
 
     /**
