@@ -76,7 +76,9 @@ final class InstallCommand extends Command
         $owners = [];
         foreach ($this->questions as $question) {
             $option = $question->option();
-            $taken = $owners[$option] ?? (in_array($option, self::RESERVED_OPTIONS, true) ? 'the console itself' : null);
+            $taken = $owners[$option]
+                ?? (in_array($option, self::RESERVED_OPTIONS, true) ? 'the console itself' : null)
+                ?? ($this->getDefinition()->hasOption($option) ? 'coolms:install itself' : null);
             if (null !== $taken) {
                 $message = sprintf(
                     'coolms:install: the option --%s of %s is already taken by %s; each install question needs its own.',
