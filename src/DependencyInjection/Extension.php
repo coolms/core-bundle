@@ -14,6 +14,7 @@ use CoolMS\Core\Application\Service\LocalizedSlugger;
 use CoolMS\Core\Application\Translation\LabelResolver;
 use CoolMS\Core\Backup\BackupContributorInterface;
 use CoolMS\Core\Bundle\Config\ConfigCacheWarmer;
+use CoolMS\Core\Bundle\Install\InstallQuestionInterface;
 use CoolMS\Core\Bundle\Json\JsoncDecoder;
 use CoolMS\Core\Bundle\Rql\RequestRqlParser;
 use CoolMS\Core\Bundle\Secret\EnvMasterKeyRing;
@@ -207,6 +208,11 @@ class Extension extends AbstractExtension
         // priority. Do not add one.
         $container->registerForAutoconfiguration(ModuleInstallerInterface::class)
             ->addTag('coolms.module.installer');
+
+        // What coolms:install asks the installation (the application's base URL, for one): collected by
+        // CoreServicesPass under this tag; a module implements the interface, nothing more.
+        $container->registerForAutoconfiguration(InstallQuestionInterface::class)
+            ->addTag('coolms.install_question');
 
         // Structure installers -- the FIRST phase of coolms:install, collected by
         // CoreServicesPass under this tag. The tag is named for the VFS because
