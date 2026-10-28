@@ -19,6 +19,16 @@ same commit as the change it describes.
   batch after batch: no transaction stays open across that conversation, and each `transactional()` call inside the
   handler is a unit of its own. The default is none. A name that is no class or interface stops the container
   build: it would match nothing, and its messages would be one unit again.
+- `Install\InstallQuestionInterface`: something `coolms:install` asks the installation, contributed by the module the
+  answer belongs to (the application's base URL, for one). Each question is a command option, `--<option>`, for an
+  unattended install, and is asked when the install runs interactively. A given answer's shape is checked before
+  anything is installed, so a malformed one refuses with nothing done. Answers are applied after the installers,
+  because what makes an answer acceptable may only exist then. A given answer replaces one already set; an
+  unanswered question is asked again after a refusal, and an empty answer skips it. An answer refused after the
+  install fails the command, saying the install itself completed and how to set it later. Two questions on one
+  option, or one on an option the console already has, stop the command with a sentence naming both. A question
+  is never for a secret: the answer is echoed and stands on the command line. Tagged `coolms.install_question` by
+  autoconfiguration; `InstallCommand` takes them as its last argument, set by name in `CoreServicesPass`.
 
 ## 2.0.0-alpha8 - 2026-10-22
 

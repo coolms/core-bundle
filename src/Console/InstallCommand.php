@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CoolMS\Core\Bundle\Console;
 
+use CoolMS\Core\Bundle\Install\InstallQuestionInterface;
 use CoolMS\Core\Bundle\Module\InstallManifest;
 use CoolMS\Core\Bundle\Module\ModuleCatalog;
 use CoolMS\Core\Bundle\Secret\MasterKeyProvisioner;
@@ -17,9 +18,11 @@ use CoolMS\Core\Ui\HostContracts;
 use CoolMS\Core\Ui\InstalledThemeContractsInterface;
 use CoolMS\Core\Ui\UiContractMatcher;
 use CoolMS\Core\Ui\UiEntryCatalogInterface;
+use LogicException;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -29,9 +32,15 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 )]
 final class InstallCommand extends Command
 {
+    /** Options every console command already has: a question may not take one of these names. */
+    private const array RESERVED_OPTIONS = [
+        'help', 'quiet', 'silent', 'verbose', 'version', 'ansi', 'no-ansi', 'no-interaction', 'env', 'no-debug', 'profile',
+    ];
+
     /**
      * @param iterable<StructureInstallerInterface> $installers
      * @param iterable<ModuleInstallerInterface>    $moduleInstallers
+     * @param iterable<InstallQuestionInterface>    $questions        what the installation is asked, after the installers
      */
     public function __construct(
         private readonly iterable $installers,
@@ -49,8 +58,45 @@ final class InstallCommand extends Command
         private readonly ?UiEntryCatalogInterface $uiEntries = null,
         private readonly ?UiContractMatcher $uiMatcher = null,
         private readonly ?InstalledThemeContractsInterface $themes = null,
+        /**
+         * The installation's questions (the application's base URL, for one). LAST and defaulted, so the optional
+         * parameters before it stay optional; CoreServicesPass sets it BY NAME, and its test fails if it does not.
+         */
+        private readonly iterable $questions = [],
     ) {
         parent::__construct();
+    }
+
+    /**
+     * One option per question. Two questions on one option, or a question on an option the command already has, would
+     * leave one answer nowhere: refused here, naming both.
+     */
+    protected function configure(): void
+    {
+        $owners = [];
+        foreach ($this->questions as $question) {
+            $option = $question->option();
+            $taken = $owners[$option]
+                ?? (in_array($option, self::RESERVED_OPTIONS, true) ? 'the console itself' : null)
+                ?? ($this->getDefinition()->hasOption($option) ? 'coolms:install itself' : null);
+            if (null !== $taken) {
+                $message = sprintf(
+                    'coolms:install: the option --%s of %s is already taken by %s; each install question needs its own.',
+                    $option,
+                    $question::class,
+                    $taken,
+                );
+
+                throw new LogicException($message);
+            }
+            $owners[$option] = $question::class;
+            $this->addOption(
+                $option,
+                null,
+                InputOption::VALUE_REQUIRED,
+                $question->description() . ' Given where it is already set, it replaces it.',
+            );
+        }
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -84,6 +130,18 @@ final class InstallCommand extends Command
             $io->error($e->getMessage());
 
             return Command::FAILURE;
+        }
+
+        // Every answer given as an option is checked on its shape BEFORE anything is installed: a malformed one
+        // refuses with nothing done. Whether it is acceptable beyond its shape is known only after the installers.
+        foreach ($this->questions as $question) {
+            $given = $this->given($input, $question);
+            $refusal = null === $given ? null : $question->shapeRefusal($given);
+            if (null !== $refusal) {
+                $io->error(sprintf('--%s: %s Nothing was installed.', $question->option(), $refusal));
+
+                return Command::FAILURE;
+            }
         }
 
         // Host contracts, before anything is written: every module's UI entry
@@ -203,6 +261,20 @@ final class InstallCommand extends Command
             $this->manifest->record($module, $ran);
         }
 
+        $refused = $this->answerQuestions($input, $io);
+        if ([] !== $refused) {
+            $io->error([
+                sprintf(
+                    'Installation complete -- %d structure installer(s), %d module installer(s) -- but not every answer was kept:',
+                    count($structureInstallers),
+                    count($moduleInstallers),
+                ),
+                ...$refused,
+            ]);
+
+            return Command::FAILURE;
+        }
+
         $io->success(sprintf(
             'Installation complete -- %d structure installer(s), %d module installer(s).',
             count($structureInstallers),
@@ -210,5 +282,78 @@ final class InstallCommand extends Command
         ));
 
         return Command::SUCCESS;
+    }
+
+    /**
+     * The questions, after the installers. A given answer is applied, replacing one already set: the operator stated
+     * it. Otherwise one already answered is kept; an interactive install asks the rest (again after a refusal, and
+     * empty skips); an unattended one leaves them unset, saying how to set them later.
+     *
+     * @return list<string> each answer that was given and refused, in a sentence with how to set it later
+     */
+    private function answerQuestions(InputInterface $input, SymfonyStyle $io): array
+    {
+        $refused = [];
+        $first = true;
+        foreach ($this->questions as $question) {
+            if ($first) {
+                $io->section('Questions');
+                $first = false;
+            }
+            $option = $question->option();
+            $given = $this->given($input, $question);
+            if (null !== $given) {
+                $refusal = $question->apply($given);
+                if (null === $refusal) {
+                    $io->writeln(sprintf('  ✓ --%s: %s', $option, $given));
+                } else {
+                    $refused[] = sprintf('--%s was not kept: %s Set it later: %s', $option, $refusal, $question->setLater());
+                }
+                continue;
+            }
+            $current = $question->current();
+            if (null !== $current) {
+                $io->writeln(sprintf('  ✓ --%s: %s (already set, kept)', $option, $current));
+                continue;
+            }
+            if (!$input->isInteractive()) {
+                $io->writeln(sprintf('  - --%s: not given, left unset. Set it later: %s', $option, $question->setLater()));
+                continue;
+            }
+            $this->ask($io, $question);
+        }
+
+        return $refused;
+    }
+
+    /** Asks until an answer is kept or the answer is empty, which skips it. */
+    private function ask(SymfonyStyle $io, InstallQuestionInterface $question): void
+    {
+        while (true) {
+            $answer = trim((string) $io->ask($question->question() . ' (empty to skip)', ''));
+            if ('' === $answer) {
+                $io->writeln(sprintf('  - --%s: skipped, left unset. Set it later: %s', $question->option(), $question->setLater()));
+
+                return;
+            }
+            $refusal = $question->shapeRefusal($answer) ?? $question->apply($answer);
+            if (null === $refusal) {
+                $io->writeln(sprintf('  ✓ --%s: %s', $question->option(), $answer));
+
+                return;
+            }
+            $io->error($refusal);
+        }
+    }
+
+    /** The answer given as an option, trimmed; null when the option was not given or is empty. */
+    private function given(InputInterface $input, InstallQuestionInterface $question): ?string
+    {
+        if (!$input->hasOption($question->option())) {
+            return null;
+        }
+        $value = $input->getOption($question->option());
+
+        return is_string($value) && '' !== trim($value) ? trim($value) : null;
     }
 }

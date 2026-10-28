@@ -33,7 +33,9 @@ final class CoreServicesPass implements CompilerPassInterface
         if ($container->has(InstallCommand::class)) {
             $container->findDefinition(InstallCommand::class)
                 ->setArgument('$installers', new TaggedIteratorArgument('coolms.vfs.installer'))
-                ->setArgument('$moduleInstallers', new TaggedIteratorArgument('coolms.module.installer'));
+                ->setArgument('$moduleInstallers', new TaggedIteratorArgument('coolms.module.installer'))
+                // What the installation is asked after the installers (InstallQuestionInterface).
+                ->setArgument('$questions', new TaggedIteratorArgument('coolms.install_question'));
         }
 
         // ModuleArtifactRemover -- the one teardown, given every tagged
